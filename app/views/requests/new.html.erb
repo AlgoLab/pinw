@@ -1,0 +1,40 @@
+<% unless flash[:error].nil? %>
+<ul>
+  <% flash[:error].each do |msg| %>
+  <li><%= msg %></li>
+  <% end %>
+</ul>
+<% end %>
+
+<% if @request %>
+<% if @request.errors.any? %>
+<ul>
+  <% @request.errors.full_messages.each do |msg| %>
+  <li><%= msg %></li>
+  <% end %>
+</ul>
+<% end %>
+<% end %>
+
+<%= form_for :request do |r| %>
+<p>
+  hugo_name : <%= r.text_field :hugo_name %>
+</p>
+
+<%= r.fields_for :gtf, :html => {:multipart => true} do |gtf| %>
+<p>
+gtf_url : <%= gtf.text_field :url %><br />
+gtf_file : <%= gtf.file_field :path %><br />
+</p>
+<% end %>
+
+<%= r.fields_for :reads, :html => {:multipart => true} do |reads| %>
+<p>
+reads_url : <%= reads.text_field :url %><br />
+reads_file : <%= reads.file_field :path %>
+</p>
+<% end %>
+
+<%= r.submit %>
+
+<% end %>
