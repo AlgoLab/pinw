@@ -1,0 +1,144 @@
+<head>
+  <title>PIntron | A PIntronic PIntronator</title>
+
+  <%# JS & CSS #%>
+  <%= erb :'includes/header' %>
+</head>
+<body>
+
+  <%# HEADER #%>
+  <%= erb :'includes/navbar' %>
+
+
+  <%# PAGE CODE HERE #%>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1>Users management <small>and other things</small></h1>
+        </div>
+
+        <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newUser">
+          New user
+        </button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <table class="table">
+          <thead>
+            <th>id</th>
+            <th>nickname</th>
+            <th>admin</th>
+            <th>file size</th>
+            <th>cpu time</th>
+            <th>queue len</th>
+            <th>enabled</th>
+            <th>action</th>
+          </thead>
+          <% user_list.each do |user| %>
+          <tr>
+            <td><%= user.id %></td>
+            <td><%= user.nickname %></td>
+            <td>
+              <% if user.admin %>
+                <i class="fa fa-check"></i>
+              <% end %>
+            </td>
+            <td><%= user.max_fs %></td>
+            <td><%= user.max_cput %></td>
+            <td><%= user.max_ql %></td>
+            <td>
+              <% if user.enabled %>
+                <i class="fa fa-check"></i>
+              <% else %>
+                <i class="fa fa-remove"></i>
+              <% end %>
+            </td>
+            <td>
+              <div class="btn-group">
+                <a href="#" class="btn btn-default">X</a>
+                <a href="#" class="btn btn-default">X</a>
+                <a href="#" class="btn btn-default">X</a>
+                <a href="#" class="btn btn-default">X</a>
+              </div>
+            </td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <%# FOOTER #%>
+  <%= erb :'includes/footer' %>
+</body>
+
+
+
+<!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="newUser" tabindex="-1" role="dialog" aria-labelledby="newUserLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="newUserLabel">Create new user</h4>
+      </div>
+      <div class="modal-body">
+        <form role="form" class="form-horizontal" method="post" action="/admin/users/new">
+          <div class="form-group">
+            <label for="InputUser" class="col-md-4 control-label" >Nickname</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputUser" placeholder="Enter nickname" name="InputUser" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputPassword" class="col-md-4 control-label" >Password</label>
+            <div class="col-md-8">
+              <input type="password" class="form-control" id="InputPassword" placeholder="Password" name="InputPassword" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputAdmin" class="col-md-4 control-label" >Admin</label>
+            <div class="col-md-1">
+              <input type="checkbox"  id="InputAdmin" value=true name="InputAdmin">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputMaxFS" class="col-md-4 control-label" >Max File Size</label>
+            <div class="col-md-3">
+              <input type="number" class="form-control" id="InputMaxFS" min="0" value="0" name="InputMaxFS" required >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputMaxCPUT" class="col-md-4 control-label" >Max CPU Time</label>
+            <div class="col-md-3">
+              <input type="number" class="form-control" id="InputMaxCPUT" min="0" value="0" name="InputMaxCPUT" required >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputMaxQL" class="col-md-4 control-label" >Max Queue Length</label>
+            <div class="col-md-3">
+              <input type="number" class="form-control" id="InputMaxQL" min="0" value="0" name="InputMaxQL" required >
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
