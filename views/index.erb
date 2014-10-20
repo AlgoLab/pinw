@@ -3,6 +3,7 @@
 
   <%# JS & CSS #%>
   <%= erb :'includes/header'%>
+  <script type="text/javascript" src="/js/index.js"></script>
 </head>
 <body>
 
@@ -11,18 +12,7 @@
 
   <%# PAGE CODE HERE #%>
 
-  <nav class="navbar navbar-inverse" role="navigation">
-  <div class="container">
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="/login">Login</a></li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
+  <%= erb :'includes/navbar'%>
 
   <div id="mycarousel" class="carousel slide" data-ride="carousel">
     <div class="carousel-inner">
@@ -37,3 +27,4 @@
 
 
 </body>
+

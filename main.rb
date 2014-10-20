@@ -1,15 +1,13 @@
 # encoding: utf-8
 require 'sinatra/base'
-require_relative 'models'
 
 
 ########################
 ### SINATRA SETTINGS ###
 class PinW < Sinatra::Application
 
+  #TODO: env variable
   set :session_secret, 'ACTTGTGATAGTACGTGT'
-
-  SUPERADMIN = User.new(:nickname => 'admin', :password => 'admin', :admin => true)
 
   # Cookie based sessions:
   # enable :sessions
@@ -34,7 +32,9 @@ class PinW < Sinatra::Application
 
 end
 
-
 require_relative 'routes'
 require_relative 'admin_routes'
+require_relative 'models'
+
+
 PinW.run! 

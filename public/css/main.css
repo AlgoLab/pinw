@@ -1,3 +1,15 @@
 .enorme {
     font-size: 66px !important;
 }
+
+form.btn-group + form.btn-group {
+    margin-left: -5px;
+}
+
+form.btn-group + div.btn-group {
+    margin-left: -5px;
+}
+
+div.btn-group + form.btn-group {
+    margin-left: -5px;
+}

@@ -1,5 +1,5 @@
 <head>
-  <title>PIntron | A PIntronic PIntronator</title>
+  <title>PIntron | Manage users</title>
 
   <%# JS & CSS #%>
   <%= erb :'includes/header' %>
@@ -18,10 +18,46 @@
         <div class="page-header">
           <h1>Users management <small>and other things</small></h1>
         </div>
-
-        <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newUser">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="">
+          <button class="btn btn-primary" data-toggle="modal" data-target="#newUser">
           New user
-        </button>
+          </button>
+          <a href="/admin" class="btn btn-primary pull-right" role="button">Back to admin panel</a>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <hr />
+        <% if params[:ok] == '1' %>
+          <div class="alert alert-success">
+            <p><strong><i class="fa fa-save"></i> Everything is awesome!</strong>
+          </div>
+        <% end %>
+
+        <% if params[:err] == '1' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Wrong Nickname.</strong>
+          </div>
+        <% end %>
+
+        <% if params[:err] == '2' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Wrong Password.</strong>
+          </div>
+        <% end %>
+
+        <% if params[:err] == '3' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Wrong Email.</strong>
+          </div>
+        <% end %>
+
+        
       </div>
     </div>
     <div class="row">
@@ -30,6 +66,7 @@
           <thead>
             <th>id</th>
             <th>nickname</th>
+            <th>email</th>
             <th>admin</th>
             <th>file size</th>
             <th>cpu time</th>
@@ -41,6 +78,7 @@
           <tr>
             <td><%= user.id %></td>
             <td><%= user.nickname %></td>
+            <td><%= user.email %></td>
             <td>
               <% if user.admin %>
                 <i class="fa fa-check"></i>
@@ -57,12 +95,38 @@
               <% end %>
             </td>
             <td>
-              <div class="btn-group">
-                <a href="#" class="btn btn-default">X</a>
-                <a href="#" class="btn btn-default">X</a>
-                <a href="#" class="btn btn-default">X</a>
-                <a href="#" class="btn btn-default">X</a>
+              <% if user.enabled %>
+                <form action="/admin/users/disable" method="post" class="btn-group">
+                  <button type="submit" class="btn btn-primary" title="disable" value="">
+                    <i class="fa fa-lock"></i>
+                  </button>
+                  <input type="hidden" name="user_id" value="<%= user.id %>" class="btn">
+                </form>
+              <% else %>
+                <form action="/admin/users/enable" method="post" class="btn-group">
+                  <button type="submit" class="btn btn-primary" title="enable" value="">
+                    <i class="fa fa-unlock"></i>
+                  </button>
+                  <input type="hidden" name="user_id" value="<%= user.id %>" class="btn">
+                </form>
+              <% end %>
+              <div class="btn-group inline">
+                <input type="hidden" class="btn">
+                <a href="/admin/users/edit/<%= user.id %>" class="btn btn-primary" title="edit">
+                  <i class="fa fa-pencil-square-o"></i>
+                </a>
+                <%# <input type="hidden" class="btn"> %>
               </div>
+              <% if false %>
+              <form action="/admin/users/delete" method="post" class="btn-group inline">
+                <input type="hidden" name="user_id" value="<%= user.id %>" class="btn">
+                <button 
+                  onClick="return confirm('Would you like to delete <%= user.nickname %>?');"
+                  type="submit" class="btn btn-primary" title="delete">
+                  <i class="fa fa-trash-o"></i>
+                </button>
+              </form>  
+              <% end %>
             </td>
           </tr>
           <% end %>
@@ -94,14 +158,21 @@
           <div class="form-group">
             <label for="InputUser" class="col-md-4 control-label" >Nickname</label>
             <div class="col-md-8">
-              <input type="text" class="form-control" id="InputUser" placeholder="Enter nickname" name="InputUser" required>
+              <input type="text" class="form-control" id="InputUser" placeholder="Enter nickname" name="InputUser" required pattern="[A-Za-z0-9._\-\@]{3,50}">
             </div>
           </div>
 
           <div class="form-group">
             <label for="InputPassword" class="col-md-4 control-label" >Password</label>
             <div class="col-md-8">
-              <input type="password" class="form-control" id="InputPassword" placeholder="Password" name="InputPassword" required>
+              <input type="text" class="form-control" id="InputPassword" placeholder="Password" name="InputPassword" required pattern=".{5,50}">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputEmail" class="col-md-4 control-label" >Email</label>
+            <div class="col-md-8">
+              <input type="email" class="form-control" id="InputEmail" placeholder="user@domain.com" name="InputEmail" required>
             </div>
           </div>
 

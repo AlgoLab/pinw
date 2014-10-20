@@ -1,24 +1,17 @@
 # encoding: utf-8
 class PinW < Sinatra::Application
-	get '/login/?' do
-		 erb :login
-	end
+	# get '/login/?' do
+	# 	 erb :login
+	# end
 
 	post '/login/?' do
-		if params[:InputUser] == SUPERADMIN.nickname 
-			return 404 unless params[:InputPassword] == SUPERADMIN.password
-	      	session[:user] = SUPERADMIN
-	      	redirect to '/home'
-	    else
-	    	db_user = User.find_by_nickname(params[:InputUser])
-	    	return 404 unless db_user
+		redirect to '/home' if session[:user]
 
-	    	return 404 unless db_user.passowrd == params[:InputPassword]
-	    	session[:user] = db_user
-	    	redirect to '/home'
-
-	    end
-		redirect to '/login'
+    	db_user = User.find_by_nickname params[:InputUser]
+    	redirect to '/?err=1' unless db_user and (db_user.password == params[:InputPassword])
+    	redirect to '/?err=2' unless db_user.enabled
+    	session[:user] = db_user
+    	redirect to '/home'
 	end
 
 	get '/logout/?' do
@@ -55,6 +48,9 @@ class PinW < Sinatra::Application
 	  "nuovo robo"
 	end
 
+	not_found do
+	  erb :'404'
+	end
 
 	
 end
