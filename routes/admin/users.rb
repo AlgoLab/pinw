@@ -1,31 +1,11 @@
 # encoding: utf-8
+
+
 class PinW < Sinatra::Application
-
-	before '/admin/*' do
-		halt "must be logged in to access the admin panel" unless session[:user]
-	  	current_user = User.find(session[:user].id) # blargh
-	 	unless current_user.enabled
-	 		session[:user] = nil
-	 		halt "account disabled"
-	 	end
-	 	unless current_user.admin
-	 		halt 404
-	 	end
-	end
-
-
-	get '/admin/?' do
-		erb :admin
-	end
-
-
-	get '/admin/settings/?' do
-		erb :admin_settings
-	end
 
 	get '/admin/users/?' do
 		user_list = User.all.to_a
-		erb :admin_users, :locals => { :user_list => user_list }
+		erb :'admin/users', :locals => { :user_list => user_list }
 	end
 
 	post '/admin/users/new' do
@@ -101,13 +81,13 @@ class PinW < Sinatra::Application
 	get '/admin/users/edit/:user_id' do
 		user = User.find params[:user_id]
 		return 404 unless user 
-		erb :admin_user_edit, :locals => {:user => user}
+		erb :'admin/user_edit', :locals => {:user => user}
 	end
 
 	get '/admin/users/history/:user_id' do
 		user = User.find params[:user_id]
 		return 404 unless user 
-		erb :admin_user_history, :locals => {:user => user}
+		erb :'admin/user_history', :locals => {:user => user}
 	end
 
 	post '/admin/users/enable' do 
@@ -124,47 +104,4 @@ class PinW < Sinatra::Application
 	#  	User.destroy params[:user_id]
 	# 	redirect to '/admin/users'
 	# end
-
-
-	get '/admin/jobs/?' do
-		
-		erb :admin_jobs
-	end
-
-	get '/admin/servers/?' do
-		server_list = Server.all.to_a
-		erb :admin_servers, :locals => { :server_list => server_list }
-	end
-
-	post '/admin/servers/new' do
-		server = Server.new
-		server.name = params[:InputName]
-		server.enabled = true
-		server.save
-		redirect to '/admin/servers?ok=1'
-	end
-
-	get '/admin/servers/edit/:server_id' do
-		erb :admin_servers
-	end
-
-	post '/admin/servers/edit/:server_id' do
-		erb :admin_servers
-	end
-
-	post '/admin/servers/enable' do 
-	 	Server.update params[:server_id], :enabled => true
-		redirect to '/admin/servers'
-	end
-
-	post '/admin/servers/disable' do 
-	 	Server.update params[:server_id], :enabled => false
-		redirect to '/admin/servers'
-	end
-
-	get '/admin/archive/?' do
-		erb :admin_users
-	end
-
-
 end

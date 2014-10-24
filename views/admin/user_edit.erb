@@ -2,12 +2,12 @@
   <title>PIntron | User Detail</title>
 
   <%# JS & CSS #%>
-  <%= erb :'includes/header' %>
+  <%= erb :'/includes/header' %>
 </head>
 <body>
 
   <%# HEADER #%>
-  <%= erb :'includes/navbar' %>
+  <%= erb :'/includes/navbar' %>
 
 
   <%# PAGE CODE HERE #%>
@@ -130,7 +130,7 @@
               <td><a href="/admin/users/edit/<%= change.admin.id %>"><%= change.admin.nickname %></a></td>
               <td><%= change.created_at.strftime("%d/%m/%Y %H:%m") %></td>
               <td><% if change.message.length > 35 %>
-                    <%= change.message[0..32] + "..."%>
+                    <i><%= change.message[0..32] + "..."%></i>
                   <% else %>
                     <%= change.message %>
                   <% end %>
@@ -153,5 +153,5 @@
 
 
   <%# FOOTER #%>
-  <%= erb :'includes/footer' %>
+  <%= erb :'/includes/footer' %>
 </body>

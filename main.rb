@@ -1,6 +1,18 @@
 # encoding: utf-8
 require 'sinatra/base'
 
+require 'active_record'
+
+##################
+### DB PREPARE ###
+
+ActiveRecord::Base.logger = Logger.new(STDERR)
+
+ActiveRecord::Base.establish_connection(
+  :adapter  => 'sqlite3',
+  :database => 'pintron.db'
+  )
+
 
 ########################
 ### SINATRA SETTINGS ###
@@ -15,7 +27,10 @@ class PinW < Sinatra::Application
   # In-memory sessions:
   use Rack::Session::Pool
 
-
+  not_found do
+    erb :'404'
+  end
+  
   set(:auth) do |*roles|   
     condition do
       roles.each do |role|
@@ -36,9 +51,13 @@ class PinW < Sinatra::Application
 
 end
 
-require_relative 'routes'
-require_relative 'admin_routes'
-require_relative 'models'
+# Models:
+require_relative 'models/users'
+require_relative 'models/servers'
+require_relative 'models/results'
+require_relative 'models/jobs'
 
+# Routes:
+require_relative 'routes/base'
 
 PinW.run! 
