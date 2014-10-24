@@ -29,6 +29,10 @@ class PinW < Sinatra::Application
     end
   end
 
+  after do
+    ActiveRecord::Base.connection.close
+  end
+
 
 end
 

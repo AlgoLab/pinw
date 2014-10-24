@@ -32,21 +32,29 @@ class PinW < Sinatra::Application
 		erb :home
 	end
 
-	get '/jobs/active/?', :auth => [:admin] do
-	  "elenco roba"
+	get '/jobs/active/?', :auth => [:user] do
+		job_list = Job.all.to_a
+
+	  	erb :jobs_active, :locals => {:job_list => job_list}
+	end
+
+	post '/jobs/new' do
+	  job = Job.new
+	  job.user = session[:user].id
+	  job.server = session[:InputServer]
+	  job.save
+	  redirect to '/jobs/active'
 	end
 
 	get '/jobs/complete/?' do
-	  "elenco roba terminata"
+	  erb :jobs_complete
 	end
 
 	get '/archive/?' do
 	  "elenco risultati"
 	end
 
-	post '/jobs/new/?' do
-	  "nuovo robo"
-	end
+
 
 	not_found do
 	  erb :'404'

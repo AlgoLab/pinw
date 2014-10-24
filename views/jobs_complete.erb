@@ -1,0 +1,119 @@
+<head>
+  <title>PIntron | Completed Jobs</title>
+
+  <%# JS & CSS #%>
+  <%= erb :'includes/header' %>
+</head>
+<body>
+
+  <%# HEADER #%>
+  <%= erb :'includes/navbar' %>
+
+
+  <%# PAGE CODE HERE #%>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1>Completed Jobs <small>and other things</small></h1>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="">
+          <a href="/home" class="btn btn-primary pull-right" role="button">Back to home</a>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <hr />
+        <% if params[:ok] == '1' %>
+          <div class="alert alert-success">
+            <p><strong><i class="fa fa-save"></i> Everything is awesome!</strong>
+          </div>
+        <% end %>
+
+        <% if params[:err] == '1' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Wrong Nickname.</strong>
+          </div>
+        <% end %>
+
+        <% if params[:err] == '2' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Wrong Password.</strong>
+          </div>
+        <% end %>
+
+        <% if params[:err] == '3' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Wrong Email.</strong>
+          </div>
+        <% end %>
+
+        
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <table class="table">
+          <thead>
+            <th>id</th>
+            <th>action</th>
+            
+          </thead>
+          <% 2.times do |asd| %>
+          <tr>
+            <td>asd</td>
+            
+            
+            <td>
+              <% if true %>
+                <form action="/admin/users/disable" method="post" class="btn-group">
+                  <button type="submit" class="btn btn-primary" title="disable" value="">
+                    <i class="fa fa-lock"></i>
+                  </button>
+                  <input type="hidden" name="user_id" value="asd" class="btn">
+                </form>
+              <% else %>
+                <form action="/admin/users/enable" method="post" class="btn-group">
+                  <button type="submit" class="btn btn-primary" title="enable" value="">
+                    <i class="fa fa-unlock"></i>
+                  </button>
+                  <input type="hidden" name="user_id" value="asd" class="btn">
+                </form>
+              <% end %>
+              <div class="btn-group inline">
+                <input type="hidden" class="btn">
+                <a href="/admin/users/edit/asd" class="btn btn-primary" title="edit">
+                  <i class="fa fa-pencil-square-o"></i>
+                </a>
+                <input type="hidden" class="btn">
+              </div>
+              <% if true %>
+              <form action="/admin/users/delete" method="post" class="btn-group inline">
+                <input type="hidden" name="user_id" value="asd" class="btn">
+                <button 
+                  onClick="return confirm('Would you like to delete asd?');"
+                  type="submit" class="btn btn-primary" title="delete">
+                  <i class="fa fa-trash-o"></i>
+                </button>
+              </form>  
+              <% end %>
+            </td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <%# FOOTER #%>
+  <%= erb :'includes/footer' %>
+</body>
+
+

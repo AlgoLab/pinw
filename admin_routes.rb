@@ -14,21 +14,21 @@ class PinW < Sinatra::Application
 	end
 
 
-	get '/admin/?', :auth => [:admin] do
+	get '/admin/?' do
 		erb :admin
 	end
 
 
-	get '/admin/settings/?', :auth => [:admin] do
+	get '/admin/settings/?' do
 		erb :admin_settings
 	end
 
-	get '/admin/users/?', :auth => [:admin] do
+	get '/admin/users/?' do
 		user_list = User.all.to_a
 		erb :admin_users, :locals => { :user_list => user_list }
 	end
 
-	post '/admin/users/new', :auth => [:admin]  do
+	post '/admin/users/new' do
 		new_user = User.new
 		
 		new_user.nickname = params[:InputUser]
@@ -51,7 +51,7 @@ class PinW < Sinatra::Application
 		redirect to '/admin/users'
 	end
 
-	post '/admin/users/edit', :auth => [:admin]  do
+	post '/admin/users/edit' do
 		user = User.find params[:user_id]
 
 
@@ -98,25 +98,24 @@ class PinW < Sinatra::Application
 		redirect to '/admin/users?ok=1'
 	end
 
-	get '/admin/users/edit/:user_id', :auth => [:admin] do
+	get '/admin/users/edit/:user_id' do
 		user = User.find params[:user_id]
 		return 404 unless user 
 		erb :admin_user_edit, :locals => {:user => user}
 	end
 
-	get '/admin/users/history/:user_id', :auth => [:admin] do
+	get '/admin/users/history/:user_id' do
 		user = User.find params[:user_id]
 		return 404 unless user 
 		erb :admin_user_history, :locals => {:user => user}
 	end
 
-	# TODO: get -> post
-	post '/admin/users/enable', :auth => [:admin] do 
+	post '/admin/users/enable' do 
 	 	User.update params[:user_id], :enabled => true
 		redirect to '/admin/users'
 	end
 
-	post '/admin/users/disable', :auth => [:admin] do 
+	post '/admin/users/disable' do 
 	 	User.update params[:user_id], :enabled => false unless User.find(params[:user_id]).admin and User.where("admin = \"t\" AND enabled = \"t\"").length == 1
 		redirect to '/admin/users'
 	end
@@ -127,11 +126,43 @@ class PinW < Sinatra::Application
 	# end
 
 
-	get '/admin/jobs/?', :auth => [:admin] do
-		erb :admin_users
+	get '/admin/jobs/?' do
+		
+		erb :admin_jobs
 	end
 
-	get '/admin/archive/?', :auth => [:admin] do
+	get '/admin/servers/?' do
+		server_list = Server.all.to_a
+		erb :admin_servers, :locals => { :server_list => server_list }
+	end
+
+	post '/admin/servers/new' do
+		server = Server.new
+		server.name = params[:InputName]
+		server.enabled = true
+		server.save
+		redirect to '/admin/servers?ok=1'
+	end
+
+	get '/admin/servers/edit/:server_id' do
+		erb :admin_servers
+	end
+
+	post '/admin/servers/edit/:server_id' do
+		erb :admin_servers
+	end
+
+	post '/admin/servers/enable' do 
+	 	Server.update params[:server_id], :enabled => true
+		redirect to '/admin/servers'
+	end
+
+	post '/admin/servers/disable' do 
+	 	Server.update params[:server_id], :enabled => false
+		redirect to '/admin/servers'
+	end
+
+	get '/admin/archive/?' do
 		erb :admin_users
 	end
 

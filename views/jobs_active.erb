@@ -1,0 +1,194 @@
+<head>
+  <title>PIntron | Active Jobs</title>
+
+  <%# JS & CSS #%>
+  <%= erb :'includes/header' %>
+</head>
+<body>
+
+  <%# HEADER #%>
+  <%= erb :'includes/navbar' %>
+
+
+  <%# PAGE CODE HERE #%>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1>Active Jobs <small>and other things</small></h1>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="">
+          <button class="btn btn-primary" data-toggle="modal" data-target="#newUser">
+          New job
+          </button>
+          <a href="/home" class="btn btn-primary pull-right" role="button">Back to home</a>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <hr />
+        <% if params[:ok] == '1' %>
+          <div class="alert alert-success">
+            <p><strong><i class="fa fa-save"></i> Everything is awesome!</strong>
+          </div>
+        <% end %>
+
+        <% if params[:err] == '1' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Wrong Nickname.</strong>
+          </div>
+        <% end %>
+
+        <% if params[:err] == '2' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Wrong Password.</strong>
+          </div>
+        <% end %>
+
+        <% if params[:err] == '3' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Wrong Email.</strong>
+          </div>
+        <% end %>
+
+        
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <table class="table">
+          <thead>
+            <th>id</th>
+            <th>action</th>
+            
+          </thead>
+          <% 2.times do |asd| %>
+          <tr>
+            <td>asd</td>
+            
+            
+            <td>
+              <% if true %>
+                <form action="/admin/users/disable" method="post" class="btn-group">
+                  <button type="submit" class="btn btn-primary" title="disable" value="">
+                    <i class="fa fa-lock"></i>
+                  </button>
+                  <input type="hidden" name="user_id" value="asd" class="btn">
+                </form>
+              <% else %>
+                <form action="/admin/users/enable" method="post" class="btn-group">
+                  <button type="submit" class="btn btn-primary" title="enable" value="">
+                    <i class="fa fa-unlock"></i>
+                  </button>
+                  <input type="hidden" name="user_id" value="asd" class="btn">
+                </form>
+              <% end %>
+              <div class="btn-group inline">
+                <input type="hidden" class="btn">
+                <a href="/admin/users/edit/asd" class="btn btn-primary" title="edit">
+                  <i class="fa fa-pencil-square-o"></i>
+                </a>
+                <input type="hidden" class="btn">
+              </div>
+              <% if true %>
+              <form action="/admin/users/delete" method="post" class="btn-group inline">
+                <input type="hidden" name="user_id" value="asd" class="btn">
+                <button 
+                  onClick="return confirm('Would you like to delete asd?');"
+                  type="submit" class="btn btn-primary" title="delete">
+                  <i class="fa fa-trash-o"></i>
+                </button>
+              </form>  
+              <% end %>
+            </td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <%# FOOTER #%>
+  <%= erb :'includes/footer' %>
+</body>
+
+
+
+<!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="newUser" tabindex="-1" role="dialog" aria-labelledby="newUserLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="newUserLabel">Create new user</h4>
+      </div>
+      <div class="modal-body">
+        <form role="form" class="form-horizontal" method="post" action="/admin/users/new">
+          <div class="form-group">
+            <label for="InputUser" class="col-md-4 control-label" >Nickname</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputUser" placeholder="Enter nickname" name="InputUser" required pattern="[A-Za-z0-9._\-\@]{3,50}">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputPassword" class="col-md-4 control-label" >Password</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputPassword" placeholder="Password" name="InputPassword" required pattern=".{5,50}">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputEmail" class="col-md-4 control-label" >Email</label>
+            <div class="col-md-8">
+              <input type="email" class="form-control" id="InputEmail" placeholder="user@domain.com" name="InputEmail" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputAdmin" class="col-md-4 control-label" >Admin</label>
+            <div class="col-md-1">
+              <input type="checkbox"  id="InputAdmin" value=true name="InputAdmin">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputMaxFS" class="col-md-4 control-label" >Max File Size</label>
+            <div class="col-md-3">
+              <input type="number" class="form-control" id="InputMaxFS" min="0" value="0" name="InputMaxFS" required >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputMaxCPUT" class="col-md-4 control-label" >Max CPU Time</label>
+            <div class="col-md-3">
+              <input type="number" class="form-control" id="InputMaxCPUT" min="0" value="0" name="InputMaxCPUT" required >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputMaxQL" class="col-md-4 control-label" >Max Queue Length</label>
+            <div class="col-md-3">
+              <input type="number" class="form-control" id="InputMaxQL" min="0" value="0" name="InputMaxQL" required >
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
