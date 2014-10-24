@@ -25,6 +25,7 @@ ActiveRecord::Schema.define do
 
       table.index :nickname, :unique => true
     end
+    ActiveRecord::Base.connection.execute "INSERT INTO users (nickname, password, admin) VALUES (\"admin\", \"admin\", \"t\")"
   end
 end
 
@@ -67,6 +68,9 @@ ActiveRecord::Schema.define do
   end
 end
 
+class Job < ActiveRecord::Base
+
+end
 
 ActiveRecord::Schema.define do
   unless ActiveRecord::Base.connection.tables.include? 'servers'
@@ -79,11 +83,16 @@ ActiveRecord::Schema.define do
       table.column :ssh_cert,     :string
       table.column :pintron_path, :string
       table.column :working_dir,	:string
+      table.column :enabled, :boolean
       table.timestamps
 
       table.index :name, :unique => true
     end
   end
+end
+
+class Server < ActiveRecord::Base
+
 end
 
 
