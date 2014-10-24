@@ -1,0 +1,32 @@
+<head>
+  <title>PinW | Administration</title>
+
+  <%# JS & CSS #%>
+  <%= erb :'includes/header' %>
+</head>
+<body>
+
+  <%# HEADER #%>
+  <%= erb :'includes/navbar' %>
+
+
+  <%# PAGE CODE HERE #%>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+        <h1>Admin Panel <small></small></h1>
+        </div>
+        <br />
+        <a href="/admin/users">users</a>
+        <br />
+        <a href="/admin/servers">servers</a>
+      </div>
+    </div>
+  </div>
+
+
+  <%# FOOTER #%>
+  <%= erb :'includes/footer' %>
+</body>

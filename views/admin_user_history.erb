@@ -1,0 +1,56 @@
+<head>
+  <title>PIntron | Changelog</title>
+
+  <%# JS & CSS #%>
+  <%= erb :'includes/header' %>
+</head>
+<body>
+
+  <%# HEADER #%>
+  <%= erb :'includes/navbar' %>
+
+
+  <%# PAGE CODE HERE #%>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1>User changelog <small><%= user.nickname %></small></h1>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="">
+          <a href="/admin/users/edit/<%= user.id %>" class="btn btn-primary pull-right" role="button">Back to user details</a>
+          <a href="/admin/users" class="btn btn-primary pull-right" role="button">Go to user list</a>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <hr />
+        <table class="table">
+          <thead>
+            <th>Author</th>
+            <th>Date</th>
+            <th>Message</th>
+          </thead>
+          <% user.user_changes_to_self.each do |change| %>
+            <tr>
+              <td><a href="/admin/users/edit/<%= change.admin.id %>"><%= change.admin.nickname %></a></td>
+              <td><%= change.created_at.strftime("%d/%m/%Y %H:%m") %></td>
+              <td><%= change.message.gsub "\n", "<br />" %></td>
+            </tr>
+          <% end %>
+          
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <%# FOOTER #%>
+  <%= erb :'includes/footer' %>
+</body>
