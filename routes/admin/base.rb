@@ -5,14 +5,14 @@ class PinW < Sinatra::Application
 
 	# Auth checks:
 	before '/admin/*' do
-		halt "must be logged in to access the admin panel" unless session[:user]
+		halt redirect to '/' unless session[:user]
 	  	current_user = User.find(session[:user].id) # blargh
 	 	unless current_user.enabled
 	 		session[:user] = nil
 	 		halt "account disabled"
 	 	end
 	 	unless current_user.admin
-	 		halt 404
+	 		halt redirect to '/'
 	 	end
 	end
 
@@ -33,3 +33,4 @@ class PinW < Sinatra::Application
 end
 
 require_relative 'users'
+require_relative 'servers'

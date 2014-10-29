@@ -60,4 +60,4 @@ require_relative 'models/jobs'
 # Routes:
 require_relative 'routes/base'
 
-PinW.run! 
+PinW.run! if PinW.app_file == $0
