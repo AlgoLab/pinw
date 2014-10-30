@@ -29,7 +29,7 @@ RUN bundle install --gemfile=pinw/Gemfile
 
 # Add configuration to nginx:
 RUN rm /etc/nginx/sites-enabled/default
-RUN cp pinw/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
+RUN cp pinw/Docker/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
 # TODO: better configuration
 
 # TODO: External location for the DB
