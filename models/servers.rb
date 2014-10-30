@@ -19,5 +19,9 @@ ActiveRecord::Schema.define do
 end
 
 class Server < ActiveRecord::Base
+  has_many :jobs, :class_name => 'Job', :foreign_key => 'server_id'
 
+  def active_jobs
+    return Jobs.where("server_id = #{self.id} AND status != 'COMPLETE'")
+  end
 end

@@ -43,4 +43,8 @@ class Job < ActiveRecord::Base
       "Error!!"
     end
   end
+
+  def get_queued
+    return Job.where('state = "QUEUED"')
+  end
 end

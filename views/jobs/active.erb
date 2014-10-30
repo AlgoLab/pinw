@@ -4,6 +4,8 @@
   <%# JS & CSS #%>
   <%= erb :'/includes/header' %>
   <script type="text/javascript" src="/js/active.js"></script>
+  <script type="text/javascript" src="/js/bootstrap-slider.js"></script>
+  <link href="/css/slider.css"   rel="stylesheet" media="screen">
 </head>
 <body>
 
@@ -132,6 +134,7 @@
   </div>
 
 
+
   <%# FOOTER #%>
   <%= erb :'/includes/footer' %>
 </body>
@@ -151,19 +154,13 @@
       </div>
       <div class="modal-body">
         <form role="form" class="form-horizontal" method="post" action="/jobs/new">
-          <div class="form-group">
-            <label for="InputDescription" class="col-md-3 control-label" >Description</label>
-            <div class="col-md-9">
-              <textarea class="form-control" rows="3" id="InputDescription"  name="InputDescription" ></textarea>
-            </div>
-          </div>
-
+          
           <% if session[:user].admin %>
             <div class="form-group">
               <label for="InputServer" class="col-md-3 control-label" >Server</label>
               <div class="col-md-9">
                 <select class="form-control" id="InputServer"  name="InputServer">
-                  <option >Auto</option>
+                  <option>Automatic</option>
                   <% server_list.each do |server| %>
                     <option value="<%= server.id %>"><%= server.name %></option>
                   <% end %>
@@ -173,18 +170,69 @@
           <% end %>
 
           <div class="form-group">
-            <label for="InputEnsembl" class="col-md-3 control-label" >Ensembl</label>
+            <label for="InputGenomics" class="col-md-3 control-label" >Genomics
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title="A gene name with relative 
+            genomic data (FASTA) is required. You can either provide a gene name (the genomic data will
+             be downloaded from Ensembl) or a FASTA file properly annotated via either URL link or direct upload."><i class="fa fa-question-circle"></i></a>
+            </label>
+            <div class="col-md-3">
+              <label class="radio">
+                <input type="radio" name="type" value="1" checked="true" />
+                  Gene name
+                  
+              </label>
+            </div>
+            <div class="col-md-3">
+              <label class="radio">
+                <input type="radio" name="type" value="2" />
+                  FASTA URL
+              </label>
+            </div>
+            <div class="col-md-3">
+              <label class="radio">
+                <input type="radio" name="type" value="3" />
+                  FASTA file
+              </label>
+            </div>
+          </div>
+
+          
+
+          <div class="form-group" id='rowInputGeneName'>
+            <label for="InputGeneName" class="col-md-3 control-label" >Gene name</label>
             <div class="col-md-9">
-              <input type="text" class="form-control" id="InputEnsembl" 
-               placeholder="eg: bho" name="InputEnsembl" >
+              <input type="text" class="form-control" id="InputGeneName" 
+               placeholder="eg: caramel" name="InputGeneName" >
+            </div>
+          </div>
+
+          <div class="form-group hide" id='rowInputGeneURL'>
+            <label for="InputGeneURL" class="col-md-3 control-label" >FASTA URL</label>
+            <div class="col-md-9">
+              <input type="url" class="form-control" id="InputGeneURL" 
+               placeholder="eg: xlm://asd?" name="InputGeneURL" >
+            </div>
+          </div>
+
+          <div class="form-group hide" id='rowInputGeneFile'>
+            <label for="InputGeneFile" class="col-md-3 control-label">FASTA File</label>
+            <div class="col-md-9">
+              <input type="file" name="InputGeneFile" id="InputGeneFile"  />
             </div>
           </div>
 
           <div class="form-group">
-            <label for="InputGenomeURL" class="col-md-3 control-label" >Genome URL</label>
+            <div class="col-md-offset-3 col-md-9">
+              <hr />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputQuality" class="col-md-3 control-label" >Min Quality</label>
             <div class="col-md-9">
-              <input type="url" class="form-control" id="InputGenomeURL" 
-               placeholder="eg: xlm://asd" name="InputGenomeURL" >
+              <input type="text"
+                data-slider-min="33" data-slider-max="126" data-slider-step="1" data-slider-value="33"
+                id="InputQuality" name="InputQuality" >
             </div>
           </div>
 
@@ -200,7 +248,7 @@
 
           <!-- The option field template containing an option field and a Remove button -->
           <div class="form-group hide" id="InputURLTemplate">
-            <div class="col-md-offset-3 col-sm-7">
+            <div class="col-md-offset-3 col-md-7">
               <input class="form-control" type="text" name="InputURLs[]" />
             </div>
             <div class="col-md-2">
@@ -225,6 +273,13 @@
             </div>
             <div class="col-md-2">
               <button type="button" class="btn btn-primary removeButtonFile"><i class="fa fa-minus"></i></button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputDescription" class="col-md-3 control-label" >Description</label>
+            <div class="col-md-9">
+              <textarea class="form-control" rows="3" id="InputDescription"  name="InputDescription" ></textarea>
             </div>
           </div>
 

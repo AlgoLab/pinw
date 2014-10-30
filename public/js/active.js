@@ -89,5 +89,36 @@ $(document).ready(function() {
                     $('#newJob').find('.addButtonFile').removeAttr('disabled');
                 }
             }
+        })
+
+        .on('shown.bs.modal', function (e) {
+            $("#InputQuality").slider();
         });
+
+    // select the source of input data
+
+    $("input[name='type']").change(function(){
+        if ($(this).val() === '1') {
+            $('#rowInputGeneURL').addClass('hide');
+            $('#InputGeneURL').val("");
+            $('#rowInputGeneFile').addClass('hide');
+            $('#InputGeneFile').val("");
+            $('#rowInputGeneName').removeClass('hide');
+        } else if ($(this).val() === '2') {
+            $('#rowInputGeneFile').addClass('hide');
+            $('#InputGeneFile').val("");
+            $('#rowInputGeneName').addClass('hide');
+            $('#InputGeneName').val("");
+            $('#rowInputGeneURL').removeClass('hide');
+        } else {
+            $('#rowInputGeneURL').addClass('hide');
+            $('#InputGeneURL').val("");
+            $('#rowInputGeneName').addClass('hide');
+            $('#InputGeneName').val("");
+            $('#rowInputGeneFile').removeClass('hide');
+        }
+    });
+
+    $("[data-toggle=tooltip]").tooltip();
+    
 });
