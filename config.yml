@@ -1,0 +1,9 @@
+# -- DATABASE --
+database:
+  adapter: sqlite3
+  name: pinw.db
+
+
+# -- PROCESSING --
+processing:
+  min_read_length: 100

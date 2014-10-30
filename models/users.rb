@@ -14,6 +14,7 @@ ActiveRecord::Schema.define do
       table.index :nickname, :unique => true
     end
     ActiveRecord::Base.connection.execute "INSERT INTO users (nickname, password, admin) VALUES (\"admin\", \"admin\", \"t\")"
+    ActiveRecord::Base.connection.execute "INSERT INTO users (nickname, password, enabled) VALUES (\"guest\", \"guest\", \"f\")"
   end
 end
 

@@ -1,17 +1,18 @@
 # encoding: utf-8
 require 'sinatra/base'
-
+require 'yaml'
 require 'active_record'
 
 ##################
 ### DB PREPARE ###
 
-ActiveRecord::Base.logger = Logger.new(STDERR)
+settings = YAML.load(File.read('config.yml'))
 
-ActiveRecord::Base.establish_connection(
-  :adapter  => 'sqlite3',
-  :database => 'pintron.db'
-  )
+ActiveRecord::Base.logger = Logger.new(STDERR)
+ActiveRecord::Base.establish_connection({
+  :adapter => settings['database']['adapter'],
+  :database => settings['database']['name'],
+})
 
 
 ########################
