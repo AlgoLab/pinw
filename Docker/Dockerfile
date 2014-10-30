@@ -21,14 +21,18 @@ RUN rm -f /etc/service/nginx/down
 WORKDIR /home/app
 
 # Get PInW
+USER app
 RUN git clone https://github.com/AlgoLab/pinw
 
+USER root
+RUN bundle install --gemfile=pinw/Gemfile
+
 # Add configuration to nginx:
+RUN rm /etc/nginx/sites-enabled/default
 RUN cp pinw/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
 # TODO: better configuration
 
-
-
+# TODO: External location for the DB
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
