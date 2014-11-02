@@ -24,11 +24,22 @@ class PinW < Sinatra::Application
         if session[:user].admin
             job.server_id = params[:InputServer]
         end
-        job.description = params[:InputDescription]
-        job.ensembl = params[:InputEnsembl]
-        job.genome = params[:InputGenomeURL]
-        job.readsURLs = params[:InputURLs].join("\n")
+        case params[:type]
+        when '1'
+        	job.gene_name = params[:InputGeneName]
+        when '2'
+        	job.genomic_fasta_file = params[:InputGeneFile]
+        when '3'
+        	job.genomic_fasta_url = params[:InputGeneURL]
+        end
 
+        job.quality_threshold = params[:InputQuality]
+
+        job.reads_urls = params[:InputURLs]
+        job.reads_files = params[:InputFiles]
+
+        job.description = params[:InputDescription]
+    
         job.save
         redirect to '/jobs/active'
     end

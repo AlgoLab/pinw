@@ -36,13 +36,19 @@
         <hr />
         <% if params[:ok] == '1' %>
           <div class="alert alert-success">
-            <p><strong><i class="fa fa-save"></i> Success!</strong>
+            <p><strong><i class="fa fa-save"></i> Success!</strong> The server has been added to server list.
           </div>
         <% end %>
 
         <% if params[:err] == '1' %>
           <div class="alert alert-danger">
-            <p><strong><i class="fa fa-warning"></i> Error</strong>
+            <p><strong><i class="fa fa-warning"></i> Error!</strong> A field hasn't been validated correctly, if not 
+            enabled please try to enable javascript or use a different browser.
+          </div>
+        <% end %>
+        <% if params[:err] == '2' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Error!</strong> Server name must be unique.
           </div>
         <% end %>
 
@@ -63,7 +69,7 @@
           <tr>
             <td><%= server.name %></td>
             <td><%= server.host %></td>
-            <td><%= server.ssh_port %></td>
+            <td><%= server.port %></td>
             <td>
               <% if server.enabled %>
                 <i class="fa fa-check"></i>
@@ -129,19 +135,157 @@
         <h4 class="modal-title" id="newServerLabel">Add new server</h4>
       </div>
       <div class="modal-body">
-        <form role="form" class="form-horizontal" method="post" action="/admin/servers/new">
+        <div id="alertValidating" class="alert alert-info nascosto">
+          <i class="fa fa-spinner fa-spin"></i> Validation in progress...
+        </div>
+        <div id="alertError" class="alert alert-danger nascosto">
+          <i class="fa fa-warning"></i> Error: <span id="errorText"></span>
+        </div>
+        <div id="alertErrorServer" class="alert alert-danger nascosto">
+          <i class="fa fa-warning"></i> Unable to contact the server... Please try again.
+        </div>
+        <div id="alertSuccess" class="alert alert-success nascosto">
+          <i class="fa fa-check"></i> All tests passed successfully!
+        </div>
+        <form class="form-horizontal" method="post" action="/admin/servers/new" id="newServerForm">
           <div class="form-group">
-            <label for="InputName" class="col-md-4 control-label" >Name</label>
-            <div class="col-md-8">
-              <input type="text" class="form-control" id="InputName" placeholder="Enter name" name="InputName" required pattern="[A-Za-z0-9._\-\@]{3,50}">
+            <label for="InputName" class="col-md-3 control-label" >Name</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="InputName" placeholder="Enter name" name="InputName" >
             </div>
           </div>
 
+          <div class="form-group">
+            <label for="InputHost" class="col-md-3 control-label" >Host</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="InputHost" placeholder="IP Address or host name" name="InputHost" >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputPort" class="col-md-3 control-label" >Port</label>
+            <div class="col-md-4">
+              <input type="number" class="form-control" id="InputPort" 
+               name="InputPort" min="1" max="65535" step="1" value="22" >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputAuth" class="col-md-3 control-label" >Auth
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title="merda qui, grazie.">
+            <i class="fa fa-question-circle"></i></a>
+            </label>
+            <div class="col-md-4">
+              <label class="radio">
+                <input type="radio" name="type" value="1" checked="true" />
+                  Login  
+              </label>
+            </div>
+            <div class="col-md-4">
+              <label class="radio">
+                <input type="radio" name="type" value="2" />
+                  Public Key
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" id="rowInputUsername">
+            <label for="InputUsername" class="col-md-3 control-label" >Username</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="InputUsername" placeholder="eg: tardis" name="InputUsername" >
+            </div>
+          </div>
+
+          <div class="form-group" id="rowInputPassword">
+            <label for="InputPassword" class="col-md-3 control-label" >Password</label>
+            <div class="col-md-9">
+              <input type="password" class="form-control" id="InputPassword" name="InputPassword" >
+            </div>
+          </div>
+
+          <div class="form-group hide" id="rowInputCertificate">
+            <label for="InputCertificate" class="col-md-3 control-label" >Certificate</label>
+            <div class="col-md-9">
+              <textarea class="form-control" id="InputCertificate" name="InputCertificate"
+               placeholder="Past the certificate here"></textarea>
+            </div>
+          </div>
+
+          <div class="form-group hide" id="rowInputPassphrase">
+            <label for="InputPassphrase" class="col-md-3 control-label" >Passphrase</label>
+            <div class="col-md-9">
+              <input type="password" class="form-control" id="InputPassphrase" name="InputPassphrase" >
+            </div>
+          </div>
+          <% 
+          # <div class="form-group" id="rowInputHostCertificate">
+          #   <label for="InputHostCertificate" class="col-md-3 control-label" >Host Certificate</label>
+          #   <div class="col-md-9">
+          #     <textarea class="form-control" id="rowInputHostCertificate" name="rowInputHostCertificate"
+          #      placeholder="Past the certificate here"></textarea>
+          #   </div>
+          # </div>
+          %>
+
+          <div class="form-group" id="rowLocalNetwork">
+            <label for="InputLocalNetwork" class="col-md-3 control-label" >Local Network</label>
+            <div class="col-md-1">
+              <input type="checkbox"  id="InputLocalNetwork" checked="true" name="InputLocalNetwork" class="flag">
+            </div>
+          </div>
+
+          <div class="form-group" id="rowAdvancedOptions">
+            <div class="col-md-offset-3 col-md-9">
+              <a id="AdvancedOptions">Advanced Options</a>
+            </div>
+          </div>
+
+          <div class="form-group nascosto" id="rowInputPintronPath">
+            <label for="InputPintronPath" class="col-md-3 control-label" >Pintron path</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="InputPintronPath" 
+               placeholder="eg: /foo/bar" name="InputPintronPath" >
+            </div>
+          </div>
+
+          <div class="form-group nascosto" id="rowInputPythonPath">
+            <label for="InputPythonPath" class="col-md-3 control-label" >Python path</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="InputPythonPath" 
+               placeholder="eg: /foo/bar" name="InputPythonPath" >
+            </div>
+          </div>
+
+          <div class="form-group nascosto" id="rowInputWorkingDir">
+            <label for="InputWorkingDir" class="col-md-3 control-label" >Working dir</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="InputWorkingDir" 
+               placeholder="eg: /foo/bar" name="InputWorkingDir" >
+            </div>
+          </div>
+
+          <div class="form-group nascosto" id="rowInputCallback">
+            <label for="InputCallback" class="col-md-3 control-label" >Use Callback</label>
+            <div class="col-md-1">
+              <input type="checkbox"  id="InputCallback" checked="true" value="1" name="InputCallback" class="flag">
+            </div>
+          </div>
+
+          <div class="form-group nascosto" id="rowInputCallbackURL">
+            <label for="InputCallbackURL" class="col-md-3 control-label" >Callback url</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="InputCallbackURL" 
+               placeholder="default" name="InputCallbackURL" >
+            </div>
+          </div>
+
+          <div id="result"></div>
           
 
           <div class="modal-footer">
+            <button data-tipo="test" type="server" id="submitTest" class="btn btn-default" >Test</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Save</button>
+            <button data-tipo="exec" type="server" id="submitReal" class="btn btn-primary">Save</button>
           </div>
         </form>
       </div>

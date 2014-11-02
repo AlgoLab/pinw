@@ -7,3 +7,4 @@ database:
 # -- PROCESSING --
 processing:
   min_read_length: 100
+  assume_local_workers: true

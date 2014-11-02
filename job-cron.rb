@@ -23,6 +23,35 @@ def dispatch_job (job, server)
 
 end
 
+server_list = Server.where('enabled = "t"')
+server_list.each do |server|
+# Cleanup server (acknowledge finished jobs, mark dead processes as failed, ecc)
+	# connect
+	# delete old response.yml if present
+	# run script
+	# grab result
+	# based on result mark jobs as completed / failed and perform required cleanup
+	# 
+
+# Dispatch new job (file transfer, script execution, mark job as dispatched)
+	# transfer files
+	# launch script & disown process
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Server.all.each do |server|
 	Net::SSH.start(server) do |ssh|
 		server.active_jobs.each do |job|
