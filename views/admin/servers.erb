@@ -39,6 +39,11 @@
             <p><strong><i class="fa fa-save"></i> Success!</strong> The server has been added to server list.
           </div>
         <% end %>
+        <% if params[:ok] == '2' %>
+          <div class="alert alert-success">
+            <p><strong><i class="fa fa-save"></i> Success!</strong> The server has been removed from server list.
+          </div>
+        <% end %>
 
         <% if params[:err] == '1' %>
           <div class="alert alert-danger">
@@ -51,6 +56,16 @@
             <p><strong><i class="fa fa-warning"></i> Error!</strong> Server name must be unique.
           </div>
         <% end %>
+        <% if params[:err] == '3' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Error!</strong> This server already has maximum priority.
+          </div>
+        <% end %>
+        <% if params[:err] == '4' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Error!</strong> This server already has minimum priority.
+          </div>
+        <% end %>
 
         
       </div>
@@ -59,58 +74,93 @@
       <div class="col-md-12">
         <table class="table">
           <thead>
-            <th>name</th>
-            <th>host</th>
-            <th>port</th>
-            <th>enabled</th>
-            <th>action</th>
+            <th>Priority</th>
+            <th>Name</th>
+            <th>Host</th>
+            <th>Enabled</th>
+            <th>Change priority</th>
+            <th>Action</th>
           </thead>
-          <% server_list.each do |server| %>
-          <tr>
-            <td><%= server.name %></td>
-            <td><%= server.host %></td>
-            <td><%= server.port %></td>
-            <td>
-              <% if server.enabled %>
-                <i class="fa fa-check"></i>
-              <% else %>
-                <i class="fa fa-remove"></i>
-              <% end %>
-            </td>
-            <td>
-              <% if server.enabled %>
-                <form action="/admin/servers/disable" method="post" class="btn-group">
-                  <button type="submit" class="btn btn-primary" title="disable" value="">
-                    <i class="fa fa-lock"></i>
-                  </button>
+          <tbody>
+            <% server_list.each_with_index do |server, i| %>
+            <tr>
+              <td><%= server.priority %></td>
+              <td><%= server.name %></td>
+              <td><%= server.host %>:<%= server.port %></td>
+              <td>
+                <% if server.enabled %>
+                  <i class="fa fa-check"></i>
+                <% else %>
+                  <i class="fa fa-remove"></i>
+                <% end %>
+              </td>
+              <td>
+                <% if i == 0 %>
+                  <% if server_list.length > 1 %>
+                    <form action="/admin/servers/down" method="post">
+                      <input type="hidden" name="server_id" value="<%= server.id %>">
+                      <button type="submit" class="btn btn-primary first-button" title="disable" value="">
+                        <i class="fa fa-arrow-down"></i>
+                      </button>
+                    </form>
+                  <% end %>
+                <% elsif i == server_list.length - 1 %>
+                  <form action="/admin/servers/up" method="post">
+                    <input type="hidden" name="server_id" value="<%= server.id %>">
+                    <button type="submit" class="btn btn-primary first-button" title="disable" value="">
+                      <i class="fa fa-arrow-up"></i>
+                    </button>
+                  </form>
+                <% else %>
+                  <form action="/admin/servers/up" method="post" class="btn-group">
+                    <button type="submit" class="btn btn-primary" title="disable" value="">
+                      <i class="fa fa-arrow-up"></i>
+                    </button>
+                    <input type="hidden" name="server_id" value="<%= server.id %>" class="btn">
+                  </form>
+                  <form action="/admin/servers/down" method="post" class="btn-group">
+                    <input type="hidden" name="server_id" value="<%= server.id %>" class="btn">
+                    <button type="submit" class="btn btn-primary" title="enable" value="">
+                      <i class="fa fa-arrow-down"></i>
+                    </button>
+                  </form>
+                <% end %>  
+              </td>
+              <td>
+                <% if server.enabled %>
+                  <form action="/admin/servers/disable" method="post" class="btn-group">
+                    <button type="submit" class="btn btn-primary" title="disable" value="">
+                      <i class="fa fa-lock"></i>
+                    </button>
+                    <input type="hidden" name="server_id" value="<%= server.id %>" class="btn">
+                  </form>
+                <% else %>
+                  <form action="/admin/servers/enable" method="post" class="btn-group">
+                    <button type="submit" class="btn btn-primary" title="enable" value="">
+                      <i class="fa fa-unlock"></i>
+                    </button>
+                    <input type="hidden" name="server_id" value="<%= server.id %>" class="btn">
+                  </form>
+                <% end %>
+                <div class="btn-group inline">
+                  <input type="hidden" class="btn">
+                  <a href="/admin/servers/edit/<%= server.id %>" class="btn btn-primary" title="edit">
+                    <i class="fa fa-pencil-square-o"></i>
+                  </a>
+                  <input type="hidden" class="btn">
+                </div>
+                <form action="/admin/servers/delete" method="post" class="btn-group inline">
                   <input type="hidden" name="server_id" value="<%= server.id %>" class="btn">
-                </form>
-              <% else %>
-                <form action="/admin/servers/enable" method="post" class="btn-group">
-                  <button type="submit" class="btn btn-primary" title="enable" value="">
-                    <i class="fa fa-unlock"></i>
+                  <button 
+                    id="delete_server"
+                    type="submit" class="btn btn-primary" title="delete">
+                    <i class="fa fa-trash-o"></i>
                   </button>
-                  <input type="hidden" name="server_id" value="<%= server.id %>" class="btn">
-                </form>
-              <% end %>
-              <div class="btn-group inline">
-                <input type="hidden" class="btn">
-                <a href="/admin/servers/edit/<%= server.id %>" class="btn btn-primary" title="edit">
-                  <i class="fa fa-pencil-square-o"></i>
-                </a>
-                <input type="hidden" class="btn">
-              </div>
-              <form action="/admin/servers/delete" method="post" class="btn-group inline">
-                <input type="hidden" name="server_id" value="<%= server.id %>" class="btn">
-                <button 
-                  id="delete_server"
-                  type="submit" class="btn btn-primary" title="delete">
-                  <i class="fa fa-trash-o"></i>
-                </button>
-              </form>  
-            </td>
-          </tr>
-          <% end %>
+                </form>  
+              </td>
+            </tr>
+            <% end %>
+          </tbody>
         </table>
       </div>
     </div>

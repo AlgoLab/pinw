@@ -26,12 +26,15 @@ ActiveRecord::Schema.define do
       table.timestamps
 
       table.index :name, unique: true
+
+
+      table.index :priority, :unique => true
     end
   end
 end
 
 class Server < ActiveRecord::Base
-  validates_uniqueness_of :name
+  validates_uniqueness_of :name, :priority
   validates :name, length: { in: 3..40 }
   validates :host, format: { with: /\A(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])\z/,
     message: "invalid host" }
@@ -61,5 +64,11 @@ class Server < ActiveRecord::Base
 
   def active_jobs
     return Jobs.where("server_id = #{self.id} AND status != 'COMPLETE'")
+  end
+
+  def self.reindex
+    Server.order(priority: :asc).each_with_index do |server, i|
+      server.update priority: i + 1
+    end
   end
 end

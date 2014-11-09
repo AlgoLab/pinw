@@ -1,0 +1,94 @@
+<head>
+  <title>PIntron | Settings</title>
+
+  <%# JS & CSS #%>
+  <%= erb :'/includes/header' %>
+</head>
+<body>
+
+  <%# HEADER #%>
+  <%= erb :'/includes/navbar' %>
+
+
+  <%# PAGE CODE HERE #%>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1>Settings</h1>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <form action="/admin/settings" method="POST" class="hidden-form">
+        <button class="btn btn-primary" type="submit">
+          Save
+        </button>
+        <a href="/admin" class="btn btn-primary pull-right" role="button">Back to admin panel</a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <hr />
+        <% if params[:ok] == '1' %>
+          <div class="alert alert-success">
+            <p><strong><i class="fa fa-save"></i> Success!</strong> Description here.
+          </div>
+        <% end %>
+
+        <% if params[:err] == '1' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Error!</strong> Description here.
+          </div>
+        <% end %>
+        
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <table class="table">
+          <thead>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Value</th>
+          </thead>
+          <tbody>
+            <% setting_list.each do |setting| %>
+
+            <tr>
+              <td><%= setting[:name] %></td>
+              <td><%= setting[:description] %></td>
+              <td>
+                  <input type="<%= setting[:type] %>" name="<%= setting[:key] %>"
+                  <% if setting[:type] == "checkbox" 
+                    if setting[:value] %>
+                      checked
+                    <% end %>
+                  <% else %>
+                    value="<%= setting[:value] %>" 
+                    class="form-control"
+                  <% end %>
+                  />
+              </td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <button class="btn btn-primary" type="submit">
+          Save
+        </button>
+      </div>
+    </div>
+    </form>
+  </div>
+
+
+  <%# FOOTER #%>
+  <%= erb :'/includes/footer' %>
+</body>

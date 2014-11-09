@@ -16,6 +16,7 @@ div.btn-group + form.btn-group {
 
 body, body.modal {
     margin-right: 0 !important;
+    padding-top: 50px;
 }
 
 body.modal {
@@ -27,5 +28,41 @@ body.modal {
 }
 
 .flag {
-  margin: 10px 0 0 0 !important;
+	margin: 10px 0 0 0 !important;
+}
+
+.hidden-form {
+	margin-bottom: 0px !important;
+}
+
+.first-button {
+    margin-left: 15px;
+}
+
+.hidden-left {
+    border-left-style: hidden !important;
+}
+.hidden-right {
+    border-right-style: hidden !important;
+}
+.hidden-top {
+    border-top-style: hidden !important;
+}
+.hidden-bottom {
+    border-bottom-style: hidden !important;
+}
+.centered {
+    text-align: center;
+}
+.btl {
+    border-top-left-radius: 10px
+}
+.btr {
+    border-top-right-radius: 10px
+}
+.bbl {
+    border-bottom-left-radius: 10px
+}
+.bbr {
+    border-bottom-right-radius: 10px
 }

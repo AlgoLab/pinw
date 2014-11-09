@@ -65,75 +65,160 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <table class="table">
-          <thead>
-            <th>Ensembl</th>
-            <th>Genome</th>
-            <th>Status</th>
-            <th>Started at</th>
-            <th>Retries</th>
-            <th>Last Error</th>
-            <th>User</th>
-            <th>action</th>
-            
-          </thead>
+        <table class="table table-condensed">
           <% job_list.each do |job| %>
-          <tr>
-            <td><%= job.ensembl %></td>
-            <td><%= job.genome %></td>
-            <td><%= job.status_short %></td>
-            <td>
-              <% if job.started_at %>
-                <%= job.started_at.strftime("%d/%m/%Y %H:%m") %>
+          <tr class="green hidden-top">
+            <td class="btl">
+              <% if job.gene_name %> 
+                <%= job.gene_name %> 
+              <% else %>  
+                Waiting for genomic
               <% end %>
             </td>
-            <td><%= job.retries %></td>
-            <td><%= job.last_err_cause %></td>
-            <td><%= job.user.nickname %></td>
-            
-            
-            <td>
+            <td class="btr" colspan="3">
+              Description: <%= job.description %>
+            </td>
+          </tr>
+          <tr class="green">
+            <td width="32%" class="centered hidden-bottom">Genomics transcripts</td>
+            <td width="32%" class="centered hidden-bottom">Ensembl</td>
+            <td width="32%" class="centered hidden-bottom">Reads</td>
+            <td width="4%"  class="centered hidden-bottom">Actions</td>
+          </tr>
+          <tr  class="green">
+            <td class="hidden-bottom hidden-top">
+              <div class="progress hidden-form">
+                <% if job.ensembl_ok %>
+                  <div class="progress-bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                    <span class="sr-only">40% Complete (success)</span>
+                  </div>
+                <% elsif job.ensembl_failed or true %>
+                  <div class="progress-bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                    <span class="sr-only">40% Complete (success)</span>
+                  </div>
+                <% else %>
+                  <div class="progress-bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
+                    <span class="sr-only">40% Complete (success)</span>
+                  </div>
+                <% end %>
+              </div>
+            </td>
+            <td class="hidden-bottom hidden-top">
+              <div class="progress hidden-form">
+                <% if job.genomics_ok %>
+                  <div class="progress-bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                    <span class="sr-only">40% Complete (success)</span>
+                  </div>
+                <% elsif job.genomics_failed %>
+                  <div class="progress-bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                    <span class="sr-only">40% Complete (success)</span>
+                  </div>
+                <% else %>
+                  <div class="progress-bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
+                    <span class="sr-only">40% Complete (success)</span>
+                  </div>
+                <% end %>
+              </div>
+            </td>
+            <td class="hidden-bottom hidden-top">
+              <div class="progress hidden-form">
+                <% if job.reads_ok %>
+                  <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                    <span class="sr-only">40% Complete (success)</span>
+                  </div>
+                <% elsif job.reads_failed %>
+                  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                    <span class="sr-only">40% Complete (success)</span>
+                  </div>
+                <% else %>
+                  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                    <span class="sr-only">45% Complete</span>
+                  </div>
+                <% end %>
+              </div>
+            </td>
+            <td rowspan="2" class="centered bbr">
               <% if true %>
-                <form action="/jobs/disable" method="post" class="btn-group">
-                  <button type="submit" class="btn btn-primary" title="disable" value="">
-                    <i class="fa fa-lock"></i>
+                <form action="/jobs/pause" method="post">
+                  <button type="submit" class="btn btn-primary" title="pause" value="">
+                    <i class="fa fa-pause"></i>
                   </button>
                   <input type="hidden" name="job_id" value="<%= job.id %>" class="btn">
                 </form>
               <% else %>
-                <form action="/jobs/enable" method="post" class="btn-group">
-                  <button type="submit" class="btn btn-primary" title="enable" value="">
-                    <i class="fa fa-unlock"></i>
+                <form action="/jobs/restart" method="post">
+                  <button type="submit" class="btn btn-primary" title="restart" value="">
+                    <i class="fa fa-play"></i>
                   </button>
                   <input type="hidden" name="job_id" value="<%= job.id %>" class="btn">
                 </form>
               <% end %>
-              <div class="btn-group inline">
-                <input type="hidden" class="btn">
-                <a href="/jobs/edit/<%= job.id %>" class="btn btn-primary" title="edit">
-                  <i class="fa fa-pencil-square-o"></i>
-                </a>
-                <input type="hidden" class="btn">
-              </div>
-              <% if true %>
-              <form action="/jobs/delete" method="post" class="btn-group inline">
+              <form action="/jobs/delete" method="post">
                 <input type="hidden" name="job_id" value="<%= job.id %>" class="btn">
                 <button 
                   onClick="return confirm('Would you like to delete asd?');"
                   type="submit" class="btn btn-primary" title="delete">
                   <i class="fa fa-trash-o"></i>
                 </button>
-              </form>  
+              </form> 
+            </td>
+          </tr>
+          <tr  class="green">
+            <td class="hidden-top bbl">
+              <% if job.ensembl_ok %>
+                <div class="alert alert-success hidden-form">
+                  <string><i class='fa fa-check'></i> Ensembl data downloaded!</string>
+                </div>
+              <% elsif job.ensembl_failed or true %>
+                <div class="alert alert-danger hidden-form">
+                  <string><i class='fa fa-times'></i> Error: <%= job.ensembl_last_error %></string>
+                </div> 
+              <% else %>
+                <i class='fa fa-spinner fa-spin'></i>
+                <div class="alert alert-info hidden-form">
+                  <string>Download in progress</string>
+                </div> 
               <% end %>
             </td>
+            <td class="hidden-top">
+              <% if job.genomics_ok %>
+                <div class="alert alert-success hidden-form">
+                  <string><i class='fa fa-check'></i> Ensembl data downloaded!</string>
+                </div>
+              <% elsif job.genomics_failed %>
+                <div class="alert alert-danger hidden-form">
+                  <string><i class='fa fa-times'></i> Error: <%= job.genomics_last_error %></string>
+                </div> 
+              <% else %>
+                <div class="alert alert-info hidden-form">
+                  <string><i class='fa fa-spinner fa-spin'></i> Download in progress</string>
+                </div> 
+              <% end %>
+            </td>
+            <td class="hidden-top">
+              <% if job.reads_ok %>
+                <div class="alert alert-success hidden-form">
+                  <string><i class='fa fa-check'></i> Ensembl data downloaded!</string>
+                </div>
+              <% elsif job.reads_failed %>
+                <div class="alert alert-danger hidden-form">
+                  <string><i class='fa fa-times'></i> Error: <%= job.reads_last_error %></string>
+                </div> 
+              <% else %>
+                <div class="alert alert-info hidden-form">
+                  <string><i class='fa fa-spinner fa-spin'></i> Download in progress</string>
+                </div> 
+              <% end %>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="hidden-left hidden-right hidden-bottom hidden-top"></td>
           </tr>
           <% end %>
         </table>
       </div>
     </div>
   </div>
-
-
 
   <%# FOOTER #%>
   <%= erb :'/includes/footer' %>

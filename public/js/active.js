@@ -104,21 +104,64 @@ $(document).ready(function() {
             $('#rowInputGeneFile').addClass('hide');
             $('#InputGeneFile').val("");
             $('#rowInputGeneName').removeClass('hide');
+            $('#newJob')
+                    .bootstrapValidator('enableFieldValidators', 'InputGeneName', true)
+                    .bootstrapValidator('enableFieldValidators', 'InputGeneURL', false)
+                    .bootstrapValidator('enableFieldValidators', 'InputGeneFile', false);
         } else if ($(this).val() === '2') {
             $('#rowInputGeneFile').addClass('hide');
             $('#InputGeneFile').val("");
             $('#rowInputGeneName').addClass('hide');
             $('#InputGeneName').val("");
             $('#rowInputGeneURL').removeClass('hide');
+            $('#newJob')
+                    .bootstrapValidator('enableFieldValidators', 'InputGeneURL', true)
+                    .bootstrapValidator('enableFieldValidators', 'InputGeneName', false)
+                    .bootstrapValidator('enableFieldValidators', 'InputGeneFile', false);
         } else {
             $('#rowInputGeneURL').addClass('hide');
             $('#InputGeneURL').val("");
             $('#rowInputGeneName').addClass('hide');
             $('#InputGeneName').val("");
             $('#rowInputGeneFile').removeClass('hide');
+            $('#newJob')
+                    .bootstrapValidator('enableFieldValidators', 'InputGeneFile', true)
+                    .bootstrapValidator('enableFieldValidators', 'InputGeneName', false)
+                    .bootstrapValidator('enableFieldValidators', 'InputGeneURL', false);
         }
     });
 
     $("[data-toggle=tooltip]").tooltip();
-    
+    $('#newJob').bootstrapValidator({
+        feedbackIcons:{
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            InputGeneName: {
+                validators: {
+                    notEmpty: {
+                        message: 'The date is required and cannot be empty'
+                    }
+                }
+            },
+            InputGeneURL: {
+                enabled: false,
+                validators: {
+                    notEmpty: {
+                        message: 'The date is required and cannot be empty'
+                    }
+                }
+            },
+            InputGeneFile: {
+                enabled: false,
+                validators: {
+                    notEmpty: {
+                        message: 'The date is required and cannot be empty'
+                    }
+                }
+            }
+        }
+    });
 });

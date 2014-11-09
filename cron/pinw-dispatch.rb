@@ -23,6 +23,17 @@ def dispatch_job (job, server)
 
 end
 
+
+
+
+
+
+
+
+
+
+
+
 server_list = Server.where('enabled = "t"')
 server_list.each do |server|
 # Cleanup server (acknowledge finished jobs, mark dead processes as failed, ecc)

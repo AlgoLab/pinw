@@ -19,13 +19,7 @@ class PinW < Sinatra::Application
 	get '/admin/?' do
 		erb :'admin/index'
 	end
-
-
-	get '/admin/settings/?' do
-		erb :'admin/settings'
-	end
 	
-
 	get '/admin/archive/?' do
 		erb :'admin/users'
 	end
@@ -34,3 +28,4 @@ end
 
 require_relative 'users'
 require_relative 'servers'
+require_relative 'settings'

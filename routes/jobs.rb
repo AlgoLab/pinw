@@ -28,9 +28,9 @@ class PinW < Sinatra::Application
         when '1'
         	job.gene_name = params[:InputGeneName]
         when '2'
-        	job.genomic_fasta_file = params[:InputGeneFile]
+        	job.genomics_url = params[:InputGeneURL]
         when '3'
-        	job.genomic_fasta_url = params[:InputGeneURL]
+        	job.genomics_file = params[:InputGeneFile]
         end
 
         job.quality_threshold = params[:InputQuality]
@@ -39,6 +39,8 @@ class PinW < Sinatra::Application
         job.reads_files = params[:InputFiles]
 
         job.description = params[:InputDescription]
+
+        job.awaiting_download = true
     
         job.save
         redirect to '/jobs/active'

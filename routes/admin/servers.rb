@@ -4,7 +4,7 @@ require "sinatra/json"
 class PinW < Sinatra::Application
 
 	get '/admin/servers/?' do
-		server_list = Server.all.to_a
+		server_list = Server.order(priority: :asc)
 		erb :'admin/servers', :locals => { :server_list => server_list }
 	end
 
@@ -12,7 +12,7 @@ class PinW < Sinatra::Application
 	post '/admin/servers/new' do
 		server = Server.new
 
-		server.priority = Server.maximum(:priority)
+		server.priority = (Server.maximum(:priority) or 0) + 1
 		server.name = params[:InputName]
 		server.host = params[:InputHost]
 		server.port =  params[:InputPort]
@@ -69,7 +69,9 @@ class PinW < Sinatra::Application
 	end
 
 	get '/admin/servers/edit/:server_id' do
-		erb :'admin/servers'
+		server = Server.find params[:server_id]
+		return 404 unless server
+		erb :'admin/server_edit', :locals => { :server => server }
 	end
 
 
@@ -87,5 +89,46 @@ class PinW < Sinatra::Application
 	post '/admin/servers/disable' do 
 	 	Server.update params[:server_id], :enabled => false
 		redirect to '/admin/servers'
+	end
+
+	post '/admin/servers/up' do
+		Server.transaction do
+			server = Server.find params[:server_id]
+			if server.priority == 1
+				redirect to '/admin/servers?err=3'
+			end
+			oldPriority = server.priority
+			newPriority = oldPriority - 1
+			tempServer = Server.find_by priority: newPriority
+			server.update priority: 0
+			tempServer.update priority: oldPriority 
+			server.update priority: newPriority
+		end
+		redirect to '/admin/servers'
+	end
+
+	post '/admin/servers/down' do
+		Server.transaction do
+			server = Server.find params[:server_id]
+			if server.priority == Server.maximum(:priority)
+				redirect to '/admin/servers?err=4'
+			end
+			oldPriority = server.priority
+			newPriority = oldPriority + 1
+			tempServer = Server.find_by priority: newPriority
+			server.update priority: 0
+			tempServer.update priority: oldPriority 
+			server.update priority: newPriority
+		end
+		redirect to '/admin/servers'
+	end
+
+	post '/admin/servers/delete' do
+		Server.transaction do
+			server = Server.find params[:server_id]
+			server.destroy
+			Server.reindex
+		end
+		redirect to '/admin/servers?ok=2'
 	end
 end

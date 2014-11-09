@@ -1,0 +1,202 @@
+<head>
+  <title>PIntron | Server Detail</title>
+
+  <%# JS & CSS #%>
+  <%= erb :'/includes/header' %>
+  <script type="text/javascript" src="/js/admin_server_edit.js"></script>
+</head>
+<body>
+
+  <%# HEADER #%>
+  <%= erb :'/includes/navbar' %>
+
+
+  <%# PAGE CODE HERE #%>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1>Server details <small><%= server.name %></small></h1>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="">
+          <a href="/admin/servers" class="btn btn-primary pull-right" role="button">Go to server list</a>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <hr />
+        <% if params[:err] == '1' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Error!</strong>
+          </div>
+        <% end %>
+        <div id="alertValidating" class="alert alert-info nascosto">
+          <i class="fa fa-spinner fa-spin"></i> Validation in progress...
+        </div>
+        <div id="alertError" class="alert alert-danger nascosto">
+          <i class="fa fa-warning"></i> Error: <span id="errorText"></span>
+        </div>
+        <div id="alertErrorServer" class="alert alert-danger nascosto">
+          <i class="fa fa-warning"></i> Unable to contact the server... Please try again.
+        </div>
+        <div id="alertSuccess" class="alert alert-success nascosto">
+          <i class="fa fa-check"></i> All tests passed successfully!
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <%# detail block %>
+      <div class="col-md-6">
+        <form role="form" class="form-horizontal" method="post" action="/admin/servers/edit" id="editServerForm">
+          <input type="hidden" name="user_id" value="<%= server.id %>">
+
+          <div class="form-group">
+            <label for="InputName" class="col-md-4 control-label" >Name</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputName" value="<%= server.name %>" name="InputName" >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputHost" class="col-md-4 control-label" >Host</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputHost" value="<%= server.host %>" name="InputHost" >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputPort" class="col-md-4 control-label" >Port</label>
+            <div class="col-md-4">
+              <input type="number" class="form-control" id="InputPort" 
+               name="InputPort" min="1" max="65535" step="1" value="<%= server.port %>" >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputAuth" class="col-md-4 control-label" >Auth
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title="merda qui, grazie.">
+            <i class="fa fa-question-circle"></i></a>
+            </label>
+            <div class="col-md-4">
+              <label class="radio">
+                <input type="radio" name="type" value="1" <% if server.password %> checked="true" <% end %> />
+                  Login  
+              </label>
+            </div>
+            <div class="col-md-4">
+              <label class="radio">
+                <input type="radio" name="type" value="2" <% if !server.password %> checked="true" <% end %> />
+                  Public Key
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" id="rowInputUsername">
+            <label for="InputUsername" class="col-md-4 control-label" >Username</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputUsername" name="InputUsername" 
+               value="<%= server.username %>">
+            </div>
+          </div>
+
+          <div class="form-group <% if !server.password %> hide <% end %>" id="rowInputPassword">
+            <label for="InputPassword" class="col-md-4 control-label" >Password</label>
+            <div class="col-md-8">
+              <input type="password" class="form-control" id="InputPassword" name="InputPassword" 
+               value="<%= server.password %>">
+            </div>
+          </div>
+
+          <div class="form-group <% if server.password %> hide <% end %>" id="rowInputCertificate">
+            <label for="InputCertificate" class="col-md-4 control-label" >Certificate</label>
+            <div class="col-md-8">
+              <textarea class="form-control" id="InputCertificate" name="InputCertificate">
+              <%= server.client_certificate %>
+              </textarea>
+            </div>
+          </div>
+
+          <div class="form-group <% if server.password %> hide <% end %>" id="rowInputPassphrase">
+            <label for="InputPassphrase" class="col-md-4 control-label" >Passphrase</label>
+            <div class="col-md-8">
+              <input type="password" class="form-control" id="InputPassphrase" name="InputPassphrase" 
+               valie="<%= server.client_passphrase %>">
+            </div>
+          </div>
+
+          <div class="form-group" id="rowLocalNetwork">
+            <label for="InputLocalNetwork" class="col-md-4 control-label" >Local Network</label>
+            <div class="col-md-1">
+              <input type="checkbox"  id="InputLocalNetwork" checked="<%= 0 %>" name="InputLocalNetwork" class="flag">
+            </div>
+          </div>
+
+          <div class="form-group" id="rowAdvancedOptions">
+            <div class="col-md-offset-4 col-md-8">
+              <a id="AdvancedOptions">Advanced Options</a>
+            </div>
+          </div>
+
+          <div class="form-group nascosto" id="rowInputPintronPath">
+            <label for="InputPintronPath" class="col-md-4 control-label" >Pintron path</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputPintronPath" 
+               placeholder="eg: /foo/bar" name="InputPintronPath" >
+            </div>
+          </div>
+
+          <div class="form-group nascosto" id="rowInputPythonPath">
+            <label for="InputPythonPath" class="col-md-4 control-label" >Python path</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputPythonPath" 
+               placeholder="eg: /foo/bar" name="InputPythonPath" >
+            </div>
+          </div>
+
+          <div class="form-group nascosto" id="rowInputWorkingDir">
+            <label for="InputWorkingDir" class="col-md-4 control-label" >Working dir</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputWorkingDir" 
+               placeholder="eg: /foo/bar" name="InputWorkingDir" >
+            </div>
+          </div>
+
+          <div class="form-group nascosto" id="rowInputCallback">
+            <label for="InputCallback" class="col-md-4 control-label" >Use Callback</label>
+            <div class="col-md-1">
+              <input type="checkbox"  id="InputCallback" checked="true" value="1" name="InputCallback" class="flag">
+            </div>
+          </div>
+
+          <div class="form-group nascosto" id="rowInputCallbackURL">
+            <label for="InputCallbackURL" class="col-md-4 control-label" >Callback url</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputCallbackURL" 
+               placeholder="default" name="InputCallbackURL" >
+            </div>
+          </div>       
+
+          <div class="modal-footer">
+            <button data-tipo="test" type="server" id="submitTest" class="btn btn-default" >Test</button>
+            <button data-tipo="exec" type="server" id="submitReal" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+          
+      </div>
+
+      <%# jobs block %>
+      <div class="col-md-6">
+      </div>
+    </div>
+  </div>
+
+
+  <%# FOOTER #%>
+  <%= erb :'/includes/footer' %>
+</body>
