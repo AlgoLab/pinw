@@ -4,6 +4,26 @@ require 'yaml'
 require 'fileutils'
 require 'open-uri'
 
+module SqliteTransactionFix
+  def begin_db_transaction
+    # log('begin immediate transaction', nil) { @connection.transaction(:immediate) }
+    log('transaction prevented', nil){}
+  end
+
+  def commit_db_transaction
+    log('commit prevented', nil){}
+  end
+end
+
+module ActiveRecord
+  module ConnectionAdapters
+    class SQLite3Adapter < AbstractAdapter
+      prepend SqliteTransactionFix
+    end
+  end
+end
+
+
 
 class PinWFetch
 	class DiskFullError < RuntimeError; end
@@ -588,8 +608,7 @@ if __FILE__ == $0
 	PinWFetch.new({
 		adapter: settings['database']['adapter'],
 		database: settings['database']['name'],
-		timeout: 300000,
-  		wait_timeout: 50000
+		timeout: 30000,
 	}, debug: true, force: force).run_main_loop
 end
 
