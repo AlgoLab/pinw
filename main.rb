@@ -12,6 +12,7 @@ ActiveRecord::Base.logger = Logger.new(STDERR)
 ActiveRecord::Base.establish_connection({
   :adapter => settings['database']['adapter'],
   :database => settings['database']['name'],
+  :timeout => 300000
 })
 
 

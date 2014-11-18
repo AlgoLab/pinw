@@ -26,24 +26,21 @@ ActiveRecord::Schema.define do
       table.column :genomics_ok,          :boolean
       table.column :genomics_failed,      :boolean
       
-      table.column :reads_urls, :string
-      table.column :reads_downloading, :string # also contains locks, pids and retries
-      table.column :reads_downloaded, :string
-      table.column :reads_files, :string
-      table.column :reads_last_error, :string
-      table.column :reads_ok, :boolean
-      table.column :reads_failed, :boolean
+
+      table.column :reads_last_error,   :string
+      table.column :all_reads_ok,       :boolean
+      table.column :some_reads_failed,  :boolean
 
       table.column :downloads_completed_at, :datetime
 
       table.column :awaiting_dispatch, :boolean, default: false
 
-      table.column :quality_threshold, :integer
-      table.column :processing_dispatch_pid, :integer
-      table.column :processing_dispatch_lock, :datetime
-      table.column :processing_dispatched_at,  :datetime
-      table.column :processing_dispatch_error, :string 
-      table.column :processing_dispatch_ok, :boolean
+      table.column :quality_threshold,          :integer
+      table.column :processing_dispatch_pid,    :integer
+      table.column :processing_dispatch_lock,   :datetime
+      table.column :processing_dispatched_at,   :datetime
+      table.column :processing_dispatch_error,  :string 
+      table.column :processing_dispatch_ok,     :boolean
 
       table.column :processing_metrics,  :string
       table.column :processing_error, :string # pids are stored on the remote machine and polling is peformed by another script
@@ -64,7 +61,6 @@ end
 class Job < ActiveRecord::Base
   belongs_to :user, :class_name => 'User'
   belongs_to :server, :class_name => 'Server'
-  serialize :reads_urls
   def is_failure?
     ['TEMP_FAILURE', 'PARTIALLY_COMPLETED', 'FAILED'].include? self.status
   end
@@ -96,3 +92,28 @@ class Job < ActiveRecord::Base
     return Job.where('state = "QUEUED"')
   end
 end
+
+
+ActiveRecord::Schema.define do
+  unless ActiveRecord::Base.connection.tables.include? 'jobs_reads'
+    create_table :jobs_reads do |table|
+      table.references :job
+
+      table.column :url,            :string
+      table.column :retries,    :integer,   default: 0
+      table.column :last_retry, :datetime,  default: Time.at(0)
+      table.column :pid,        :integer
+      table.column :lock,       :datetime,  default: Time.at(0)
+      table.column :ok,         :boolean,   default: false
+      table.column :failed,     :boolean,   default: false
+
+      table.timestamps
+    end
+  end
+end
+
+class JobRead < ActiveRecord::Base
+  self.table_name = "jobs_reads"
+  belongs_to :job, class_name: 'Job'
+end
+

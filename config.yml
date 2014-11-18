@@ -2,6 +2,8 @@
 database:
   adapter: sqlite3
   name: pinw.db
+  timeout: 30000
+
 
 
 # -- PROCESSING --
