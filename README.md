@@ -26,4 +26,4 @@ Installation:
 
 Launch:
 
-`$ rakup`
+`$ rackup`
