@@ -1,0 +1,12 @@
+development:
+  adapter: sqlite3
+  database: db/dev.db
+
+test:
+  adapter: sqlite3
+  database: db/test.db
+
+production:
+  adapter: sqlite3
+  database: db/pinw.db
+

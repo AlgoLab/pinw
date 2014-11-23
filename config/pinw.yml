@@ -1,11 +1,3 @@
-# -- DATABASE --
-database:
-  adapter: sqlite3
-  name: pinw.db
-  timeout: 30000
-
-
-
 # -- PROCESSING --
 processing:
   min_read_length: 100

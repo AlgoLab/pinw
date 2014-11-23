@@ -1,38 +1,3 @@
-
-ActiveRecord::Schema.define do
-  unless ActiveRecord::Base.connection.tables.include? 'servers'
-    create_table :servers do |table|
-      table.column :priority,     :integer           
-
-      table.column :name,     :string, null: false           
-      table.column :host,     :string, null: false           
-      table.column :port,     :string
-      table.column :username, :string, null: false
-
-
-      table.column :password,           :string
-      table.column :client_certificate, :string
-      table.column :client_passphrase,  :string       
-
-      table.column :pintron_path,   :string             
-      table.column :python_command, :string         
-      table.column :working_dir,	  :string            
-
-      table.column :use_callback,  :boolean, default: true
-      table.column :callback_url,  :string            
-
-      table.column :local_network, :boolean, default: true
-      table.column :enabled,       :boolean, default: true
-      table.timestamps
-
-      table.index :name, unique: true
-
-
-      table.index :priority, :unique => true
-    end
-  end
-end
-
 class Server < ActiveRecord::Base
   validates_uniqueness_of :name, :priority
   validates :name, length: { in: 3..40 }

@@ -48,3 +48,5 @@ config/initializers/secret_token.rb
 .dropbox
 
 *.db
+
+downloads/*

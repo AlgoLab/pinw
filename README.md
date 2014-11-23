@@ -11,7 +11,7 @@ REQUIREMENTS
 ```
 gem 'sqlite3'
 gem 'sinatra', '1.4.5'
-gem 'activerecord', '4.1.6'
+gem 'sinatra- activerecord'
 gem 'net-ssh', '~> 2.9.1' 
 
 ```
@@ -19,4 +19,11 @@ gem 'net-ssh', '~> 2.9.1'
 USAGE
 -----
 
-`$ ruby main.rb`
+Installation:
+
+`$ rake db:setup`
+
+
+Launch:
+
+`$ rakup`

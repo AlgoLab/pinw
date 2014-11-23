@@ -1,26 +1,20 @@
 # encoding: utf-8
+
 require 'sinatra/base'
+require 'sinatra/activerecord'
 require 'yaml'
-require 'active_record'
 
-##################
-### DB PREPARE ###
-
-settings = YAML.load(File.read('config.yml'))
-
-ActiveRecord::Base.logger = Logger.new(STDERR)
-ActiveRecord::Base.establish_connection({
-  :adapter => settings['database']['adapter'],
-  :database => settings['database']['name'],
-  :timeout => 300000
-})
 
 
 ########################
 ### SINATRA SETTINGS ###
 class PinW < Sinatra::Application
+  register Sinatra::ActiveRecordExtension
 
-  #TODO: env variable
+  # database.yml is in config/ so is loaded automatically
+  # set :database_file, "path/to/database.yml"
+
+  # TODO: env variable
   set :session_secret, 'ACTTGTGATAGTACGTGT'
 
   # Cookie based sessions:
@@ -54,10 +48,7 @@ class PinW < Sinatra::Application
 end
 
 # Models:
-require_relative 'models/users'
-require_relative 'models/servers'
-require_relative 'models/results'
-require_relative 'models/jobs'
+require_relative 'models/base'
 
 # Routes:
 require_relative 'routes/base'

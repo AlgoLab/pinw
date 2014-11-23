@@ -4,25 +4,8 @@ require 'yaml'
 require 'fileutils'
 require 'open-uri'
 
-module SqliteTransactionFix
-  def begin_db_transaction
-    # log('begin immediate transaction', nil) { @connection.transaction(:immediate) }
-    log('transaction prevented', nil){}
-  end
-
-  def commit_db_transaction
-    log('commit prevented', nil){}
-  end
-end
-
-module ActiveRecord
-  module ConnectionAdapters
-    class SQLite3Adapter < AbstractAdapter
-      prepend SqliteTransactionFix
-    end
-  end
-end
-
+# Models:
+require_relative '../models/base'
 
 
 class PinWFetch
@@ -41,13 +24,6 @@ class PinWFetch
 		end
 
 		ActiveRecord::Base.establish_connection @db_settings
-
-		# Models:
-		require_relative '../models/users'
-		require_relative '../models/servers'
-		require_relative '../models/results'
-		require_relative '../models/jobs'
-		require_relative '../models/processing_status'
 	end
 
 	#########
@@ -598,7 +574,7 @@ end
 
 
 if __FILE__ == $0
-	settings = YAML.load(File.read('config.yml'))
+	settings = YAML.load(File.read('config/database.yml'))
 
 	force = false
 	if ARGV.length > 0 and (ARGV[0] == '-f' or ARGV[0] == '--force')
@@ -606,8 +582,8 @@ if __FILE__ == $0
 	end
 
 	PinWFetch.new({
-		adapter: settings['database']['adapter'],
-		database: settings['database']['name'],
+		adapter: settings['test']['adapter'],
+		database: settings['test']['database'],
 		timeout: 30000,
 	}, debug: true, force: force).run_main_loop
 end

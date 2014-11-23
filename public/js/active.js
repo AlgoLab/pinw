@@ -104,30 +104,27 @@ $(document).ready(function() {
             $('#rowInputGeneFile').addClass('hide');
             $('#InputGeneFile').val("");
             $('#rowInputGeneName').removeClass('hide');
-            $('#newJob')
-                    .bootstrapValidator('enableFieldValidators', 'InputGeneName', true)
-                    .bootstrapValidator('enableFieldValidators', 'InputGeneURL', false)
-                    .bootstrapValidator('enableFieldValidators', 'InputGeneFile', false);
+            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneName', true);
+            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneURL', false);
+            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneFile', false);
         } else if ($(this).val() === '2') {
             $('#rowInputGeneFile').addClass('hide');
             $('#InputGeneFile').val("");
             $('#rowInputGeneName').addClass('hide');
             $('#InputGeneName').val("");
             $('#rowInputGeneURL').removeClass('hide');
-            $('#newJob')
-                    .bootstrapValidator('enableFieldValidators', 'InputGeneURL', true)
-                    .bootstrapValidator('enableFieldValidators', 'InputGeneName', false)
-                    .bootstrapValidator('enableFieldValidators', 'InputGeneFile', false);
+            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneName', false);
+            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneURL', true);
+            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneFile', false);
         } else {
             $('#rowInputGeneURL').addClass('hide');
             $('#InputGeneURL').val("");
             $('#rowInputGeneName').addClass('hide');
             $('#InputGeneName').val("");
             $('#rowInputGeneFile').removeClass('hide');
-            $('#newJob')
-                    .bootstrapValidator('enableFieldValidators', 'InputGeneFile', true)
-                    .bootstrapValidator('enableFieldValidators', 'InputGeneName', false)
-                    .bootstrapValidator('enableFieldValidators', 'InputGeneURL', false);
+            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneName', false);
+            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneURL', false);
+            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneFile', true);
         }
     });
 
@@ -140,6 +137,7 @@ $(document).ready(function() {
         },
         fields: {
             InputGeneName: {
+                enabled: false,
                 validators: {
                     notEmpty: {
                         message: 'The date is required and cannot be empty'
