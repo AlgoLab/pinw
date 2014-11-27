@@ -66,3 +66,7 @@ body.modal {
 .bbr {
     border-bottom-right-radius: 10px
 }
+
+.move-down-10px {
+    padding-top: 7px;
+}

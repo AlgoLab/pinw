@@ -1593,7 +1593,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .form-control[readonly],
 fieldset[disabled] .form-control {
   cursor: not-allowed;
-  background-color: #abc147;
+  background-color: #EEEEEE;
 }
 textarea.form-control {
   height: auto;

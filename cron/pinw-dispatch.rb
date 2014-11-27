@@ -8,7 +8,7 @@ require_relative '../models/base'
 
 class PinWDispatch
 
-	def initialize db_settings, debug: false, force:false
+	def initialize db_settings, debug: false, force: false
 		@db_settings = db_settings
 		@debug = debug
 		@force = force
@@ -18,13 +18,6 @@ class PinWDispatch
 		end
 
 		ActiveRecord::Base.establish_connection @db_settings
-
-		# Models:
-		require_relative '../models/users'
-		require_relative '../models/servers'
-		require_relative '../models/results'
-		require_relative '../models/jobs'
-		require_relative '../models/processing_status'
 	end
 
 	def run_main_loop
@@ -32,7 +25,12 @@ class PinWDispatch
 		cron_lock = check_and_acquire_cron_lock
 
 		# Process all servers:
-		Server.order(:priority).each {|server| check_server server}
+		Server.order(:priority).each do |server| 
+			check_server server
+
+			# Refresh cron lock:
+			cron_lock.update value: Process.pid
+		end
 		# (ordering by priority ensures servers with higher priority 
 		#  are selected first to dispatch enqueued jobs)
 
@@ -53,12 +51,8 @@ class PinWDispatch
 
 		# Clear lock if needed:
 		if server.check_pid
-			case clear_lock server.check_pid
-			when :killed
-				puts 'killed old check process'
-			when :no_process
-				puts 'old check process died'
-			end
+			Process.kill 9, server.check_pid
+			puts 'killed old check process'
 		end
 
 
@@ -91,6 +85,7 @@ class PinWDispatch
 					# get results
 
 					completed_jobs = [1,2,3] # get from results
+					free_slots
 
 					channels = []
 					completed_jobs.each do |cj|
@@ -115,26 +110,72 @@ class PinWDispatch
 						end
 					end
 
-					## DISPATCH NEW JOBS ##
-					# Job.find_by(awaiting_dispatch: true)
-					job = get right job
+					
 
-					# locks
-					# transfer data
-					# launch job
+					# This nested block is only used to ensure that
+					# channels don't get interrupted by errors that 
+					# might happen during a job dispatch.
+					# All error handling is still done in the main
+					# begin/rescue block.
+					begin 
+						## DISPATCH NEW JOBS ##
+						while free_slots > 0
+
+							break if server.remote_network and ProcessingState.get('BLSBLA')
+
+							Job.transaction do
+								job = Job.find_by!(awaiting_dispatch: true,
+												  # Job.arel_table[:processing_dispatch_lock].lt(Time.now - 5 * 60), # 5 minutes
+												  processing_dispatch_lock: Time.at(0)..(Time.now - 5 * 60), # 5 minutes
+												  server_id: [server.id, nil]).order(:server_id)
+								
+
+								if job.processing_dispatch_pid
+									Process.kill 9, job.processing_dispatch_pid
+									puts 'killed old dispatch'
+								end
 
 
-					# If channels took more time to complete than dispatch 
-					# (or there was no dispatch), wait for them all to complete:
-					channels.each {|ch| ch.wait}
+								job.update {
+									processing_dispatch_lock: Time.now,
+									processing_dispatch_pid: Process.pid
+								}		
+							end
+
+
+
+							# transfer data
+								# clear remote directory
+								# copy #{job.id}/input (genomics, reads0, reads1, ...)
+								# copy some script information in root?
+
+							# launch job
+
+
+
+							job.update {
+								processing_dispatch_pid: nil,
+								awaiting_dispatch: false,
+								processing_dispatch_ok: true
+							}
+
+							free_slots -= 1
+						end
+					ensure
+						# If channels took more time to complete than dispatch 
+						# (or there was no dispatch), wait for them all to complete:
+						channels.each {|ch| ch.wait}
+					end
 				end
-			rescue
+			rescue ActiveRecord::RecordNotFound
+				# Apparently we're out of jobs to dispatch, nice!
+
+			rescue => ex
+				puts ex.message
 
 			ensure
 				server.update check_pid: nil
-				# job.update dispatch_pid: nil
 				puts '[D] end of subprocess' if @debug
-
 			end
 		end
 		Process.detach(spid)
@@ -152,7 +193,7 @@ class PinWDispatch
 		# Check if another pinw-dispatch is running (or is dead/hanging):
 		puts " Cron lock value: #{cron_lock.value}" if @debug
 		if cron_lock.value # nil => last cron completed successfully 
-			if (not @force) and cron_lock.updated_at > Time.now - 5 * 60 # 5 minutes
+			if (not @force) and Time.now < cron_lock.updated_at + 5 * 60 # 5 minutes
 				# The other process is still alive
 				puts "Warning: older cron insance still running, aborting current execution."
 				Process.exit(0)
@@ -174,22 +215,11 @@ class PinWDispatch
 		return cron_lock
 	end
 
-
-	def clear_lock pid
-		begin
-			Process.kill 9, pid
-			return :killed
-		rescue
-			return :no_process
-		end
-	end	
-
-
 end
 
 
 if __FILE__ == $0
-	settings = YAML.load(File.read('config.yml'))
+	settings = YAML.load(File.read('config/database.yml'))
 
 	force = false
 	if ARGV.length > 0 and (ARGV[0] == '-f' or ARGV[0] == '--force')
@@ -197,8 +227,8 @@ if __FILE__ == $0
 	end
 
 	PinWDispatch.new({
-		adapter: settings['database']['adapter'],
-		database: settings['database']['name'],
+		adapter: settings['test']['adapter'],
+		database: settings['test']['database'],
 		timeout: 30000,
 	}, debug: true, force: force).run_main_loop
 end

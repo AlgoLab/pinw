@@ -19,7 +19,7 @@
     <div class="row">
       <div class="col-md-12">
         <div class="page-header">
-          <h1>Active Jobs <small></small></h1>
+          <h1><i class="fa fa-cubes"></i> Active Jobs <small></small></h1>
         </div>
       </div>
     </div>
@@ -109,21 +109,53 @@
           <% end %>
 
           <div class="form-group">
+            <label for="InputOrganism" class="col-md-3 control-label">Organism</label>
+            <div class="col-md-3 move-down-10px">
+              <input type="checkbox" name="InputOrganismUnknown" value="true" id="Organism"> Unknown
+            </div>
+            <div class="col-md-6">
+              <select class="form-control" id="InputOrganism"  name="InputOrganism" required>
+                <option value="human">Human</option>
+                <option value="papera">Papera</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputGeneName" class="col-md-3 control-label">Gene Name</label>
+            <div class="col-md-3 move-down-10px">
+              <input type="checkbox" name="InputGeneNameUnknown" value="true" id="GeneName"> Unknown
+            </div>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="InputGeneName" placeholder="eg: caramel" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputTranscripts" class="col-md-3 control-label">Transcripts</label>
+            <div class="col-md-9 move-down-10px">
+              <input type="checkbox" name="InputTranscripts" value="true" id="InputTranscripts">
+              Download from ENSEMBL
+            </div>
+          </div>
+
+          <div class="form-group">
             <label for="InputGenomics" class="col-md-3 control-label" >Genomics
             <a data-toggle="tooltip" data-placement="right" data-html="true" title="A gene name with relative 
             genomic data (FASTA) is required. You can either provide a gene name (the genomic data will
              be downloaded from Ensembl) or a FASTA file properly annotated via either URL link or direct upload."><i class="fa fa-question-circle"></i></a>
             </label>
+
             <div class="col-md-3">
               <label class="radio">
-                <input type="radio" name="type" value="1" checked="true" />
-                  Gene name
-                  
+                <input type="radio" name="type" value="1" checked="true" id="downloadEnsembl"/>
+                  ENSEMBL
               </label>
             </div>
+            
             <div class="col-md-3">
               <label class="radio">
-                <input type="radio" name="type" value="2" />
+                <input type="radio" name="type" value="2" id="downloadFastaURL"/>
                   FASTA URL
               </label>
             </div>
@@ -132,16 +164,6 @@
                 <input type="radio" name="type" value="3" />
                   FASTA file
               </label>
-            </div>
-          </div>
-
-          
-
-          <div class="form-group" id='rowInputGeneName'>
-            <label for="InputGeneName" class="col-md-3 control-label" >Gene name</label>
-            <div class="col-md-9">
-              <input type="text" class="form-control" id="InputGeneName" 
-               placeholder="eg: caramel" name="InputGeneName" >
             </div>
           </div>
 
@@ -178,7 +200,7 @@
           <div class="form-group">
             <label class="col-md-3 control-label">Reads URL</label>
             <div class="col-md-7">
-              <input type="text" class="form-control" name="InputURLs[]" />
+              <input type="text" class="form-control" name="InputURLs[]" required id="firstReadURL" />
             </div>
             <div class="col-md-2">
               <button type="button" class="btn btn-primary addButtonURL"><i class="fa fa-plus"></i></button>
@@ -198,7 +220,7 @@
           <div class="form-group">
             <label class="col-md-3 control-label">Reads File</label>
             <div class="col-md-7">
-              <input type="file" name="InputFiles[]" />
+              <input type="file" name="InputFiles[]" id="firstReadFile" />
             </div>
             <div class="col-md-2">
               <button type="button" class="btn btn-primary addButtonFile"><i class="fa fa-plus"></i></button>
@@ -218,13 +240,13 @@
           <div class="form-group">
             <label for="InputDescription" class="col-md-3 control-label" >Description</label>
             <div class="col-md-9">
-              <textarea class="form-control" rows="3" id="InputDescription"  name="InputDescription" ></textarea>
+              <textarea class="form-control" rows="2" id="InputDescription"  name="InputDescription" ></textarea>
             </div>
           </div>
 
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Save</button>
+            <input type="submit" class="btn btn-primary" value="Save" id="submit">
           </div>
         </form>
       </div>

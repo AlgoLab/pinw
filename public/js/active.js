@@ -95,75 +95,97 @@ $(document).ready(function() {
             $("#InputQuality").slider();
         });
 
-    // select the source of input data
-
-    $("input[name='type']").change(function(){
-        if ($(this).val() === '1') {
-            $('#rowInputGeneURL').addClass('hide');
-            $('#InputGeneURL').val("");
+    // organism block
+    $('#Organism').change(function(){
+        if ($(this).is(':checked')) {
+            $('#InputOrganism').prop('disabled', 'disabled');
+            $('#InputOrganism').val('');
+            $('#InputOrganism').removeAttr('required');
+            $('#downloadEnsembl').prop('disabled', 'disabled');
+            $('#downloadEnsembl').prop('checked', false);
+            $('#downloadFastaURL').prop('checked', true);
             $('#rowInputGeneFile').addClass('hide');
+            $('#InputGeneFile').removeAttr('required');
             $('#InputGeneFile').val("");
-            $('#rowInputGeneName').removeClass('hide');
-            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneName', true);
-            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneURL', false);
-            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneFile', false);
-        } else if ($(this).val() === '2') {
-            $('#rowInputGeneFile').addClass('hide');
-            $('#InputGeneFile').val("");
-            $('#rowInputGeneName').addClass('hide');
-            $('#InputGeneName').val("");
+            $('#InputGeneURL').prop('required', true);
             $('#rowInputGeneURL').removeClass('hide');
-            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneName', false);
-            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneURL', true);
-            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneFile', false);
+            $('#InputTranscripts').prop('disabled', 'disabled');
+            $('#InputTranscripts').prop('checked', false);
         } else {
-            $('#rowInputGeneURL').addClass('hide');
-            $('#InputGeneURL').val("");
-            $('#rowInputGeneName').addClass('hide');
-            $('#InputGeneName').val("");
-            $('#rowInputGeneFile').removeClass('hide');
-            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneName', false);
-            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneURL', false);
-            $('#newJob').bootstrapValidator('enableFieldValidators', 'InputGeneFile', true);
-        }
-    });
-
-    $("[data-toggle=tooltip]").tooltip();
-    $('#newJob').bootstrapValidator({
-        feedbackIcons:{
-            valid: 'glyphicon glyphicon-ok',
-            invalid: 'glyphicon glyphicon-remove',
-            validating: 'glyphicon glyphicon-refresh'
-        },
-        fields: {
-            InputGeneName: {
-                enabled: false,
-                validators: {
-                    notEmpty: {
-                        message: 'The date is required and cannot be empty'
-                    }
-                }
-            },
-            InputGeneURL: {
-                enabled: false,
-                validators: {
-                    notEmpty: {
-                        message: 'The date is required and cannot be empty'
-                    }
-                }
-            },
-            InputGeneFile: {
-                enabled: false,
-                validators: {
-                    notEmpty: {
-                        message: 'The date is required and cannot be empty'
-                    }
-                }
+            $('#InputOrganism').prop('disabled', false);
+            $('#InputOrganism').attr('required', true);
+            if ( !$('#GeneName').is(':checked')) {
+                $('#downloadEnsembl').prop('disabled', false);
+                $('#InputTranscripts').prop('disabled', false);
             }
         }
     });
 
-    // form JS per load dei job in realtime
+
+    // gene name block
+    $('#GeneName').change(function(){
+        if ($(this).is(':checked')) {
+            $('#InputGeneName').prop('disabled', 'disabled');
+            $('#InputGeneName').val('');
+            $('#InputGeneName').removeAttr('required');
+            $('#downloadEnsembl').prop('disabled', 'disabled');
+            $('#downloadEnsembl').prop('checked', false);
+            $('#downloadFastaURL').prop('checked', true);
+            $('#rowInputGeneFile').addClass('hide');
+            $('#InputGeneFile').removeAttr('required');
+            $('#InputGeneFile').val("");
+            $('#InputGeneURL').prop('required', true);
+            $('#rowInputGeneURL').removeClass('hide');
+            $('#InputTranscripts').prop('disabled', 'disabled');
+            $('#InputTranscripts').prop('checked', false);
+        } else {
+            $('#InputGeneName').prop('disabled', false);
+            $('#InputGeneName').attr('required', true);
+            if ( !$('#Organism').is(':checked')) {
+                $('#downloadEnsembl').prop('disabled', false);
+                $('#InputTranscripts').prop('disabled', false);
+            }
+        }
+    });
+
+    // genomics block
+    $("input[name='type']").change(function(){
+        if ($(this).val() === '1') {
+            $('#rowInputGeneURL').addClass('hide');
+            $('#InputGeneURL').val("");
+            $('#InputGeneURL').removeAttr('required');
+            $('#rowInputGeneFile').addClass('hide');
+            $('#InputGeneFile').val("");
+            $('#InputGeneFile').removeAttr('required');
+            $('#rowInputGeneName').removeClass('hide');
+        } else if ($(this).val() === '2') {
+            $('#rowInputGeneFile').addClass('hide');
+            $('#InputGeneFile').removeAttr('required');
+            $('#InputGeneFile').val("");
+            $('#InputGeneURL').prop('required', true);
+            $('#rowInputGeneURL').removeClass('hide');
+        } else if ($(this).val() === '3'){
+            $('#rowInputGeneURL').addClass('hide');
+            $('#InputGeneURL').removeAttr('required');
+            $('#InputGeneURL').val("");
+            $('#InputGeneFile').prop('required', true);
+            $('#rowInputGeneFile').removeClass('hide');
+        }
+    });
+
+    $("[data-toggle=tooltip]").tooltip();
+    
+
+    // reads block
+    $("#firstReadFile").change(function(){
+        if ( $(this).val() ) {
+            $('#firstReadURL').removeAttr('required');
+        } else {
+            $('#firstReadURL').prop('required', true);
+        }
+    });
+
+    // form JS  (jobs load in realtime)
     _get_jobs();
 
 });

@@ -7,6 +7,7 @@ require 'open-uri'
 # Models:
 require_relative '../models/base'
 
+# TODO: gene_name_soon flags return hints check processing limits
 
 class PinWFetch
 	class DiskFullError < RuntimeError; end
@@ -14,7 +15,7 @@ class PinWFetch
 	class UserFilesizeLimitError < RuntimeError; end
 	class InvalidJobStateError < RuntimeError; end
 
-	def initialize db_settings, debug: false, force:false
+	def initialize db_settings, debug: false, force: false
 		@db_settings = db_settings
 		@debug = debug
 		@force = force
@@ -82,7 +83,7 @@ class PinWFetch
 
 	end
 
-	def genomics job
+	def genomics job, async: true
 		# Returns a hint for the ensembl function:
 		# true if problems have been encountered that 
 		# will prevent the process from getting a gene 
@@ -90,15 +91,15 @@ class PinWFetch
 
 		puts 'genomics started' if @debug
 
-		# Exit if there is nothing to do:
+		# Exit if there is nothing to do or a lock is still in place:
 		return false if job.genomics_ok
-	    genomics_lock_expired = (not job.genomics_pid) or (Time.now > job.genomics_lock + 5 * 60) # 5 minutes
-		return (not job.gene_name and true) if job.genomics_failed or not genomics_lock_expired
+		return (not job.gene_name) if job.genomics_failed or (job.genomics_pid and (Time.now < job.genomics_lock + 5 * 60))
+
 
 		puts 'past first return wall' if @debug
 
 		# Exit if we need to wait more before attempting again to download:
-		return (not job.gene_name and true) unless waited_enough job.genomics_last_retry, job.genomics_retries
+		return (not job.gene_name) unless waited_enough job.genomics_last_retry, job.genomics_retries
 
 		puts 'past second' if @debug
 
@@ -109,28 +110,26 @@ class PinWFetch
 
 		# Clear lock if needed:
 		if job.genomics_pid
-			case clear_lock job.genomics_pid
-			when :killed
-				puts 'killed old genomics'
-			when :no_process
-				puts 'old genomics died'
-			end
+			Process.kill 9, job.genomics_pid
+			puts 'killed old genomics' if @debug
 		end
 
 		puts 'done with genomics lock' if @debug
 
 		# Close the DB connection (required when forking):
-		ActiveRecord::Base.connection_pool.disconnect!
+		ActiveRecord::Base.connection_pool.disconnect! if async
 
-		puts 'forking' if @debug
+		puts 'forking' if @debug and async
 
-		# Start the process that will perform the processing:
-		spid = Process.fork do 
+		# The function that does the actual work:
+		# (it will be either executed in a different process
+		# or executed sequentially if `async` is set to false)
+		processing_block = lambda {
 			begin
-				puts '[G] inside the process' if @debug
+				puts '[G] inside the process (or still in the same process is async is false :)' if @debug
 
 				# Connect to the database:
-				ActiveRecord::Base.establish_connection @db_settings
+				ActiveRecord::Base.establish_connection @db_settings if async
 
 				# Update the db
 				job.update({
@@ -159,41 +158,43 @@ class PinWFetch
 
 					# TODO: encoding, compression, url safety checks
 					open(job.genomics_url, 
-					  :content_length_proc => lambda {|bytes|
-					  	return unless bytes
-					  	filesize = bytes / 1024 / 1024 # MegaBytes 
+						:content_length_proc => lambda {|bytes|
+							return unless bytes
+							filesize = bytes / 1024 / 1024 # MegaBytes 
 
-				    	puts '[G] content length test' if @debug
+							puts '[G] content length test' if @debug
 
-				    	# Check disk and user limits:
-				    	raise_if_not_enough_space filesize: filesize, user: job.user
+							# Check disk and user limits:
+							raise_if_not_enough_space filesize: filesize, user: job.user
 
-				    	puts '[G] ok content length test' if @debug
-					  },
+							puts '[G] ok content length test' if @debug
+						},
 
-					  :progress_proc => lambda {|bytes|
-					  	transferred = bytes / 1024 / 1024 # MegaBytes
-					   # TODO: update some counter?
-						   # Check disk and user limits:
-						   raise_if_not_enough_space filesize: transferred, user: job.user
+						:progress_proc => lambda {|bytes|
+							transferred = bytes / 1024 / 1024 # MegaBytes
+							# TODO: update some counter?
+							# Check disk and user limits:
+							raise_if_not_enough_space filesize: transferred, user: job.user
 
-						   # Keepalive:
-						   if Time.now > job.genomics_lock + 20 # Seconds
-						   	job.update genomics_lock: Time.now
-						   end
-					  },
-					  :read_timeout=>10) do |transfer| 
-							header = transfer.readline
-							raise BadFASTAHeaderError unless header =~ /\A>(chr)?X|Y|x|y|\d+:\d+:\d+:\+|-|\+1|-1|1\z/
-							
-							File.open("downloads/#{job.id}/genomics.fasta", 'w') do |f| 
-								f.write header
-								f.write transfer.read 
+							# Keepalive:
+							if Time.now > job.genomics_lock + 20 # Seconds
+								job.update genomics_lock: Time.now
 							end
-						end
+						},
+						:read_timeout=>10
 
-							# TODO:      ^^ find better syntax, add separated exception hadnling?
-							# TODO: check frame, extract gene_name asap
+					) do |transfer| 
+						header = transfer.readline
+						raise BadFASTAHeaderError unless header =~ /\A>(chr)?X|Y|x|y|\d+:\d+:\d+:\+|-|\+1|-1|1\z/
+						
+						File.open("downloads/#{job.id}/genomics.fasta", 'w') do |f| 
+							f.write header
+							f.write transfer.read 
+						end
+					end
+
+					# TODO:      ^^ find better syntax, add separated exception hadnling?
+					# TODO: check frame, extract gene_name asap
 					
 
 				# A FASTA file was provided by the user and we need to check its headers:
@@ -258,64 +259,66 @@ class PinWFetch
 				job.update genomics_pid: nil
 				puts '[G] end of subprocess' if @debug
 			end
+		}
+
+		if async
+			# Start the process that will perform the processing:
+			Process.detach Process.fork &processing_block
+		else
+			processing_block[]
 		end
-		Process.detach spid
+
 
 		# Back online:
-		ActiveRecord::Base.establish_connection @db_settings
+		ActiveRecord::Base.establish_connection @db_settings if async
 
 		return false
 	end
 
 
-	def ensembl job
+	def ensembl job, async: true
 		# Returns false when the ensembl fetch has already 
 		# either failed or succeeded, returns true otherwise.
 
 		puts 'started ensembl transcripts fetch procedure' if @debug
 
-		# Caching the value since it will be used twice:
-	    ensembl_lock_expired = (not job.ensembl_pid) or (Time.now > job.ensembl_lock + 5 * 60) # 5 minutes
+		# Exit if there is nothing to do:
+		return false if job.ensembl_ok or job.ensembl_failed or (job.ensembl_pid and (Time.now < job.ensembl_lock + 5 * 60)) # 5 minutes
 
-	    # Exit if there is nothing to do:
-	    return false if job.ensembl_ok or job.ensembl_failed or not ensembl_lock_expired
+		puts "past first return wall" if @debug
 
-	    puts "past first return wall" if @debug
+		# Clear lock if needed:
+		if job.ensembl_pid
+			Process.kill 9, job.ensembl_pid
+			puts 'ensembl killed'
+		end
 
-	    # Clear lock if needed:
-	   	if job.ensembl_pid
-	    	case clear_lock job.ensembl_pid
-	    	when :killed
-	    		puts 'ensembl killed'
-	    	when :no_process
-	    		puts 'ensembl process died badly'
-	    	end
-	    end
+		puts 'ok lock ensembl' if @debug
 
-	    puts 'ok lock ensembl' if @debug
+		# Exit if we still need to wait before attempting again the download:
+		return true unless waited_enough job.ensembl_last_retry, job.ensembl_retries
 
-	    # Exit if we still need to wait before attempting again the download:
-	    return true unless waited_enough job.ensembl_last_retry, job.ensembl_retries
-
-	    # If we don't have a gene_name we wait a little 
-	    # and then exit if the situation hasn't changed.
-	    sleep(5) unless job.gene_name
-	    job = Job.find job.id
-	    return true unless job.gene_name
+		# If we don't have a gene_name we wait a little 
+		# and then exit if the situation hasn't changed.
+		sleep(5) unless job.gene_name
+		job = Job.find job.id
+		return true unless job.gene_name
 
 
 		puts "forking!" if @debug
 
 		# Close the DB connection (required when forking):
-		ActiveRecord::Base.connection_pool.disconnect!
+		ActiveRecord::Base.connection_pool.disconnect! if async
 
-		# Spawn the process that will perform the download:
-		spid = Process.fork do 
+		# The function that does the actual work:
+		# (it will be either executed in a different process
+		# or executed sequentially if `async` is set to false)
+		processing_block = lambda { 
 			begin
-				puts '[E] starded subprocess' if @debug
+				puts '[E] starded subprocess (or still in the same process if async is false :)' if @debug
 
 				# Connect to the database:
-				ActiveRecord::Base.establish_connection @db_settings
+				ActiveRecord::Base.establish_connection @db_settings if async
 
 				# Update the DB with our new pid:
 				# job.update ensembl_pid: Process.pid
@@ -349,19 +352,23 @@ class PinWFetch
 				job.update ensembl_pid: nil
 				puts '[E] end of subprocess' if @debug
 			end
-		end
+		}
 
 		# Detach from the child process:
-		Process.detach spid
+		if async
+			Process.detach Process.fork &processing_block
+		else
+			processing_block[]
+		end
 
 		# Restablish the database connection:
-		ActiveRecord::Base.establish_connection @db_settings
+		ActiveRecord::Base.establish_connection @db_settings if async
 
 		return true
 	end
 
 
-	def reads job
+	def reads job, async: true
 		puts 'reads started' if @debug
 
 		# Exit if there is nothing to do:
@@ -376,21 +383,17 @@ class PinWFetch
 		reads_list.each do |reads|
 
 			# Skip to the next loop if there is nothing to do:
-			continue unless (not reads.pid) or (Time.now > reads.lock + 5 * 60) # 5 minutes
+			continue if reads.pid and Time.now < reads.lock + 5 * 60 # 5 minutes
 
 			puts "past first return wall" if @debug
 
-		    # Clear lock if needed:
-		   	if job.ensembl_pid
-		    	case clear_lock job.ensembl_pid
-		    	when :killed
-		    		puts 'ensembl killed'
-		    	when :no_process
-		    		puts 'ensembl process died badly'
-		    	end
-		    end
+			# Clear lock if needed:
+			if job.ensembl_pid
+				Process.kill 9, job.ensembl_pid
+				puts 'ensembl killed'
+			end
 
-		    puts 'done with lock' if @debug
+			puts 'done with lock' if @debug
 
 			# Skip to the next loop if we still need to wait before attempting again the download:
 			continue unless waited_enough reads.last_retry, reads.retries
@@ -399,15 +402,17 @@ class PinWFetch
 			puts "forking!" if @debug
 
 			# Close the DB connection (required when forking):
-			ActiveRecord::Base.connection_pool.disconnect!
+			ActiveRecord::Base.connection_pool.disconnect! if async
 
-			# Spawn the process that will perform the download:
-			spid = Process.fork do 
+			# The function that does the actual work:
+			# (it will be either executed in a different process
+			# or executed sequentially if `async` is set to false)
+			processing_block = lambda {
 				begin
-					puts "[R##{reads.id}] starded subprocess" if @debug
+					puts "[R##{reads.id}] starded subprocess (or still in the same process if async is false" if @debug
 
 					# Connect to the database:
-					ActiveRecord::Base.establish_connection @db_settings
+					ActiveRecord::Base.establish_connection @db_settings if async
 
 					# Update the DB with our new pid:
 					# job.update ensembl_pid: Process.pid
@@ -437,26 +442,26 @@ class PinWFetch
 					# TODO: encoding, compression, url safety checks
 					open(reads.url, 
 					  :content_length_proc => lambda {|bytes|
-					  	return unless bytes
-					  	filesize = bytes / 1024 / 1024 # MegaBytes 
+						return unless bytes
+						filesize = bytes / 1024 / 1024 # MegaBytes 
 
-				    	puts "[R##{reads.id}] content length test" if @debug
+						puts "[R##{reads.id}] content length test" if @debug
 
-				    	# Check disk and user limits:
-				    	raise_if_not_enough_space filesize: filesize, user: job.user
+						# Check disk and user limits:
+						raise_if_not_enough_space filesize: filesize, user: job.user
 
-				    	puts "[R##{reads.id}] ok content length test" if @debug
+						puts "[R##{reads.id}] ok content length test" if @debug
 					  },
 
 					  :progress_proc => lambda {|bytes|
-					  		transferred = bytes / 1024 / 1024 # MegaBytes
-					   		# TODO: update some counter?
+							transferred = bytes / 1024 / 1024 # MegaBytes
+							# TODO: update some counter?
 						   # Check disk and user limits:
-				    		raise_if_not_enough_space filesize: filesize, user: job.user
+							raise_if_not_enough_space filesize: filesize, user: job.user
 						   
 						   # Keepalive:
 						   if Time.now > reads.lock + 20 # Seconds
-						   	job.update genomics_lock: Time.now
+							job.update genomics_lock: Time.now
 						   end
 					  },
 					:read_timeout=>10) do |transfer| 
@@ -478,37 +483,42 @@ class PinWFetch
 					# Check if job is ready to be dispatched:
 					job.update(awaiting_dispatch: true, downloads_completed_at: Time.now) if Job.find(job.id).genomics_ok 
 
-	    		rescue DiskFullError
-	    			puts "[R##{reads.id}] the disk is full!" if @debug
-	    			reads.update retries: reads.retries - 1, failed: true, genomics_last_error: "Disk full!"
-	    			#          ^^^^^^^^^^^^^^^^ It shoudn't count as a failed retry. 
-	    			job.update some_reads_failed: true, reads_last_error: "Disk full!"
+				rescue DiskFullError
+					puts "[R##{reads.id}] the disk is full!" if @debug
+					reads.update retries: reads.retries - 1, failed: true, genomics_last_error: "Disk full!"
+					#          ^^^^^^^^^^^^^^^^ It shoudn't count as a failed retry. 
+					job.update some_reads_failed: true, reads_last_error: "Disk full!"
 
-	    		rescue UserFilesizeLimitError
-	    			puts "[R##{reads.id}] this file exceedes the user limits!" if @debug
-	    			reads.update failed: true, last_error: "Filesize exceedes user limits."
-	    			job.update some_reads_failed: true, reads_last_error: "##{reads.id} exceedes user limits."
+				rescue UserFilesizeLimitError
+					puts "[R##{reads.id}] this file exceedes the user limits!" if @debug
+					reads.update failed: true, last_error: "Filesize exceedes user limits."
+					job.update some_reads_failed: true, reads_last_error: "##{reads.id} exceedes user limits."
 
-	    		rescue URI::InvalidURIError => ex
-	    			puts "[R##{reads.id}] invalid url error!" if @debug
-	    			reads.update failed: true, last_error: "Invalid URL"
-	    			job.update some_reads_failed: true, reads_last_error: "##{reads.id} has and invalid URL."
+				rescue URI::InvalidURIError => ex
+					puts "[R##{reads.id}] invalid url error!" if @debug
+					reads.update failed: true, last_error: "Invalid URL"
+					job.update some_reads_failed: true, reads_last_error: "##{reads.id} has and invalid URL."
 
-	    		rescue => ex
-	    			puts "[R##{reads.id}] unhandled error: #{ex.message}." if @debug
-	    			reads.update failed: true, last_error: "Unhandled error: #{ex.message}."
-	    			job.update some_reads_failed: true, reads_last_error: "##{reads.id} unhandled error: #{ex.message}."
+				rescue => ex
+					puts "[R##{reads.id}] unhandled error: #{ex.message}." if @debug
+					reads.update failed: true, last_error: "Unhandled error: #{ex.message}."
+					job.update some_reads_failed: true, reads_last_error: "##{reads.id} unhandled error: #{ex.message}."
 
-	    		ensure
-	    			reads.update pid: nil
-	    			puts '[G] end of subprocess' if @debug
-	    		end
+				ensure
+					reads.update pid: nil
+					puts '[G] end of subprocess' if @debug
+				end
+			}
+
+			if async 
+				Process.detach Process.fork &processing_block
+			else
+				processing_block[]
 			end
-			Process.detach spid
 		end
 		
 		# Back online:
-		ActiveRecord::Base.establish_connection @db_settings
+		ActiveRecord::Base.establish_connection @db_settings if async
 		return reads_list.length > 0
 	end
 
@@ -521,7 +531,7 @@ class PinWFetch
 		# Check if another pinw-fetch is running (or is dead/hanging):
 		puts " Cron lock value: #{cron_lock.value}" if @debug
 		if cron_lock.value # nil => last cron completed successfully 
-			if (not @force) and cron_lock.updated_at > Time.now - 5 * 60 # 5 minutes
+			if (not @force) and Time.now < cron_lock.updated_at + 5 * 60 # 5 minutes
 				# The other process is still alive
 				puts "Warning: older cron insance still running, aborting current execution."
 				Process.exit(0)
@@ -543,17 +553,6 @@ class PinWFetch
 		return cron_lock
 	end
 
-
-
-
-	def clear_lock pid
-		begin
-			Process.kill 9, pid
-			return :killed
-		rescue
-			return :no_process
-		end
-	end	
 
 
 	def waited_enough last_retry, retries
