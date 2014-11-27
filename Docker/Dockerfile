@@ -24,8 +24,13 @@ WORKDIR /home/app
 USER app
 RUN git clone https://github.com/AlgoLab/pinw
 
-USER root
-RUN bundle install --gemfile=pinw/Gemfile
+# USER root
+WORKDIR /home/app/pinw
+RUN export RACK_ENV=production
+
+RUN bundle install
+RUN rake db:setup
+RUN whenever -w
 
 # Add configuration to nginx:
 RUN rm /etc/nginx/sites-enabled/default

@@ -4,6 +4,7 @@ require 'yaml'
 require 'fileutils'
 require 'open-uri'
 
+
 # Models:
 require_relative '../models/base'
 
@@ -573,7 +574,8 @@ end
 
 
 if __FILE__ == $0
-	settings = YAML.load(File.read('config/database.yml'))
+	settings = YAML.load(File.read(File.expand_path('../../config/database.yml', __FILE__)))
+
 
 	force = false
 	if ARGV.length > 0 and (ARGV[0] == '-f' or ARGV[0] == '--force')
@@ -582,7 +584,7 @@ if __FILE__ == $0
 
 	PinWFetch.new({
 		adapter: settings['test']['adapter'],
-		database: settings['test']['database'],
+		database: File.expand_path('../../' + settings['test']['database'], __FILE__),
 		timeout: 30000,
 	}, debug: true, force: force).run_main_loop
 end

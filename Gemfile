@@ -8,5 +8,5 @@ gem 'rake'
 gem 'activerecord', '~> 4.1.6'
 gem 'net-ssh', '~> 2.9.1' 
 gem 'sys-filesystem', '~> 1.1.3'
-
+gem 'whenever'
 

@@ -228,7 +228,7 @@ if __FILE__ == $0
 
 	PinWDispatch.new({
 		adapter: settings['test']['adapter'],
-		database: settings['test']['database'],
+		database: File.expand_path('../../' + settings['test']['database'], __FILE__),
 		timeout: 30000,
 	}, debug: true, force: force).run_main_loop
 end
