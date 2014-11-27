@@ -24,20 +24,22 @@ WORKDIR /home/app
 USER app
 RUN git clone https://github.com/AlgoLab/pinw
 
-# USER root
+USER root
 WORKDIR /home/app/pinw
 RUN export RACK_ENV=production
 
 RUN bundle install
+USER app
 RUN rake db:setup
 RUN whenever -w
-
+USER root
 # Add configuration to nginx:
 RUN rm /etc/nginx/sites-enabled/default
-RUN cp pinw/Docker/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
+RUN cp Docker/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
 # TODO: better configuration
 
 # TODO: External location for the DB
-
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+EXPOSE 80 8080
