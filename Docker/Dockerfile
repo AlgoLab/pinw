@@ -26,7 +26,7 @@ RUN git clone https://github.com/AlgoLab/pinw
 
 USER root
 WORKDIR /home/app/pinw
-RUN export RACK_ENV=production
+ENV RACK_ENV production
 
 RUN bundle install
 USER app
