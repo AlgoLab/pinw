@@ -23,12 +23,12 @@ WORKDIR /home/app
 # Get PInW
 USER app
 RUN git clone https://github.com/AlgoLab/pinw
-
-USER root
 WORKDIR /home/app/pinw
 ENV RACK_ENV production
 
+USER root
 RUN bundle install
+
 USER app
 RUN rake db:setup
 RUN whenever -w
