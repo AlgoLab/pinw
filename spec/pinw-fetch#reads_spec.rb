@@ -95,7 +95,7 @@ describe PinWFetch, "#reads" do
         expect(JobRead.find(@reads2.id).pid).to eq spid2
     end
 
-        it "does not process jobs with not_waited_enough: true (##{__LINE__})" do
+        it "does not process jobs with bad url (##{__LINE__})" do
         now = Time.now
         spid1 = Process.fork {sleep 10}
         spid2 = Process.fork {sleep 10}
@@ -115,14 +115,18 @@ describe PinWFetch, "#reads" do
             last_retry: now - 80,
             retries: 1,
             pid: spid2,
-            url: "http://asfagtfasd.com/badurl.txt"
+            url: "https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/ests.txt"
         })
 
         result = myFetch.reads @job, async: false
         expect(JobRead.find(@reads1.id).ok).to eq false
         expect(JobRead.find(@reads1.id).pid).not_to eq spid1
-        expect(JobRead.find(@reads2.id).ok).to eq false
-        expect(JobRead.find(@reads2.id).pid).not_to eq spid2
+        expect(JobRead.find(@reads1.id).failed).to eq true
+        expect(JobRead.find(@reads1.id).last_error).to eq "Invalid URL"
+        expect(JobRead.find(@reads2.id).ok).to eq true
+        expect(JobRead.find(@reads2.id).pid).to eq nil
+        expect(Job.find(@job.id).some_reads_failed).to eq true
+        expect(Job.find(@job.id).reads_last_error).to eq "##{reads1.id} has an invalid URL."
     end
 
 

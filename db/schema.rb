@@ -68,6 +68,7 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.datetime "lock",       default: '1970-01-01 00:00:00'
     t.boolean  "ok",         default: false
     t.boolean  "failed",     default: false
+    t.string   "last_error"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

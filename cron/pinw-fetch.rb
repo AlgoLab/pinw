@@ -465,7 +465,6 @@ class PinWFetch
             next unless waited_enough reads.last_retry, reads.retries
             debug 'we do not have to wait, proceeding'
             
-
             # Clear lock if needed:
             if reads.pid
                 Process.kill 9, reads.pid
@@ -523,6 +522,7 @@ class PinWFetch
                     },
                     :progress_proc => lambda {|bytes|
                         debug "called progress_proc with value: #{bytes}"
+                        byebug
 
                         transferred = bytes / 1024.0 / 1024.0 # MegaBytes
                         
@@ -534,10 +534,11 @@ class PinWFetch
                         debug 'pased space limit test'
                        
                         # Keepalive:
-                        job.update genomics_lock: Time.now if Time.now > reads.lock + 20 # Seconds
+                        reads.update lock: Time.now if Time.now > reads.lock + 20 # Seconds
                     },
                     :read_timeout=>10) do |transfer| 
                         #first_char = transfer.getc
+                        byebug
                         
                         File.open(reads_path + "reads-#{reads.id}", 'w') do |f| 
                             #f.write first_char
