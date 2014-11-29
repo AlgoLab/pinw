@@ -16,15 +16,15 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
 require 'simplecov'
-require 'yaml'
+require 'i18n'
+require 'byebug'
 SimpleCov.start
 pid = Process.pid
 SimpleCov.at_exit {SimpleCov.result.format! if Process.pid == pid}
 PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
 ENV['RACK_ENV'] = 'test'
 `rake db:reset`
-settings = YAML.load(File.read(PROJECT_BASE_PATH + 'config/database.yml'))
-
+I18n.enforce_available_locales = false
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate

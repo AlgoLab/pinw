@@ -76,6 +76,7 @@ class Init < ActiveRecord::Migration
       table.column :lock,       :datetime,  default: Time.at(0)
       table.column :ok,         :boolean,   default: false
       table.column :failed,     :boolean,   default: false
+      table.column :last_error, :string
 
       table.timestamps
     end

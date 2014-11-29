@@ -9,7 +9,7 @@ PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
 # Models:
 require PROJECT_BASE_PATH + '/models/base'
 
-# TODO: gene_name_soon
+# TODO: db indexes, 
 # TODO: optimize writes
 
 # The cron script is defined as a class, 
@@ -461,16 +461,16 @@ class PinWFetch
             break if @max_active_downloads < ProcessingState.get_active_downloads.count
             debug 'we have slots!'
 
-            # Clear lock if needed:
-            if job.ensembl_pid
-                Process.kill 9, job.ensembl_pid
-                debug 'stale pid found, killed'
-            end
-
             # Skip to the next loop if we still need to wait before attempting again the download:
             next unless waited_enough reads.last_retry, reads.retries
             debug 'we do not have to wait, proceeding'
             
+
+            # Clear lock if needed:
+            if reads.pid
+                Process.kill 9, reads.pid
+                debug 'stale pid found, killed'
+            end
 
             # The function that does the actual work:
             # (it will be either executed in a different process
@@ -480,7 +480,7 @@ class PinWFetch
                     debug '###### READS MAIN WORK PROCESS ######'
 
                     # Update the DB:
-                    read.update({
+                    reads.update({
                         lock: Time.now,
                         retries: reads.retries + 1, # <- safe
                         last_retry: Time.now,
@@ -569,7 +569,7 @@ class PinWFetch
 
                 rescue DiskFullError
                     debug 'disk is full'
-                    reads.update retries: 3, genomics_last_error: "Disk full!"
+                    reads.update retries: 3, last_error: "Disk full!"
                     #            ^^^^^^^^ Try again in ~15 minutes.
                     # job.update some_reads_failed: false, reads_last_error: "Disk full!"
 
