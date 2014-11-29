@@ -115,7 +115,7 @@ describe PinWFetch, "#reads" do
             last_retry: now - 80,
             retries: 1,
             pid: spid2,
-            url: "https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/ests.txt"
+            url: "https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/ests.fastq"
         })
 
         result = myFetch.reads @job, async: false
