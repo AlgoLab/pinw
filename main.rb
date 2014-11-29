@@ -4,7 +4,7 @@ require 'sinatra/base'
 require 'sinatra/activerecord'
 require 'yaml'
 
-
+PROJECT_BASE_PATH ||= File.expand_path('../', __FILE__) + '/'
 
 ########################
 ### SINATRA SETTINGS ###

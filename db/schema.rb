@@ -15,6 +15,10 @@ ActiveRecord::Schema.define(version: 20141123081409) do
 
   create_table "jobs", force: true do |t|
     t.string   "status",                    default: "QUEUED_DOWNLOAD"
+    t.string   "organism_name"
+    t.string   "gene_name"
+    t.integer  "quality_threshold"
+    t.string   "description"
     t.boolean  "awaiting_download",         default: false
     t.string   "ensembl"
     t.integer  "ensembl_pid"
@@ -24,9 +28,8 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.string   "ensembl_last_error"
     t.boolean  "ensembl_ok"
     t.boolean  "ensembl_failed"
-    t.string   "gene_name"
+    t.boolean  "genomics_ensembl",          default: false
     t.string   "genomics_url"
-    t.string   "genomics_file"
     t.integer  "genomics_pid"
     t.datetime "genomics_lock",             default: '1970-01-01 00:00:00'
     t.datetime "genomics_last_retry",       default: '1970-01-01 00:00:00'
@@ -47,8 +50,6 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.string   "processing_metrics"
     t.string   "processing_error"
     t.boolean  "processing_ok"
-    t.integer  "quality_threshold"
-    t.string   "description"
     t.integer  "server_id"
     t.integer  "user_id"
     t.integer  "result_id"
@@ -75,8 +76,6 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.string   "key"
     t.text     "value"
     t.string   "name"
-    t.string   "description"
-    t.string   "type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -116,6 +115,16 @@ ActiveRecord::Schema.define(version: 20141123081409) do
 
   add_index "servers", ["name"], name: "index_servers_on_name", unique: true
   add_index "servers", ["priority"], name: "index_servers_on_priority", unique: true
+
+  create_table "settings", force: true do |t|
+    t.string   "key"
+    t.text     "value"
+    t.string   "name"
+    t.string   "description"
+    t.string   "type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "user_history", force: true do |t|
     t.integer  "admin_id"

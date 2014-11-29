@@ -9,10 +9,42 @@ PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
 # Models:
 require PROJECT_BASE_PATH + '/models/base'
 
-# TODO: gene_name_soon timers
+# TODO: gene_name_soon
 # TODO: optimize writes
 
-module DebugFunctionWrapper # Wish I had decorators :)
+# The cron script is defined as a class, 
+# which has the following structure:
+#
+# class PinWFetch
+#   def init
+#
+#   def run_main_loop 
+      # loops over jobs and launches `genomics`, 
+      # `ensembl` and `reads` for each.
+#
+#   def genomics
+      # either downloads the genomics file from 
+      # (ensembl of an user-specified URL) or checks
+      # the user-uploaded genomic datafile
+#      
+#   def ensembl
+      # if enabled, downloads annotated transcripts 
+      # relative to the job's gene if required
+#
+#   def reads
+      # downloads reads from user-specified URLs
+#
+#   ... helper methods ...
+
+
+
+module DebugFunctionWrapper 
+    # This module is used to wrap method calls:
+    # all it does is add a tag into the deug_prefix list and
+    # remove it after the method returns. 
+    # This way we have less debug-related pollution inside the code.
+    # Basically it's a poor man's decorator.
+
     def genomics *args, **kwargs
         @debug_prefixes << "GENOMICS" if @debug
         begin
@@ -48,11 +80,17 @@ class PinWFetch
     class InvalidJobStateError < RuntimeError; end
 
     def initialize db_settings, debug: false, force: false, download_path: PROJECT_BASE_PATH + 'downloads/'
+        # When the `:force` option is true the cron will   
+        # forcefully terminate the fetch_cron_lock owner.
+
         @db_settings = db_settings
         @debug = debug
         @force = force
         @download_path = download_path
         @debug_prefixes = []
+
+        @lock_timeout = 60 # seconds
+
 
         ActiveRecord::Base.logger = Logger.new(STDERR) if @debug
         ActiveRecord::Base.establish_connection @db_settings
@@ -61,7 +99,6 @@ class PinWFetch
 
     end
 
-    #########
     def run_main_loop
         debug 'BEGIN MAIN LOOP'
 
@@ -70,8 +107,7 @@ class PinWFetch
         debug 'CRON LOCK OK'
 
 
-        # Keep looping until all download slots are used 
-        # and/or there are no more jobs to process:
+        # Loop over all jobs awaiting for download/preprocessing:
         Job.where(awaiting_download: true).each do |job|
         	@debug_prefixes << "J:#{job.id}" if @debug
 	        # NOTE: trick to be able to use find_each?
@@ -87,26 +123,35 @@ class PinWFetch
             no_gene_name_soon = genomics job
             debug "GENOMICS RETURNED #{no_gene_name_soon}"
 
-            # Fetch the required metadata from Ensembl:
-            ensembl job unless no_gene_name_soon
-            debug 'DONE ENSEMBL' unless no_gene_name_soon
-                # To get the metadata from Ensembl we need a gene name.
-                # We might either already have it or not.
-                # The second case happens when the user provides his own 
-                # FASTA file via URL download (ergo by not uploading it 
-                # directly).
-                # If the genomics process encountered problems we might
-                # not have a gene name soon (retry timeouts, full disk, ...).
-                # If this is not the case, the ensembl process will even try 
-                # to wait a little more (sleep 5) before giving up, in case 
-                # the FASTA file is being downloaded at the same time (the 
-                # genomics process will try to extract the gene name from 
-                # the file while it's downloading by checking the first 
-                # frame of the HTTP response's body (also useful to prevent
-                # unecessary downloads)). 
+            # Currently disabled because we don't have to fetch
+            # anything from ensembl unless we have both organism
+            # and gene_name defined.
+            # When support for extracting similar informations
+            # from the genomics file header, this approach will
+            # prove useful.
+            #
+            # # Fetch the required metadata from Ensembl:
+            # ensembl job unless no_gene_name_soon
+            # debug 'DONE ENSEMBL' unless no_gene_name_soon
+            #     # To get the metadata from Ensembl we need a gene name.
+            #     # We might either already have it or not.
+            #     # The second case happens when the user provides his own 
+            #     # FASTA file via URL download (ergo by not uploading it 
+            #     # directly).
+            #     # If the genomics process encountered problems we might
+            #     # not have a gene name soon (retry timeouts, full disk, ...).
+            #     # If this is not the case, the ensembl process will even try 
+            #     # to wait a little more (sleep 5) before giving up, in case 
+            #     # the FASTA file is being downloaded at the same time (the 
+            #     # genomics process will try to extract the gene name from 
+            #     # the file while it's downloading by checking the first 
+            #     # frame of the HTTP response's body (also useful to prevent
+            #     # unecessary downloads)). 
+
+            ensembl job 
+            debug 'DONE ENSEMBL' 
 
             reads job
-
             debug 'DONE READS AND DONE PROCESSING JOB'
 
             @debug_prefixes.pop if @debug
@@ -124,12 +169,11 @@ class PinWFetch
         debug 'genomics started'
 
         # Exit if there is nothing to do or a lock is still in place:
-        return false if job.genomics_ok
-        return (not job.gene_name) if job.genomics_failed or (job.genomics_pid and (Time.now < job.genomics_lock + 5 * 60))
+        return if job.genomics_ok or job.genomics_failed or (job.genomics_pid and (Time.now < job.genomics_lock + @lock_timeout))
         debug 'not `ok` not `failed`, not locked, proceeding'
 
         # Exit if we need to wait more before attempting again to download:
-        return (not job.gene_name) unless waited_enough job.genomics_last_retry, job.genomics_retries
+        return unless waited_enough job.genomics_last_retry, job.genomics_retries
         debug 'past second'
 
         # Clear lock if needed:
@@ -190,7 +234,7 @@ class PinWFetch
                     :content_length_proc => lambda {|bytes|
                         debug "called content length proc with value #{bytes} (bytes)"
                         return unless bytes
-                        filesize = bytes / 1024 / 1024 # MegaBytes 
+                        filesize = bytes / 1024.0 / 1024.0 # MegaBytes 
 
                         # Check disk and user limits:
                         raise_if_not_enough_space filesize: filesize, user: job.user
@@ -199,7 +243,7 @@ class PinWFetch
 
                     :progress_proc => lambda {|bytes|
                         debug "called progress proc with value #{bytes} (bytes)"
-                        transferred = bytes / 1024 / 1024 # MegaBytes
+                        transferred = bytes / 1024.0 / 1024.0 # MegaBytes
                         # TODO: update some counter?
                         # Check disk and user limits:
                         raise_if_not_enough_space filesize: transferred, user: job.user
@@ -268,9 +312,9 @@ class PinWFetch
                 debug "the job is missing the necessary genomic data info"
                 job.update genomics_failed: true, genomics_last_error: "Bad job state: nowhere to get the genomics data."
 
-            rescue Errno::ENOENT # File not found
-                debug 'cannot find the genomics file (or it has no body)'
-                job.update genomics_failed: true, genomics_last_error: "Missing genomics file (or it has no body)!"
+            # rescue Errno::ENOENT # File not found
+            #     debug 'cannot find the genomics file'
+            #     job.update genomics_failed: true, genomics_last_error: "Missing genomics file!"
 
             rescue BadFASTAHeaderError
                 debug 'the genomics file has a bad header!'
@@ -278,8 +322,8 @@ class PinWFetch
             
             rescue DiskFullError
                 debug 'disk full!'
-                job.update genomics_retries: job.genomics_retries - 1, genomics_last_error: "Disk full!"
-                #          ^^^^^^^^^^^^^^^^ It shoudn't count as a failed retry. 
+                job.update genomics_retries: 3, genomics_last_error: "Disk full!"
+                #          ^^^^^^^^^^^^^^^^ Try again in ~15 minutes.
 
             rescue UserFilesizeLimitError
                 debug 'this file exceedes the user filesize limits'
@@ -288,13 +332,14 @@ class PinWFetch
             rescue URI::InvalidURIError
                 debug 'invalid URL'
                 job.update genomics_failed: true, genomics_last_error: "Invalid URL"
+
             rescue OpenURI::HTTPError => ex
                 debug "HTTP Error: #{ex.message}"
                 job.update genomics_failed: true, genomics_last_error: "HTTP Error #{ex.message}."
 
             rescue => ex
                 debug "unhandled error: #{ex.message}"
-                job.update genomics_failed: true, genomics_last_error: "Unhandled error #{ex.message} #{ex.inspect}."
+                job.update genomics_failed: true, genomics_last_error: "Unhandled error #{ex.message}."
 
             ensure
                 job.update genomics_pid: nil
@@ -302,7 +347,6 @@ class PinWFetch
             end
         }, async: async
 
-        return false
     end
 
 
@@ -312,14 +356,9 @@ class PinWFetch
         debug 'ensembl started'
 
         # Exit if there is nothing to do:
-        return false if job.ensembl_ok or job.ensembl_failed or (job.ensembl_pid and (Time.now < job.ensembl_lock + 5 * 60)) # 5 minutes
+        return false if job.ensembl_ok or job.ensembl_failed or (job.ensembl_pid and (Time.now < job.ensembl_lock + @lock_timeout)) # 60s
         debug 'not `ok` not `failed`, not locked, proceeding'
 
-        # Clear lock if needed:
-        if job.ensembl_pid
-            Process.kill 9, job.ensembl_pid
-            debug 'stale pid found, killed old process'
-        end
 
         # Exit if we still need to wait before attempting again the download:
         return true unless waited_enough job.ensembl_last_retry, job.ensembl_retries
@@ -333,9 +372,13 @@ class PinWFetch
             #     # and then exit if the situation hasn't changed.
             #     sleep(5) unless job.gene_name
            
-        job = Job.find job.id
-        return true unless job.gene_name
-
+        
+        
+        # Clear lock if needed:
+        if job.ensembl_pid
+            Process.kill 9, job.ensembl_pid
+            debug 'stale pid found, killed old process'
+        end
 
         # The function that does the actual work:
         # (it will be either executed in a different process
@@ -352,6 +395,8 @@ class PinWFetch
                     ensembl_pid: Process.pid
                 })
 
+                raise InvalidJobStateError unless job.gene_name and job.organism_name
+
                 # Fetch the data:
 
                 # TODO: ENSEMBL API     
@@ -366,6 +411,10 @@ class PinWFetch
                     job.update awaiting_download: false, downloads_completed_at: Time.now
                     debug '#### REMOVING THE JOB FROM DOWNLOAD QUEUE #####'
                 end
+
+            rescue InvalidJobStateError
+                debug 'must fetch ensembl but the required data is missing'
+                job.update ensembl_failed: true, ensembl_last_error: "Missing gene name and/or organism name, which are required to fetch annotated transcripts from ensembl."
 
             rescue => ex
                 debug "fetch failed: #{ex.message}"
@@ -405,7 +454,7 @@ class PinWFetch
             debug 'begin read management'
 
             # Skip to the next loop if there is nothing to do:
-            next if reads.pid and Time.now < reads.lock + 5 * 60 # 5 minutes
+            next if reads.pid and Time.now < reads.lock + @lock_timeout # 60s
             debug 'read is not locked'
 
             # Exit if we have maxed-out download slots mid-cycle:
@@ -466,7 +515,7 @@ class PinWFetch
                         debug "called content_length_proc with value: #{bytes}"
 
                         return unless bytes
-                        filesize = bytes / 1024 / 1024 # MegaBytes 
+                        filesize = bytes / 1024.0 / 1024.0 # MegaBytes 
 
                         # Check disk and user limits:
                         raise_if_not_enough_space filesize: filesize, user: job.user
@@ -475,9 +524,10 @@ class PinWFetch
                     :progress_proc => lambda {|bytes|
                         debug "called progress_proc with value: #{bytes}"
 
-                        transferred = bytes / 1024 / 1024 # MegaBytes
+                        transferred = bytes / 1024.0 / 1024.0 # MegaBytes
                         
                         # TODO: update some counter?
+                        # TODO: fix counting problems?
 
                         # Check disk and user limits:
                         raise_if_not_enough_space filesize: filesize, user: job.user
@@ -487,11 +537,10 @@ class PinWFetch
                         job.update genomics_lock: Time.now if Time.now > reads.lock + 20 # Seconds
                     },
                     :read_timeout=>10) do |transfer| 
-                        header = transfer.readline
-                        raise BadFASTAHeaderError unless header =~ job.header_regex
+                        #first_char = transfer.getc
                         
-                        File.open(reads_path + "reads-#{job.id}.fastq", 'w') do |f| 
-                            f.write header
+                        File.open(reads_path + "reads-#{reads.id}", 'w') do |f| 
+                            #f.write first_char
                             f.write transfer.read 
                         end
                     end   
@@ -520,9 +569,9 @@ class PinWFetch
 
                 rescue DiskFullError
                     debug 'disk is full'
-                    reads.update retries: reads.retries - 1, failed: true, genomics_last_error: "Disk full!"
-                    #          ^^^^^^^^^^^^^^^^ It shoudn't count as a failed retry. 
-                    job.update some_reads_failed: true, reads_last_error: "Disk full!"
+                    reads.update retries: 3, genomics_last_error: "Disk full!"
+                    #            ^^^^^^^^ Try again in ~15 minutes.
+                    # job.update some_reads_failed: false, reads_last_error: "Disk full!"
 
                 rescue UserFilesizeLimitError
                     debug 'file exceedes user limits'
@@ -584,18 +633,14 @@ class PinWFetch
         # Check if another pinw-fetch is running (or is dead/hanging):
         debug " Cron lock value: #{cron_lock.value}"
         if cron_lock.value # nil => last cron completed successfully 
-            if (not @force) and Time.now < cron_lock.updated_at + 5 * 60 # 5 minutes
+            if (not @force) and Time.now < cron_lock.updated_at + @lock_timeout # 60s
                 # The other process is still alive
                 debug "Warning: older cron insance still running, aborting current execution."
                 Process.exit(0)
             else
                 # The other instance is either hanging or dead
-                begin
-                    Process.kill 9, cron_lock.value
-                    debug "Warning: last pinw-fetch cronjob was terminated."
-                rescue
-                    debug "Warning: last pinw-fetch cronjob died unexpectedly (or the system was just restarted)."
-                end
+                Process.kill 9, cron_lock.value
+                debug "Warning: last pinw-fetch cronjob was terminated."
             end
         end
 
@@ -612,8 +657,9 @@ class PinWFetch
     end
 
     def raise_if_not_enough_space filesize: 0, user: nil
+        debug "called disk space check with params: #{filesize} | #{user}"
         stat = Sys::Filesystem.stat("/")
-        free_space = stat.block_size * stat.blocks_available / 1024 / 1024 # MegaBytes
+        free_space = stat.block_size * stat.blocks_available / 1024.0 / 1024.0 # MegaBytes
 
         raise DiskFullError if free_space < 100 #Megabytes
         raise UserFilesizeLimitError if user and user.max_fs < filesize
@@ -629,17 +675,15 @@ end
 
 
 if __FILE__ == $0
-    settings = YAML.load(File.read(File.expand_path('../../config/database.yml', __FILE__)))
+    settings = YAML.load File.read PROJECT_BASE_PATH + 'config/database.yml'
 
-    force = false
-    if ARGV.length > 0 and (ARGV[0] == '-f' or ARGV[0] == '--force')
-        force = true
-    end
+    force = ARGV.include?('-f') or ARGV.include? '--force'
+    debug = ARGV.include?('-d') or ARGV.include? '--debug'
 
     PinWFetch.new({
         adapter: settings['test']['adapter'],
-        database: File.expand_path('../../' + settings['test']['database'], __FILE__),
+        database: PROJECT_BASE_PATH + settings['test']['database'],
         timeout: 30000,
-    }, debug: true, force: force).run_main_loop
+    }, debug: debug, force: force).run_main_loop
 end
 

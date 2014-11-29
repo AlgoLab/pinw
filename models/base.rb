@@ -41,3 +41,13 @@ module ActiveRecord
     end
   end
 end
+
+# On some systems, it seems times lose precision when saved 
+# in Sqlite and then parsed back. Rounding allows for correct
+# testing for equality (not really used anywhere as of now, tho).
+
+class Time
+  def Time.now
+    Time.new.round(6)
+  end
+end
