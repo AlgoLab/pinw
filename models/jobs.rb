@@ -2,9 +2,17 @@
 class Job < ActiveRecord::Base
   belongs_to :user, :class_name => 'User'
   belongs_to :server, :class_name => 'Server'
+  def header_regex
+    return /\A>(?:chr)?(?:[XYxy]|\d+):\d+:\d+:(?:1|-1|\+1|-|\+)\n\z/
+  end
+
+
+
   def is_failure?
     ['TEMP_FAILURE', 'PARTIALLY_COMPLETED', 'FAILED'].include? self.status
   end
+
+
   
   def status_short
     case self.status

@@ -1,6 +1,9 @@
+require 'fileutils'
 require_relative '../cron/pinw-fetch'
 
 ENV['RACK_ENV'] = 'test'
+
+PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
 
 
 class Time
@@ -9,26 +12,29 @@ class Time
   end
 end
 
-    settings = YAML.load(File.read(File.expand_path('../../config/database.yml', __FILE__)))
+    settings = YAML.load(File.read(PROJECT_BASE_PATH + 'config/database.yml'))
 
     force = false
     myFetch = PinWFetch.new({
       adapter: settings['test']['adapter'],
-      database: File.expand_path('../../' + settings['test']['database'], __FILE__),
+      database: PROJECT_BASE_PATH + settings['test']['database'],
       timeout: 30000,
-    }, debug: false, force: force)
+      download_path: PROJECT_BASE_PATH + 'test_temp/downloads/'
+    }, debug: true, force: force, download_path: PROJECT_BASE_PATH + 'test_temp/downloads/')
 
-
+FileUtils.rm_rf(PROJECT_BASE_PATH + 'test_temp/downloads/')
 
 describe PinWFetch, "#genomics" do
+  before(:all) {FileUtils.rm_rf(PROJECT_BASE_PATH + 'test_temp/downloads/')}
+
+
    before(:each) do
-  
     @job = Job.new
-  end 
+ end 
 
   # prepare
 
-  it "does not process sucessfully completed genomics jobs (#1)" do
+  it "does not process sucessfully completed genomics jobs" do
     @job.genomics_ok = true
     @job.save
     result = myFetch.genomics @job, async: false
@@ -36,7 +42,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_lock).to eq Time.at(0)
   end
 
-  it "does not process failed genomics jobs with gene name (#2)" do
+  it "does not process failed genomics jobs with gene name" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
     @job.genomics_failed = true
@@ -46,7 +52,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_lock).to eq Time.at(0)
   end
 
-  it "does not process failed genomics jobs without gene name (#3)" do
+  it "does not process failed genomics jobs without gene name" do
     @job.genomics_ok = false
     @job.genomics_failed = true
     @job.save
@@ -55,7 +61,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_lock).to eq Time.at(0)
   end
 
-  it "does not process active genomics jobs with gene name (#4)" do
+  it "does not process active genomics jobs with gene name" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
     @job.genomics_failed = false
@@ -69,7 +75,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_lock).to eq mylock
   end
 
-  it "does not process active genomics jobs without gene name (#5)" do
+  it "does not process active genomics jobs without gene name" do
     @job.genomics_ok = false
     @job.genomics_failed = false
     @job.genomics_pid = '1'
@@ -81,7 +87,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_lock).to eq mylock
   end
 
-  it "does not process jobs which has waited enough with name (#6)" do
+  it "does not process jobs which has waited enough with name" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
     @job.genomics_failed = false
@@ -93,7 +99,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_lock).to eq Time.at(0)
   end
 
-  it "does not process jobs which has waited enough with name (#7)" do
+  it "does not process jobs which has waited enough with name" do
     @job.genomics_ok = false
     @job.genomics_failed = false
     @job.genomics_last_retry = Time.now - 8
@@ -104,7 +110,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_lock).to eq Time.at(0)
   end
 
-  it "does not process active genomics jobs with expired lock (#8)" do
+  it "does not process active genomics jobs with expired lock" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
     @job.genomics_failed = false
@@ -120,7 +126,7 @@ describe PinWFetch, "#genomics" do
 
   # fetch URL
 
-  it "does not process genomics jobs with bad file (#9)" do
+  it "does not process genomics jobs with bad URL" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
     @job.genomics_url = 'ht?tp://www.sgrugolf..com/badfile.txt'
@@ -131,7 +137,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_last_error).to eq "Invalid URL"
   end
 
-  it "does not process genomics jobs with no file URL and 404 (#10)" do
+  it "does not process genomics jobs with no file URL and 404" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
     @job.genomics_url = 'https://raw.githubusercontent.com/AlgoLab/PIntron/master/dist-docs/example/genomic_x.txt'
@@ -139,10 +145,10 @@ describe PinWFetch, "#genomics" do
     result = myFetch.genomics @job, async: false
     expect(result).to eq false 
     expect(Job.find(@job.id).genomics_failed).to eq true
-    expect(Job.find(@job.id).genomics_last_error).to eq "Unhandled error: 404 Not Found."
+    expect(Job.find(@job.id).genomics_last_error).to eq "HTTP Error 404 Not Found."
   end
 
-  it "does not process genomics jobs with no response from server (#11)" do
+  it "does not process genomics jobs with no response from server" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
     @job.genomics_url = 'https://raw.gicontent.com/genomic_x.txt'
@@ -153,9 +159,9 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_last_error).to eq "??? url farlocco"
   end
 
-  it "does not process genomics jobs when file has bad fasta header (#12)" do
+  it "does not process genomics jobs when file has bad fasta header" do
     @job.genomics_ok = false
-    @job.gene_name = 'banana'
+    @job.gene_name = 'test132'
     @job.genomics_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/test/test_files/genomic_badheader.fasta'
     @job.save
     result = myFetch.genomics @job, async: false
@@ -164,7 +170,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_last_error).to eq "Genomics file doesn't have the required header format."
   end
 
-  it "does not process genomics jobs when file hasn't a body (#13)" do
+  it "does not process genomics jobs when file hasn't a body" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
     @job.genomics_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/test/test_files/genomic_headonly.fasta'
@@ -175,7 +181,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_last_error).to eq "No file found"
   end
 
-  it "does not process correct genomics jobs (#14)" do
+  it "does not process correct genomics jobs" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
     @job.genomics_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/test/test_files/genomic_ok.fasta'
@@ -187,32 +193,32 @@ describe PinWFetch, "#genomics" do
 
   # fetch file
 
-  it "does not process genomics jobs with no file on server (#15)" do
+  it "does not process genomics jobs with no file on server" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
-    @job.genomics_file = true
     @job.save
     result = myFetch.genomics @job, async: false
     expect(result).to eq false 
     expect(Job.find(@job.id).genomics_failed).to eq true
-    expect(Job.find(@job.id).genomics_last_error).to eq "no file!"
+    expect(Job.find(@job.id).genomics_last_error).to eq "Bad job state: nowhere to get the genomics data."
   end
 
-  it "does not process genomics jobs when file in folder has bad fasta header (#16)" do
+  it "does not process genomics jobs when file in folder has bad fasta header" do
     @job.genomics_ok = false
-    @job.gene_name = 'banana'
-    @job.genomics_file = true
+    @job.gene_name = 'fasta_header_gene_name'
     @job.save
+
+    FileUtils.mkpath PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/"
+    FileUtils.cp(PROJECT_BASE_PATH + 'test/test_files/genomic_badheader.fasta', PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/genomics.fasta")
     result = myFetch.genomics @job, async: false
     expect(result).to eq false 
     expect(Job.find(@job.id).genomics_failed).to eq true
     expect(Job.find(@job.id).genomics_last_error).to eq "Genomics file doesn't have the required header format."
   end
 
-  it "does not process genomics jobs when file in folder hasn't a body (#17)" do
+  it "does not process genomics jobs when file in folder hasn't a body" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
-    @job.genomics_file = true
     @job.save
     result = myFetch.genomics @job, async: false
     expect(result).to eq false 
@@ -220,7 +226,7 @@ describe PinWFetch, "#genomics" do
     expect(Job.find(@job.id).genomics_last_error).to eq "No file found"
   end
 
-  it "does not process correct genomics jobs using file in download folder (#18)" do
+  it "does not process correct genomics jobs using file in download folder" do
     @job.genomics_ok = false
     @job.gene_name = 'banana'
     @job.genomics_file = true
@@ -235,8 +241,10 @@ describe PinWFetch, "#genomics" do
   after(:each) do
       # test the lock has been freed
       # job = Job.take
-	  expect(@job.ensembl_pid).to eq nil
-	  @job.destroy
+      expect(@job.ensembl_pid).to eq nil
+      @job.destroy
       #reads
   end
+
+  after(:all) {FileUtils.rm_rf(PROJECT_BASE_PATH + 'test_temp/downloads/')}
 end
