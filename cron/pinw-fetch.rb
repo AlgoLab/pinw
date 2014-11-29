@@ -450,156 +450,154 @@ class PinWFetch
         debug 'past main return walls'
 
         reads_list.each do |reads|
-            @debug_prefixes << "R:#{reads.id}"
-            debug 'begin read management'
+            begin 
+                @debug_prefixes << "R:#{reads.id}"
+                debug 'begin read management'
 
-            # Skip to the next loop if there is nothing to do:
-            next if reads.pid and Time.now < reads.lock + @lock_timeout # 60s
-            debug 'read is not locked'
+                # Skip to the next loop if there is nothing to do:
+                next if reads.pid and Time.now < reads.lock + @lock_timeout # 60s
+                debug 'read is not locked'
 
-            # Exit if we have maxed-out download slots mid-cycle:
-            break if @max_active_downloads < ProcessingState.get_active_downloads.count
-            debug 'we have slots!'
+                # Exit if we have maxed-out download slots mid-cycle:
+                break if @max_active_downloads < ProcessingState.get_active_downloads.count
+                debug 'we have slots!'
 
-            # Skip to the next loop if we still need to wait before attempting again the download:
-            next unless waited_enough reads.last_retry, reads.retries
-            debug 'we do not have to wait, proceeding'
-            
-            # Clear lock if needed:
-            if reads.pid
-                Process.kill 9, reads.pid
-                debug 'stale pid found, killed'
-            end
-
-            # The function that does the actual work:
-            # (it will be either executed in a different process
-            # or executed sequentially if `async` is set to false)
-            launch lambda {
-                begin
-                    debug '###### READS MAIN WORK PROCESS ######'
-
-                    # Update the DB:
-                    reads.update({
-                        lock: Time.now,
-                        retries: reads.retries + 1, # <- safe
-                        last_retry: Time.now,
-                        pid: Process.pid
-                    })
-                    ProcessingState.add_active_download(reads.url)
-                    debug "db updated!"
-
-
-                    # Don't even try if there is no more disk space:
-                    raise_if_not_enough_space
-                    debug "we have enough disk space, proceed"
-
-                    # Make sure the download path exists:
-                    reads_path = PROJECT_BASE_PATH + "downloads/#{job.id}/reads/"
-                    FileUtils.mkpath reads_path
-                    debug "created reads download path: #{reads_path}"
-
-
-                    # TODO: compression 
-
-                    # Test that the URL is valid and that is either http/ftp
-                    # especially because it seems that open() can also take 
-                    # interal path references, which is a security violation.
-                    unless reads.url.start_with?('http', 'https', 'ftp') and reads.url =~ /\A#{URI::regexp}\z/
-                        raise URI::InvalidURIError 
-                    end
-
-                    # Fetch the data:
-                    open(reads.url, 
-                    :content_length_proc => lambda {|bytes|
-                        debug "called content_length_proc with value: #{bytes}"
-
-                        return unless bytes
-                        filesize = bytes / 1024.0 / 1024.0 # MegaBytes 
-
-                        # Check disk and user limits:
-                        raise_if_not_enough_space filesize: filesize, user: job.user
-                        debug 'pased space limit test'
-                    },
-                    :progress_proc => lambda {|bytes|
-                        debug "called progress_proc with value: #{bytes}"
-                        byebug
-
-                        transferred = bytes / 1024.0 / 1024.0 # MegaBytes
-                        
-                        # TODO: update some counter?
-                        # TODO: fix counting problems?
-
-                        # Check disk and user limits:
-                        raise_if_not_enough_space filesize: filesize, user: job.user
-                        debug 'pased space limit test'
-                       
-                        # Keepalive:
-                        reads.update lock: Time.now if Time.now > reads.lock + 20 # Seconds
-                    },
-                    :read_timeout=>10) do |transfer| 
-                        #first_char = transfer.getc
-                        byebug
-                        
-                        File.open(reads_path + "reads-#{reads.id}", 'w') do |f| 
-                            #f.write first_char
-                            f.write transfer.read 
-                        end
-                    end   
-
-                    reads.update ok: true
-                    debug '### OK ###'
-
-                    # Check if all downloads are done and update the job:
-                    remaining_reads = JobRead.find_by(job_id: job.id).not(ok: true)
-                    job.update(all_reads_ok: true) if not remaining_reads
-                    debug 'all reads ok!' if not remaining_reads
-
-                    job = Job.find(job.id)
-
-                    # Move forward the job if necessary
-                    if job.genomics_ok
-                        to_update = {awaiting_dispatch: true}
-                        debug '#### PUSHING THE JOB TO THE DISPATCH QUEUE #####'
-                        if job.ensembl_ok
-                            to_update[:awaiting_download] = false
-                            to_update[:downloads_completed_at] = Time.now
-                            debug '#### REMOVING THE JOB FROM DOWNLOAD QUEUE #####'
-                        end
-                        job.update **to_update
-                    end
-
-                rescue DiskFullError
-                    debug 'disk is full'
-                    reads.update retries: 3, last_error: "Disk full!"
-                    #            ^^^^^^^^ Try again in ~15 minutes.
-                    # job.update some_reads_failed: false, reads_last_error: "Disk full!"
-
-                rescue UserFilesizeLimitError
-                    debug 'file exceedes user limits'
-                    reads.update failed: true, last_error: "Filesize exceedes user limits."
-                    job.update some_reads_failed: true, reads_last_error: "##{reads.id} exceedes user limits."
-
-                rescue URI::InvalidURIError
-                    debug 'invalid uri'
-                    reads.update failed: true, last_error: "Invalid URL"
-                    job.update some_reads_failed: true, reads_last_error: "##{reads.id} has an invalid URL."
-
-                rescue BadFASTAHeaderError
-                    debug 'bad fasta header'
-                    reads.update failed: true, last_error: "Bad FASTA header"
-                    job.update some_reads_failed: true, reads_last_error: "##{reads.id} has an invalid FASTA header."
-
-                rescue => ex
-                    debug "unhandled error: #{ex.message}"
-                    reads.update failed: true, last_error: "Unhandled error: #{ex.message}."
-                    job.update some_reads_failed: true, reads_last_error: "##{reads.id} unhandled error: #{ex.message}."
-
-                ensure
-                    reads.update pid: nil
-                    ProcessingState.remove_active_download(reads.url)
-                    debug '###### END OF MAIN READS WORK ######'
+                # Skip to the next loop if we still need to wait before attempting again the download:
+                next unless waited_enough reads.last_retry, reads.retries
+                debug 'we do not have to wait, proceeding'
+                
+                # Clear lock if needed:
+                if reads.pid
+                    Process.kill 9, reads.pid
+                    debug 'stale pid found, killed'
                 end
-            }, async: async
+
+                # The function that does the actual work:
+                # (it will be either executed in a different process
+                # or executed sequentially if `async` is set to false)
+                launch lambda {
+                    begin
+                        debug '###### READS MAIN WORK PROCESS ######'
+
+                        # Update the DB:
+                        reads.update({
+                            lock: Time.now,
+                            retries: reads.retries + 1, # <- safe
+                            last_retry: Time.now,
+                            pid: Process.pid
+                        })
+                        ProcessingState.add_active_download(reads.url)
+                        debug "db updated!"
+
+
+                        # Don't even try if there is no more disk space:
+                        raise_if_not_enough_space
+                        debug "we have enough disk space, proceed"
+
+                        # Make sure the download path exists:
+                        reads_path = PROJECT_BASE_PATH + "downloads/#{job.id}/reads/"
+                        FileUtils.mkpath reads_path
+                        debug "created reads download path: #{reads_path}"
+
+
+                        # TODO: compression 
+
+                        # Test that the URL is valid and that is either http/ftp
+                        # especially because it seems that open() can also take 
+                        # interal path references, which is a security violation.
+                        unless reads.url.start_with?('http', 'https', 'ftp') and reads.url =~ /\A#{URI::regexp}\z/
+                            raise URI::InvalidURIError 
+                        end
+
+
+                        # Fetch the data:
+                        open(reads.url, 
+                        :content_length_proc => lambda {|bytes|
+                            debug "called content_length_proc with value: #{bytes}"
+
+                            return unless bytes
+                            filesize = bytes / 1024.0 / 1024.0 # MegaBytes 
+
+                            # Check disk and user limits:
+                            raise_if_not_enough_space filesize: filesize, user: job.user
+                            debug 'pased space limit test'
+                        },
+                        :progress_proc => lambda {|bytes|
+                            debug "called progress_proc with value: #{bytes}"
+
+                            transferred = bytes / 1024.0 / 1024.0 # MegaBytes
+                            
+                            # TODO: update some counter?
+                            # TODO: fix counting problems?
+
+                            # Check disk and user limits:
+                            raise_if_not_enough_space filesize: transferred, user: job.user
+                            debug 'pased space limit test'
+                           
+                            # Keepalive:
+                            reads.update lock: Time.now if Time.now > reads.lock + 20 # Seconds
+                        },
+                        :read_timeout=>10) do |transfer| 
+                            #first_char = transfer.getc
+                            
+                            File.open(reads_path + "reads-#{reads.id}", 'w') do |f| 
+                                #f.write first_char
+                                f.write transfer.read 
+                            end
+                        end   
+
+                        reads.update ok: true
+                        debug '### OK ###'
+
+                        # Check if all downloads are done and update the job:
+                        remaining_reads = JobRead.where.not(ok: true).find_by(job_id: job.id)
+                        job.update(all_reads_ok: true) if not remaining_reads
+                        debug 'all reads ok!' if not remaining_reads
+
+                        job = Job.find(job.id)
+
+                        # Move forward the job if necessary
+                        if job.genomics_ok and job.all_reads_ok
+                            to_update = {awaiting_dispatch: true}
+                            debug '#### PUSHING THE JOB TO THE DISPATCH QUEUE #####'
+                            if job.ensembl_ok
+                                to_update[:awaiting_download] = false
+                                to_update[:downloads_completed_at] = Time.now
+                                debug '#### REMOVING THE JOB FROM DOWNLOAD QUEUE #####'
+                            end
+                            job.update **to_update
+                        end
+
+                    rescue DiskFullError
+                        debug 'disk is full'
+                        reads.update retries: 3, last_error: "Disk full!"
+                        #            ^^^^^^^^ Try again in ~15 minutes.
+                        # job.update some_reads_failed: false, reads_last_error: "Disk full!"
+
+                    rescue UserFilesizeLimitError
+                        debug 'file exceedes user limits'
+                        reads.update failed: true, last_error: "Filesize exceedes user limits."
+                        job.update some_reads_failed: true, reads_last_error: "##{reads.id} exceedes user limits."
+
+                    rescue URI::InvalidURIError
+                        debug 'invalid uri'
+                        reads.update failed: true, last_error: "Invalid URL"
+                        job.update some_reads_failed: true, reads_last_error: "##{reads.id} has an invalid URL."
+
+                    rescue => ex
+                        debug "unhandled error: #{ex.message}"
+                        reads.update failed: true, last_error: "Unhandled error: #{ex.message}."
+                        job.update some_reads_failed: true, reads_last_error: "##{reads.id} unhandled error: #{ex.message}."
+
+                    ensure
+                        reads.update pid: nil
+                        ProcessingState.remove_active_download(reads.url)
+                        debug '###### END OF MAIN READS WORK ######'
+                    end
+                }, async: async
+            ensure
+                @debug_prefixes.pop
+            end
         end
         return reads_list.length > 0
     end

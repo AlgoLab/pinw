@@ -191,32 +191,15 @@ describe PinWFetch, "#genomics" do
     end
     
     it "fails genomics for jobs that require a download but the disk is full" do
-        begin 
-            module Sys
-                class Filesystem
-                    @@original_method = Sys::Filesystem.method(:stat)
-                    def self.stat(arg)
-                        raise PinWFetch::DiskFullError
-                    end
-                end
-            end
+        expect(Sys::Filesystem).to receive(:stat).and_raise(PinWFetch::DiskFullError)
+        
+        ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta'
+        @job.update gene_name: "test-update-from-line-#{__LINE__}", genomics_url: ok_url
+        @job.user = User.new nickname: 'banana', max_fs: 100000000
+        result = myFetch.genomics @job, async: false
+        expect(Job.find(@job.id).genomics_retries).to eq 3
+        expect(Job.find(@job.id).genomics_last_error).to eq "Disk full!"
 
-            ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta'
-            @job.update gene_name: "test-update-from-line-#{__LINE__}", genomics_url: ok_url
-            @job.user = User.new nickname: 'banana', max_fs: 100000000
-
-            result = myFetch.genomics @job, async: false
-            expect(Job.find(@job.id).genomics_retries).to eq 3
-            expect(Job.find(@job.id).genomics_last_error).to eq "Disk full!"
-        ensure
-            module Sys
-                class Filesystem
-                    def self.stat(arg)
-                        @@original_method[arg]
-                    end
-                end
-            end
-        end
     end
 
 
