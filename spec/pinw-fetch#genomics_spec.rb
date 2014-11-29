@@ -1,26 +1,13 @@
 require 'fileutils'
-require 'simplecov'
-SimpleCov.start
-pid = Process.pid
-SimpleCov.at_exit do
-  SimpleCov.result.format! if Process.pid == pid
-end
-
 require_relative '../cron/pinw-fetch'
-PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
 
-
-ENV['RACK_ENV'] = 'test'
-# ENV['PINW_RSPEC_DEBUG'] ||= false
-
-`rake db:reset`
 
 settings = YAML.load(File.read(PROJECT_BASE_PATH + 'config/database.yml'))
 myFetch = PinWFetch.new({
       adapter: settings['test']['adapter'],
       database: PROJECT_BASE_PATH + settings['test']['database'],
       timeout: 30000
-}, debug: true, force: false, download_path: PROJECT_BASE_PATH + 'test_temp/downloads/')
+}, debug: !!(ENV['PINW_RSPEC_VERBOSE']), force: false, download_path: PROJECT_BASE_PATH + 'test_temp/downloads/')
 
 
 describe PinWFetch, "#genomics" do
@@ -129,7 +116,7 @@ describe PinWFetch, "#genomics" do
     end
 
     it "fails genomics for jobs with an URL pointing to a file with a bad fasta header (##{__LINE__})" do
-        bad_header_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/test/test_files/genomic_badheader.fasta'
+        bad_header_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_badheader.fasta'
         @job.update genomics_ok: false, gene_name: "test-update-from-line-#{__LINE__}", genomics_url: bad_header_url
 
         result = myFetch.genomics @job, async: false
@@ -138,7 +125,7 @@ describe PinWFetch, "#genomics" do
     end
 
     # it "fails genomics for jobs with an URL pointing to a file with a missing fasta body (##{__LINE__})" do
-    #     bad_body_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/test/test_files/genomic_headonly.fasta'
+    #     bad_body_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_headonly.fasta'
     #     @job.update genomics_ok: false, gene_name: "test-update-from-line-#{__LINE__}", genomics_url: bad_body_url
 
     #     result = myFetch.genomics @job, async: false
@@ -147,7 +134,7 @@ describe PinWFetch, "#genomics" do
     # end
 
     it "does process correctly a job with a valid genomics URL (##{__LINE__})" do
-        ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/test/test_files/genomic_ok.fasta'
+        ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta'
         @job.update genomics_ok: false, gene_name: "test-update-from-line-#{__LINE__}", genomics_url: ok_url
 
         result = myFetch.genomics @job, async: false
@@ -167,7 +154,7 @@ describe PinWFetch, "#genomics" do
     it "fails genomics for jobs with an directly uploaded file with a bad fasta header (##{__LINE__})" do
         @job.update genomics_ok: false, gene_name: "test-update-from-line-#{__LINE__}"
         FileUtils.mkpath PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/"
-        FileUtils.cp(PROJECT_BASE_PATH + 'test/test_files/genomic_badheader.fasta', PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/genomics.fasta")
+        FileUtils.cp(PROJECT_BASE_PATH + 'spec/test_files/genomic_badheader.fasta', PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/genomics.fasta")
 
         result = myFetch.genomics @job, async: false
         expect(Job.find(@job.id).genomics_failed).to eq true
@@ -177,7 +164,7 @@ describe PinWFetch, "#genomics" do
     # it "fails genomics for jobs with an directly uploaded file which is missing the body (##{__LINE__})" do
     #     @job.update genomics_ok: false, gene_name: "test-update-from-line-#{__LINE__}"
     #     FileUtils.mkpath PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/"
-    #     FileUtils.cp(PROJECT_BASE_PATH + 'test/test_files/genomic_headonly.fasta', PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/genomics.fasta")
+    #     FileUtils.cp(PROJECT_BASE_PATH + 'spec/test_files/genomic_headonly.fasta', PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/genomics.fasta")
 
     #     result = myFetch.genomics @job, async: false
     #     expect(Job.find(@job.id).genomics_failed).to eq true
@@ -187,14 +174,14 @@ describe PinWFetch, "#genomics" do
     it "does process correctly genomics for jobs for which the user has supplied a valid fasta file (##{__LINE__})" do
         @job.update genomics_ok: false, gene_name: "test-update-from-line-#{__LINE__}"
         FileUtils.mkpath PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/"
-        FileUtils.cp(PROJECT_BASE_PATH + 'test/test_files/genomic_ok.fasta', PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/genomics.fasta")
+        FileUtils.cp(PROJECT_BASE_PATH + 'spec/test_files/genomic_ok.fasta', PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/genomics.fasta")
 
         result = myFetch.genomics @job, async: false
         expect(Job.find(@job.id).genomics_ok).to eq true
     end
 
     it "fails genomics for jobs that require a download bigger than the user-quota" do
-        ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/test/test_files/genomic_ok.fasta'
+        ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta'
         @job.update gene_name: "test-update-from-line-#{__LINE__}", genomics_url: ok_url
         @job.user = User.new nickname: 'banana', max_fs: 0
 
@@ -214,7 +201,7 @@ describe PinWFetch, "#genomics" do
                 end
             end
 
-            ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/test/test_files/genomic_ok.fasta'
+            ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta'
             @job.update gene_name: "test-update-from-line-#{__LINE__}", genomics_url: ok_url
             @job.user = User.new nickname: 'banana', max_fs: 100000000
 
@@ -234,7 +221,7 @@ describe PinWFetch, "#genomics" do
 
 
     it "takes jobs out of the download queue when all preprocessing is done" do
-        ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/test/test_files/genomic_ok.fasta'
+        ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta'
         @job.update gene_name: "test-update-from-line-#{__LINE__}", ensembl_ok: true, all_reads_ok: true, genomics_url: ok_url
 
         result = myFetch.genomics @job, async: false
@@ -243,7 +230,7 @@ describe PinWFetch, "#genomics" do
     end
 
     it "moves jobs to the dispatch queue when the necessary downloads are complete" do
-        ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/test/test_files/genomic_ok.fasta'
+        ok_url = 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta'
         @job.update gene_name: "test-update-from-line-#{__LINE__}", all_reads_ok: true, genomics_url: ok_url
 
         result = myFetch.genomics @job, async: false

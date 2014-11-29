@@ -362,7 +362,7 @@ class PinWFetch
 
         # Exit if we still need to wait before attempting again the download:
         return true unless waited_enough job.ensembl_last_retry, job.ensembl_retries
-        debug 'waited enough since last failure, proceeding' if @job.ensembl_retries > 0
+        debug 'waited enough since last failure, proceeding' if job.ensembl_retries > 0
 
 
             # # The following block is commented as that is a feature currently
