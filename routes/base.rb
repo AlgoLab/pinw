@@ -2,19 +2,20 @@
 
 
 class PinW < Sinatra::Application
-	get '/' do
-		redirect to '/home' if session[:user]
-		
-		erb :index
-	end
+    get '/' do
+        redirect to '/home' if session[:user]
+        
+        erb :index
+    end
 
-	get '/home/?', :auth => [:user] do
-		erb :home
-	end
+    get '/home/?' do
+    	raise 'AuthError'
+        erb :home
+    end
 
-	get '/archive/?' do
-	  "elenco risultati"
-	end
+    get '/archive/?' do
+      "elenco risultati"
+    end
 
 
 end

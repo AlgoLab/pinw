@@ -16,7 +16,7 @@ describe PinWFetch, "#ensembl" do
     before(:all) {FileUtils.rm_rf(PROJECT_BASE_PATH + 'test_temp/downloads/')}
     after(:all) {FileUtils.rm_rf(PROJECT_BASE_PATH + 'test_temp/downloads/')}
     
-    before(:each) {@job = Job.create}
+    before(:each) {@job = Job.create quality_threshold: 33}
 
     it "does not process jobs with ensembl_ok: true (##{__LINE__})" do
         @job.update ensembl_ok: true

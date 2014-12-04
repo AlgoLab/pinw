@@ -14,7 +14,7 @@ describe PinWFetch, "#genomics" do
     before(:all) {FileUtils.rm_rf(PROJECT_BASE_PATH + 'test_temp/downloads/')}
     after(:all) {FileUtils.rm_rf(PROJECT_BASE_PATH + 'test_temp/downloads/')}
     
-    before(:each) {@job = Job.create}
+    before(:each) {@job = Job.create quality_threshold: 33}
 
     it "does not process jobs with genomics_ok: true (##{__LINE__})" do
         @job.update genomics_ok: true, gene_name: "test-update-from-line-#{__LINE__}"
@@ -89,14 +89,15 @@ describe PinWFetch, "#genomics" do
 
   # fetch URL
 
-    it "fails genomics for jobs with a bad URL (##{__LINE__})" do
-        bad_url = 'ht?tp://www.sgrugolf..com/badfile.txt'
-        @job.update genomics_ok: false, gene_name: "test-update-from-line-#{__LINE__}", genomics_url: bad_url
+    # Disabled since now we test for url correctness inside the model
+    # it "fails genomics for jobs with a bad URL (##{__LINE__})" do
+    #     bad_url = 'ht?tp://www.sgrugolf..com/badfile.txt'
+    #     @job.update genomics_ok: false, gene_name: "test-update-from-line-#{__LINE__}", genomics_url: bad_url
 
-        result = myFetch.genomics @job, async: false
-        expect(Job.find(@job.id).genomics_failed).to eq true
-        expect(Job.find(@job.id).genomics_last_error).to eq "Invalid URL"
-    end
+    #     result = myFetch.genomics @job, async: false
+    #     expect(Job.find(@job.id).genomics_failed).to eq true
+    #     expect(Job.find(@job.id).genomics_last_error).to eq "Invalid URL"
+    # end
 
     it "fails genomics for jobs with a 404 URL (##{__LINE__})" do
         url_404 = 'https://raw.githubusercontent.com/AlgoLab/PIntron/master/dist-docs/example/genomic_x.txt'

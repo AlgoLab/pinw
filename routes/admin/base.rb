@@ -9,15 +9,16 @@ class PinW < Sinatra::Application
         current_user = User.find(session[:user].id) # blargh
         unless current_user.enabled
             session[:user] = nil
-            halt "account disabled"
+            halt redirect to '/?err=2'
         end
         unless current_user.admin
             halt redirect to '/'
         end
+        session[:user] = current_user
     end
 
     get '/admin/?' do
-        erb :'admin/index'
+        erb :'admin/index', locals: {pending_update: true, pending_update_action: nil, pending_update_date: nil }
     end
     
     get '/admin/archive/?' do

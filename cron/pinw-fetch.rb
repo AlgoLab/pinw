@@ -9,11 +9,11 @@ PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
 # Models:
 require PROJECT_BASE_PATH + '/models/base'
 
-# TODO: db indexes, 
+# TODO: db indexes
 # TODO: optimize writes
 
-# The cron script is defined as a class, 
-# which has the following structure:
+# The cron script is defined as a class 
+# having the following structure:
 #
 # class PinWFetch
 #   def init
@@ -21,15 +21,16 @@ require PROJECT_BASE_PATH + '/models/base'
 #   def run_main_loop 
       # loops over jobs and launches `genomics`, 
       # `ensembl` and `reads` for each.
+      # intended use is (cron/separated-process)-only
 #
 #   def genomics
       # either downloads the genomics file from 
       # (ensembl of an user-specified URL) or checks
-      # the user-uploaded genomic datafile
+      # the user-uploaded genomic datafile.
 #      
 #   def ensembl
-      # if enabled, downloads annotated transcripts 
-      # relative to the job's gene if required
+      # downloads annotated transcripts 
+      # relative to the job's gene
 #
 #   def reads
       # downloads reads from user-specified URLs
@@ -43,7 +44,7 @@ module DebugFunctionWrapper
     # all it does is add a tag into the deug_prefix list and
     # remove it after the method returns. 
     # This way we have less debug-related pollution inside the code.
-    # Basically it's a poor man's decorator.
+    # Basically it's a poor man's function decorator.
 
     def genomics *args, **kwargs
         @debug_prefixes << "GENOMICS" if @debug
@@ -126,7 +127,7 @@ class PinWFetch
             # Currently disabled because we don't have to fetch
             # anything from ensembl unless we have both organism
             # and gene_name defined.
-            # When support for extracting similar informations
+            # When support for extracting similar information
             # from the genomics file header, this approach will
             # prove useful.
             #
@@ -495,7 +496,7 @@ class PinWFetch
                         debug "we have enough disk space, proceed"
 
                         # Make sure the download path exists:
-                        reads_path = PROJECT_BASE_PATH + "downloads/#{job.id}/reads/"
+                        reads_path = @download_path + "#{job.id}/reads/"
                         FileUtils.mkpath reads_path
                         debug "created reads download path: #{reads_path}"
 
@@ -539,6 +540,8 @@ class PinWFetch
                         },
                         :read_timeout=>10) do |transfer| 
                             #first_char = transfer.getc
+
+                            # TODO: validation?
                             
                             File.open(reads_path + "reads-#{reads.id}", 'w') do |f| 
                                 #f.write first_char
@@ -661,12 +664,14 @@ class PinWFetch
         free_space = stat.block_size * stat.blocks_available / 1024.0 / 1024.0 # MegaBytes
 
         raise DiskFullError if free_space < 100 #Megabytes
-        raise UserFilesizeLimitError if user and user.max_fs < filesize
+        if user and user.max_fs > -1
+            raise UserFilesizeLimitError if user and user.max_fs < filesize
+        end
     end
 
     def debug string
         prefixes = ["P:#{Process.pid}"] + @debug_prefixes
-    	puts "[#{prefixes.join('|')}] #{string}" if @debug
+        puts "[#{prefixes.join('|')}] #{string}" if @debug
     end
 end
 

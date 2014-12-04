@@ -3,11 +3,11 @@ class Init < ActiveRecord::Migration
 
       ## JOBS ##
       create_table :jobs do |table|
-      table.column :status,         :string, default: 'QUEUED_DOWNLOAD'
+      #table.column :status,         :string, default: 'QUEUED_DOWNLOAD'
 
       table.column :organism_name,     :string
       table.column :gene_name,         :string
-      table.column :quality_threshold, :integer
+      table.column :quality_threshold, :integer, default: 33
       table.column :description,       :string
 
 
@@ -16,43 +16,43 @@ class Init < ActiveRecord::Migration
 
       # table.column :ensembl_enabled,     :boolean,     default: true
       table.column :ensembl,            :string
-      table.column :ensembl_pid,        :integer
+      table.column :ensembl_pid,        :integer, 	default: nil
       table.column :ensembl_lock,       :datetime,  default: Time.at(0)
       table.column :ensembl_last_retry, :datetime,  default: Time.at(0)
       table.column :ensembl_retries,    :integer,   default: 0
       table.column :ensembl_last_error, :string
-      table.column :ensembl_ok,         :boolean
-      table.column :ensembl_failed,     :boolean
+      table.column :ensembl_ok,         :boolean, 	default: false
+      table.column :ensembl_failed,     :boolean, 	default: false
 
 
       table.column :genomics_ensembl,     :boolean,   default: false
       table.column :genomics_url,         :string
-      table.column :genomics_pid,         :integer
+      table.column :genomics_pid,         :integer,	  default: nil
       table.column :genomics_lock,        :datetime,  default: Time.at(0)
       table.column :genomics_last_retry,  :datetime,  default: Time.at(0)
       table.column :genomics_retries,     :integer,   default: 0
       table.column :genomics_last_error,  :string
-      table.column :genomics_ok,          :boolean
-      table.column :genomics_failed,      :boolean
+      table.column :genomics_ok,          :boolean, 	default: false
+      table.column :genomics_failed,      :boolean, 	default: false
       
       table.column :reads_last_error,   :string
-      table.column :all_reads_ok,       :boolean
-      table.column :some_reads_failed,  :boolean
+      table.column :all_reads_ok,       :boolean, default: false
+      table.column :some_reads_failed,  :boolean, default: false
 
-      table.column :downloads_completed_at, :datetime
+      table.column :downloads_completed_at, :datetime, default: nil
 
 
       table.column :awaiting_dispatch, :boolean, default: false
 
-      table.column :processing_dispatch_pid,    :integer
-      table.column :processing_dispatch_lock,   :datetime
-      table.column :processing_dispatched_at,   :datetime
+      table.column :processing_dispatch_pid,    :integer, default: nil
+      table.column :processing_dispatch_lock,   :datetime, default: Time.at(0)
+      table.column :processing_dispatched_at,   :datetime, default: Time.at(0)
       table.column :processing_dispatch_error,  :string 
-      table.column :processing_dispatch_ok,     :boolean
+      table.column :processing_dispatch_ok,     :boolean, default: false
 
       table.column :processing_metrics,  :string
       table.column :processing_error, :string # pids are stored on the remote machine and polling is peformed by another script
-      table.column :processing_ok, :boolean
+      table.column :processing_ok, :boolean, default: false
 
 
       
@@ -143,6 +143,7 @@ class Init < ActiveRecord::Migration
       table.column :check_lock, :datetime, default: Time.at(0)
       table.column :check_last_at, :datetime, default: Time.at(0)
       table.column :check_pid, :integer
+      table.column :last_check_error, :string
       table.timestamps
 
       table.index :name, unique: true
@@ -160,9 +161,9 @@ class Init < ActiveRecord::Migration
       table.column :email,    :string
       table.column :admin,    :boolean, :default => false
       table.column :enabled,  :boolean, :default => true
-      table.column :max_fs,   :integer, :default => 0
-      table.column :max_cput, :integer, :default => 0
-      table.column :max_ql,   :integer, :default => 0
+      table.column :max_fs,   :integer, :default => -1
+      table.column :max_cput, :integer, :default => -1
+      table.column :max_ql,   :integer, :default => -1
       table.timestamps
 
       table.index :nickname, :unique => true

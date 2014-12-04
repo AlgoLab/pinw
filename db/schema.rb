@@ -14,10 +14,9 @@
 ActiveRecord::Schema.define(version: 20141123081409) do
 
   create_table "jobs", force: true do |t|
-    t.string   "status",                    default: "QUEUED_DOWNLOAD"
     t.string   "organism_name"
     t.string   "gene_name"
-    t.integer  "quality_threshold"
+    t.integer  "quality_threshold",         default: 33
     t.string   "description"
     t.boolean  "awaiting_download",         default: false
     t.string   "ensembl"
@@ -26,8 +25,8 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.datetime "ensembl_last_retry",        default: '1970-01-01 00:00:00'
     t.integer  "ensembl_retries",           default: 0
     t.string   "ensembl_last_error"
-    t.boolean  "ensembl_ok"
-    t.boolean  "ensembl_failed"
+    t.boolean  "ensembl_ok",                default: false
+    t.boolean  "ensembl_failed",            default: false
     t.boolean  "genomics_ensembl",          default: false
     t.string   "genomics_url"
     t.integer  "genomics_pid"
@@ -35,21 +34,21 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.datetime "genomics_last_retry",       default: '1970-01-01 00:00:00'
     t.integer  "genomics_retries",          default: 0
     t.string   "genomics_last_error"
-    t.boolean  "genomics_ok"
-    t.boolean  "genomics_failed"
+    t.boolean  "genomics_ok",               default: false
+    t.boolean  "genomics_failed",           default: false
     t.string   "reads_last_error"
-    t.boolean  "all_reads_ok"
-    t.boolean  "some_reads_failed"
+    t.boolean  "all_reads_ok",              default: false
+    t.boolean  "some_reads_failed",         default: false
     t.datetime "downloads_completed_at"
     t.boolean  "awaiting_dispatch",         default: false
     t.integer  "processing_dispatch_pid"
-    t.datetime "processing_dispatch_lock"
-    t.datetime "processing_dispatched_at"
+    t.datetime "processing_dispatch_lock",  default: '1970-01-01 00:00:00'
+    t.datetime "processing_dispatched_at",  default: '1970-01-01 00:00:00'
     t.string   "processing_dispatch_error"
-    t.boolean  "processing_dispatch_ok"
+    t.boolean  "processing_dispatch_ok",    default: false
     t.string   "processing_metrics"
     t.string   "processing_error"
-    t.boolean  "processing_ok"
+    t.boolean  "processing_ok",             default: false
     t.integer  "server_id"
     t.integer  "user_id"
     t.integer  "result_id"
@@ -110,6 +109,7 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.datetime "check_lock",         default: '1970-01-01 00:00:00'
     t.datetime "check_last_at",      default: '1970-01-01 00:00:00'
     t.integer  "check_pid"
+    t.string   "last_check_error"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -141,9 +141,9 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.string   "email"
     t.boolean  "admin",      default: false
     t.boolean  "enabled",    default: true
-    t.integer  "max_fs",     default: 0
-    t.integer  "max_cput",   default: 0
-    t.integer  "max_ql",     default: 0
+    t.integer  "max_fs",     default: -1
+    t.integer  "max_cput",   default: -1
+    t.integer  "max_ql",     default: -1
     t.datetime "created_at"
     t.datetime "updated_at"
   end
