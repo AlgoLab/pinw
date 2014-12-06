@@ -154,8 +154,8 @@ describe PinWFetch, "#genomics" do
 
     it "fails genomics for jobs with an directly uploaded file with a bad fasta header (##{__LINE__})" do
         @job.update genomics_ok: false, gene_name: "test-update-from-line-#{__LINE__}"
-        FileUtils.mkpath PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/"
-        FileUtils.cp(PROJECT_BASE_PATH + 'spec/test_files/genomic_badheader.fasta', PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/genomics.fasta")
+        FileUtils.mkpath PROJECT_BASE_PATH + "test_temp/downloads/job-#{@job.id}/"
+        FileUtils.cp(PROJECT_BASE_PATH + 'spec/test_files/genomic_badheader.fasta', PROJECT_BASE_PATH + "test_temp/downloads/job-#{@job.id}/genomics.fasta")
 
         result = myFetch.genomics @job, async: false
         expect(Job.find(@job.id).genomics_failed).to eq true
@@ -174,8 +174,8 @@ describe PinWFetch, "#genomics" do
 
     it "does process correctly genomics for jobs for which the user has supplied a valid fasta file (##{__LINE__})" do
         @job.update genomics_ok: false, gene_name: "test-update-from-line-#{__LINE__}"
-        FileUtils.mkpath PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/"
-        FileUtils.cp(PROJECT_BASE_PATH + 'spec/test_files/genomic_ok.fasta', PROJECT_BASE_PATH + "test_temp/downloads/#{@job.id}/genomics.fasta")
+        FileUtils.mkpath PROJECT_BASE_PATH + "test_temp/downloads/job-#{@job.id}/"
+        FileUtils.cp(PROJECT_BASE_PATH + 'spec/test_files/genomic_ok.fasta', PROJECT_BASE_PATH + "test_temp/downloads/job-#{@job.id}/genomics.fasta")
 
         result = myFetch.genomics @job, async: false
         expect(Job.find(@job.id).genomics_ok).to eq true

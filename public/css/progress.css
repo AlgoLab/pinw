@@ -1,0 +1,71 @@
+/*custom font*/
+@import url(http://fonts.googleapis.com/css?family=Montserrat);
+
+
+/*progressbar*/
+.progressbar {
+  margin-top: 15px !important;
+  margin-bottom: 15px !important;
+  overflow: hidden;
+  /*CSS counters to number the steps*/
+  counter-reset: step;
+  text-align: center !important;
+}
+.progressbar li {
+  list-style-type: none !important;
+  /*color: white; */
+  text-transform: uppercase !important;
+  /*font-size: 9px;*/
+  width: 25% !important;
+  float: left !important;
+  position: relative !important;
+}
+.progressbar li:before {
+  content: counter(step);
+  counter-increment: step;
+  width: 20px !important;
+  line-height: 20px !important;
+  display: block !important;
+  /*font-size: 10px;*/
+  color: #333 !important;
+  background: white !important;
+  border-radius: 3px !important;
+  margin: 0 auto 5px auto !important;
+}
+/*progressbar connectors*/
+.progressbar li:after {
+  content: '' !important;
+  width: 100% !important;
+  height: 2px !important;
+  background: white !important;
+  position: absolute !important;
+  left: -50% !important;
+  top: 9px !important;
+  z-index: -1 !important; /*put it behind the numbers*/
+}
+.progressbar li:first-child:after {
+  /*connector not needed before the first step*/
+  content: none !important; 
+}
+/*marking active/completed steps green*/
+/*The number of the step and the connector before it = green*/
+.progressbar li.active:before,  .progressbar li.active:after{
+  background: #27AE60 !important;
+  color: white !important;
+}
+
+.down {
+  z-index: 4 !important;
+}
+
+.wait {
+  z-index: 3 !important;
+}
+
+.disp {
+  z-index: 2 !important;
+}
+
+.proc {
+  z-index: 1 !important;
+}

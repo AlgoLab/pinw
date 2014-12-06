@@ -27,10 +27,10 @@ class PinW < Sinatra::Application
         session[:user] = current_user
     end
 
-    get '/jobs/active/?' do
-        job_list = Job.all.to_a
+    get '/jobs/?' do
+        job_list = session[:user].jobs(true)
         server_list = Server.all.to_a
-        erb :'jobs/active', :locals => {:job_list => job_list, :server_list => server_list}
+        erb :'jobs', :locals => {:job_list => job_list, :server_list => server_list}
     end
 
     post '/jobs/new' do
@@ -46,7 +46,7 @@ class PinW < Sinatra::Application
     		end
 
 	        job.user_id = session[:user].id
-	        if session[:user].admin and params[:InputServer]
+	        if session[:user].admin and params[:InputServer] != ''
 	            job.server_id = params[:InputServer]
 	            begin
 	            	Server.find(params[:InputServer])
@@ -92,6 +92,7 @@ class PinW < Sinatra::Application
 	        reads_urls = []
 	        if params[:InputURLs]
 	        	params[:InputURLs].each do |url|
+	        		next if url == ''
 	        		new_jobread = JobRead.new url: url
 	       			raise ReadURLError unless new_jobread.valid?
 	       			reads_urls << new_jobread
@@ -109,7 +110,8 @@ class PinW < Sinatra::Application
 		        free_space = stat.block_size * stat.blocks_available / 1024.0 / 1024.0 # MegaBytes
 		        raise DiskFullError if free_space - will_occupy < 100 #Megabytes
 		        unless session[:user].max_fs < 0
-		        	raise  DiskUserLimitError if session[:user].max_fs < will_occupy 
+		        	raise  DiskUserLimitError if session[:user].max_fs < params[:InputGeneFile].length if params[:type] == '3'
+		        	raise  DiskUserLimitError if session[:user].max_fs < params[:InputFiles].map{|x| x.length}.max
 		        end
 		    end
 
@@ -124,67 +126,67 @@ class PinW < Sinatra::Application
 	            end
 
     	        # Pepare the folder structure
-                FileUtils.mkpath settings.download_path + "#{job.id}/reads/"
+                FileUtils.mkpath settings.download_path + "job-#{job.id}/reads/"
 
             	# SAVE FILES #
             	if params[:type] == '3'
-                    File.open(settings.download_path + "#{job.id}/genomics.fasta", 'w') {|f| f.write params[:InputGeneFile]}
+                    File.open(settings.download_path + "job-#{job.id}/genomics.fasta", 'w') {|f| f.write params[:InputGeneFile]}
                 end
 
                 if params[:InputFiles]
                 	params[:InputFiles].each_with_index do |read_file, index|
-        	            File.open(settings.download_path + "#{job.id}/reads/reads-upload-#{index}", 'w') {|f| f.write read_file}
+        	            File.open(settings.download_path + "job-#{job.id}/reads/reads-upload-#{index}", 'w') {|f| f.write read_file}
                 	end
                 end
 	        end
 
 	        all_went_ok = true
-	        redirect to '/jobs/active'
+	        redirect to '/jobs'
 
 	    rescue TooManyJobsError 
 	    	puts "Too many jobs!"
-	    	redirect to '/jobs/active?err=1'
+	    	redirect to '/jobs?err=1'
 
 	    rescue GenomicsCombinationError 
 	    	puts "Genomics combination error!"
-	    	redirect to '/jobs/active?err=2'
+	    	redirect to '/jobs?err=2'
 
 	    rescue GeneSourceTypeError 
 	    	puts "Genetics source type error!"
-	    	redirect to '/jobs/active?err=3'
+	    	redirect to '/jobs?err=3'
 
 	    rescue JobValidationError 
 	    	puts "Job failed to validate"
-	    	redirect to '/jobs/active?err=4'
+	    	redirect to '/jobs?err=4'
 
 	    rescue ReadURLError 
 	    	puts "A read has an invalid URL!"
-	    	redirect to '/jobs/active?err=5'
+	    	redirect to '/jobs?err=5'
 
 	    rescue DiskFullError 
 	    	puts "Disk Full!"
-	    	redirect to '/jobs/active?err=6'
+	    	redirect to '/jobs?err=6'
 
 	    rescue DiskUserLimitError 
 	    	puts "Filesize bigger than user limits!"
-	    	redirect to '/jobs/active?err=7'
+	    	redirect to '/jobs?err=7'
 
 	    rescue NoReadsError 
 	    	puts "There are no reads!"
-	    	redirect to '/jobs/active?err=8'
+	    	redirect to '/jobs?err=8'
 
 	    rescue TooManyReads
 	    	puts "Too many reads"
-	    	redirect to '/jobs/active?err=9'
+	    	redirect to '/jobs?err=9'
 
 	    rescue InvalidServerId
 	    	puts "Invalid Server"
-	    	redirect to '/jobs/active?err=10'	    	
+	    	redirect to '/jobs?err=10'	    	
 
 	    rescue => ex
 	    	puts "Generic error! #{ex.message} #{ex.inspect} {{#{job.inspect}}} <<#{job.errors.messages}>>"
 
-	        redirect to '/jobs/active?err=11'
+	        redirect to '/jobs?err=11'
 
 	    ensure
 	    	# Perform cleanup if failed:
@@ -194,9 +196,20 @@ class PinW < Sinatra::Application
 	    end
     end
 
-    get '/jobs/complete/?' do
+    post '/jobs/pause' do
+    	job = Job.find(params[:job_id])
+    	redirect '/jobs' unless job
+    	redirect '/jobs' unless session[:user].admin or job.user_id == session[:user].id
+    	job.update paused: true
+    	redirect '/jobs'
+    end
 
-        erb :'jobs/complete'
+    post '/jobs/resume' do
+    	job = Job.find(params[:job_id])
+    	redirect '/jobs' unless job
+    	redirect '/jobs' unless session[:user].admin or job.user_id == session[:user].id
+    	job.update paused: false
+    	redirect '/jobs'
     end
 
     get '/jobs/update' do
@@ -205,9 +218,14 @@ class PinW < Sinatra::Application
             jobs_state << {
                 id: job.id,
 
+                paused: job.paused,
+
+                organism_name: job.organism_name,
                 gene_name: job.gene_name,
+                quality_threshold: job.quality_threshold,
                 description: job.description,
 
+                ensembl_disabled: (!job.ensembl_ok != !job.ensembl),
                 ensembl_ok: job.ensembl_ok,
                 ensembl_failed: job.ensembl_failed,
                 ensembl_last_error: job.ensembl_last_error,
@@ -222,6 +240,14 @@ class PinW < Sinatra::Application
 
                 reads_total: JobRead.where(job_id: job.id).count,
                 reads_done: JobRead.where(job_id: job.id, ok: true).count,
+
+                awaiting_dispatch: job.awaiting_dispatch,
+                dispatching: job.processing_dispatch_pid != nil,
+                processing: job.processing_dispatch_ok,
+
+                dispatch_error: job.processing_dispatch_error,
+                processing_error: job.processing_error,
+
 
 
                 current_time: Time.now

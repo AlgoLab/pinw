@@ -3,6 +3,7 @@
 
   <%# JS & CSS #%>
   <%= erb :'/includes/header' %>
+  <script type="text/javascript" src="/js/admin.js"></script>
 </head>
 <body>
 
@@ -20,9 +21,92 @@
         </div>
       </div>
     </div>
+    <% if pending_update_action %>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="alert alert-warning">
+          asd
+        </div>
+      </div>
+    </div>
+    <% elsif pending_update %>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="alert alert-info">
+          <h4><i class="fa fa-rocket"></i> Knock knock, it's time to update...</h4>
+          A new version of PinW (the Pintronic Pintronator) is available! Read carefully <a data-toggle="modal" data-target="#updateModal" class="alert-link">this modal</a> which contains all the info you need!
+        </div>
+      </div>
+    </div>
+    <% end %>
   </div>
 
 
   <%# FOOTER #%>
   <%= erb :'/includes/footer' %>
 </body>
+
+
+<!-- Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="update" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="newServerLabel"><i class="fa fa-rocket"></i> Update PinW from 1.2.3 to 1.2.4</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            You can find more information on this update on the <a href="#"><i class="fa fa-github"></i> changelog</a>. You can update PinW either in Soft Mode or in Hard Mode:
+          </div>
+        </div>
+        <br />
+        <div class="row">
+          <div class="col-md-6">
+            <p class="centered">Soft Update</p>
+            <ul>
+              <li>blablabla</li>
+              <li>asdasdada</li>
+              <li>asdsadsa</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <p class="centered">Hard Update</p>
+            <ul>
+              <li>sadsaads</li>
+              <li>sadsaa</li>
+            </ul>
+          </div>
+        </div>
+        <div class="row" id="choose">
+          <div class="col-md-12">
+            <button class="btn btn-primary btn-lg btn-block" id="update">
+              <i class="fa fa-child fa-lg"></i> I'm in!
+            </button>
+          </div>
+        </div>
+        <form class="form-horizontal" role="form">
+          <div class="row nascosto formUpdate">
+            <div class="col-md-12">
+              <p>Select when you want to update the system and the type of update:</p>
+              <div class="form-group">
+                <label for="InputDate" class="col-md-3 control-label" >Date</label>
+                <div class="col-md-6">
+                  <input type="text" class="form-control" id="InputDate" name="InputDate" >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row nascosto" id="select">
+            <div class="col-md-4 col-md-offset-1">
+              <button class="btn btn-primary btn-lg btn-block" id="soft"><i class="fa fa-paw fa-lg"></i> Soft</button>
+            </div>
+            <div class="col-md-4 col-md-offset-2">
+              <button class="btn btn-primary btn-lg btn-block" id="hard"><i class="fa fa-bomb fa-lg"></i> Hard</button>
+            </div>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>

@@ -27,7 +27,9 @@ ENV['RACK_ENV'] = 'test'
 I18n.enforce_available_locales = false
 
 
+
 require 'rack/test'
+
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods

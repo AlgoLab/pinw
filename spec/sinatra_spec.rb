@@ -53,7 +53,7 @@ describe "#web_interface" do
             InputQuality: 33
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=3"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=3"
 
         # InputOrganismUnknown: true, and no InputGeneURL
         # or InputGeneFile => error!
@@ -62,7 +62,7 @@ describe "#web_interface" do
             InputQuality: 33 
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=3"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=3"
 
         # InputGeneNameUnknown: true, and no InputGeneURL
         # or InputGeneFile => error!
@@ -71,7 +71,7 @@ describe "#web_interface" do
             InputQuality: 33
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=3"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=3"
 
         # InputOrganismUnknown: true, InputGeneName: something, and no InputGeneURL
         # or InputGeneFile => error!
@@ -81,7 +81,7 @@ describe "#web_interface" do
             InputQuality: 33
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=3"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=3"
 
         # InputOrganism: something, InputGeneNameUnknown: true, and no InputGeneURL
         # or InputGeneFile => error!
@@ -91,7 +91,7 @@ describe "#web_interface" do
             InputQuality: 33
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=3"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=3"
 
         # InputOrganism: something, InputGeneName: something, type: 1 
         # and no reads URL or file => error!
@@ -102,7 +102,7 @@ describe "#web_interface" do
             InputQuality: 33
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=8"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=8"
 
         # InputOrganism: something, InputGeneName: something, type: 2, InputGeneURL: url
         # and no reads URL or file => error!
@@ -114,7 +114,7 @@ describe "#web_interface" do
             InputQuality: 33
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=8"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=8"
 
         # InputOrganism: something, InputGeneName: something, type: 3, InputGeneFile: file
         # and no reads URL or file => error!
@@ -126,7 +126,7 @@ describe "#web_interface" do
             InputQuality: 33
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=8"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=8"
     end
 
     it "accept new job with data (##{__LINE__})" do
@@ -142,7 +142,7 @@ describe "#web_interface" do
             InputURLs: ['http://www.google.com', 'http://www.ciao.com']
         }
         expect(Job.find_by(user_id: @user.id)).not_to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active"
+        expect(last_response.header['location']).to eq "http://example.org/jobs"
 
         # InputOrganism: something, InputGeneName: something, type: 2, InputGeneURL: url
         # and reads URL or file =>ok!
@@ -155,7 +155,7 @@ describe "#web_interface" do
             InputURLs: ['http://www.google.com', 'http://www.ciao.com']
         }
         expect(Job.find_by(user_id: @user.id)).not_to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active"
+        expect(last_response.header['location']).to eq "http://example.org/jobs"
 
         # InputOrganismUnknown: true, InputGeneNameUnknown: true, type: 2, InputGeneURL: url
         # and reads URL or file =>ok!
@@ -169,7 +169,7 @@ describe "#web_interface" do
             InputFiles: [Rack::Test::UploadedFile.new(PROJECT_BASE_PATH + 'spec/test_files/ests.fastq', "text/plain")]
         }
         expect(Job.find_by(user_id: @user.id)).not_to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active"
+        expect(last_response.header['location']).to eq "http://example.org/jobs"
 
         # InputOrganism: something, InputGeneName: something, type: 3, InputGeneFile: file
         # and reads URL or file =>ok!
@@ -183,7 +183,7 @@ describe "#web_interface" do
             InputFiles: [Rack::Test::UploadedFile.new(PROJECT_BASE_PATH + 'spec/test_files/ests.fastq', "text/plain")]
         }
         expect(Job.find_by(user_id: @user.id)).not_to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active"
+        expect(last_response.header['location']).to eq "http://example.org/jobs"
 
         # InputOrganismUnknown: true, InputGeneNameUnknown: true, type: 3, InputGeneFile: file
         # and reads URL or file =>ok!
@@ -197,7 +197,7 @@ describe "#web_interface" do
             InputFiles: [Rack::Test::UploadedFile.new(PROJECT_BASE_PATH + 'spec/test_files/ests.fastq', "text/plain")]
         }
         expect(Job.find_by(user_id: @user.id)).not_to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active"
+        expect(last_response.header['location']).to eq "http://example.org/jobs"
     end
 
     it "does not accept new job when used exceed jobs quota (##{__LINE__})" do
@@ -220,7 +220,7 @@ describe "#web_interface" do
             InputFiles: [Rack::Test::UploadedFile.new(PROJECT_BASE_PATH + 'spec/test_files/ests.fastq', "text/plain")]
         }
         expect(Job.find_by(user_id: local_user.id)).not_to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active"
+        expect(last_response.header['location']).to eq "http://example.org/jobs"
 
         post '/jobs/new', {
             InputOrganism: 'human', 
@@ -230,7 +230,7 @@ describe "#web_interface" do
             InputURLs: ['http://www.google.com', 'http://www.ciao.com'],
             InputFiles: [Rack::Test::UploadedFile.new(PROJECT_BASE_PATH + 'spec/test_files/ests.fastq', "text/plain")]
         }
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=1"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=1"
         local_user.destroy
     end
 
@@ -248,7 +248,7 @@ describe "#web_interface" do
             InputURLs: ['http://www.google.com', 'http://www.ciao.com', 'http://www.goofgle.com', 'http://www.ciafo.com', 'http://www.goosgle.com', 'http://www.cisao.com']
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=9"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=9"
     end
 
     it "does not accept new job when a reads has bad url (##{__LINE__})" do
@@ -265,7 +265,7 @@ describe "#web_interface" do
             InputURLs: ['ht?tp://www.goo??gle..com', 'http://www.ciao.com']
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=5"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=5"
     end
 
     it "does not accept new job which has invalid organism (##{__LINE__})" do
@@ -282,7 +282,7 @@ describe "#web_interface" do
             InputURLs: ['http://www.google.com', 'http://www.ciao.com']
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=4"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=4"
     end
 
     it "does not accept new job when server has invalid ID (##{__LINE__})" do
@@ -307,7 +307,7 @@ describe "#web_interface" do
             InputURLs: ['http://www.google.com', 'http://www.ciao.com']
         }
         expect(Job.find_by(user_id: local_user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=10"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=10"
         local_user.destroy
     end
 
@@ -323,7 +323,7 @@ describe "#web_interface" do
             InputURLs: ['http://www.google.com', 'http://www.ciao.com']
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=2"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=2"
     end
 
     it "disk full fails (##{__LINE__})" do
@@ -339,7 +339,7 @@ describe "#web_interface" do
             InputFiles: [Rack::Test::UploadedFile.new(PROJECT_BASE_PATH + 'spec/test_files/ests.fastq', "text/plain")]
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=6"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=6"
     end
 
     it "user quota limit error (##{__LINE__})" do
@@ -363,7 +363,7 @@ describe "#web_interface" do
             InputFiles: [Rack::Test::UploadedFile.new(PROJECT_BASE_PATH + 'spec/test_files/ests.fastq', "text/plain")]
         }
         expect(Job.find_by(user_id: local_user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs/active?err=7"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=7"
         local_user.destroy
     end
 

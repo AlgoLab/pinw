@@ -1,11 +1,12 @@
 <head>
-  <title>PIntron | Active Jobs</title>
+  <title>PIntron | Jobs</title>
 
   <%# JS & CSS #%>
   <%= erb :'/includes/header' %>
   <script type="text/javascript" src="/js/active.js"></script>
   <script type="text/javascript" src="/js/bootstrap-slider.js"></script>
   <link href="/css/slider.css"   rel="stylesheet" media="screen">
+  <link href="/css/progress.css" rel="stylesheet" media="screen">
 </head>
 <body>
 
@@ -19,7 +20,7 @@
     <div class="row">
       <div class="col-md-12">
         <div class="page-header">
-          <h1><i class="fa fa-cubes"></i> Active Jobs <small></small></h1>
+          <h1><i class="fa fa-cubes"></i> Jobs <small></small></h1>
         </div>
       </div>
     </div>
@@ -44,23 +45,70 @@
 
         <% if params[:err] == '1' %>
           <div class="alert alert-danger">
-            <p><strong><i class="fa fa-warning"></i> Wrong Nickname.</strong>
+            <p><strong><i class="fa fa-warning"></i> Error! </strong> You have already reached your maximum amount of jobs queued!
           </div>
         <% end %>
 
         <% if params[:err] == '2' %>
           <div class="alert alert-danger">
-            <p><strong><i class="fa fa-warning"></i> Wrong Password.</strong>
+            <p><strong><i class="fa fa-warning"></i>  Error! </strong> You can't ask to fetch the genomic data from Ensembl if you don't supply both an organism and a gene name.
           </div>
         <% end %>
 
         <% if params[:err] == '3' %>
           <div class="alert alert-danger">
-            <p><strong><i class="fa fa-warning"></i> Wrong Email.</strong>
+            <p><strong><i class="fa fa-warning"></i>  Error! </strong> Error while trying to get the genomic data.
           </div>
         <% end %>
 
-        
+        <% if params[:err] == '4' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i>  Error! </strong>  Some fields faield to validate.
+          </div>
+        <% end %>
+
+        <% if params[:err] == '5' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i>  Error! </strong> One of the read URLs supplied is malformed.
+          </div>
+        <% end %>
+
+        <% if params[:err] == '6' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i>  Error! </strong>  Unable to save the required data: disk is full!
+          </div>
+        <% end %>
+
+        <% if params[:err] == '7' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i>  Error! </strong> File size exceedes your user quota limit.
+          </div>
+        <% end %>
+
+        <% if params[:err] == '8' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i>  Error! </strong> You must specify at least a FASTQ resource.
+          </div>
+        <% end %>
+
+        <% if params[:err] == '9' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i>  Error! </strong> You supplied too many FASTQ resources.
+          </div>
+        <% end %>
+
+        <% if params[:err] == '10' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i>  Error! </strong> The supplied server seems to be invalid.
+          </div>
+        <% end %>
+
+        <% if params[:err] == '11' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i>  Error! </strong> An unhandled error happened. This should not happen :(
+          </div>
+        <% end %>
+
       </div>
     </div>
     <div class="row">
@@ -72,7 +120,6 @@
         </table>
       </div>
     </div>
-  </div>
 
   <%# FOOTER #%>
   <%= erb :'/includes/footer' %>
@@ -89,17 +136,19 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="newJobsLabel">Create new job</h4>
+        <h4 class="modal-title" id="newJobsLabel"><i class="fa fa-cube"></i> Create new job</h4>
       </div>
       <div class="modal-body">
         <form role="form" class="form-horizontal" method="post" action="/jobs/new">
           
           <% if session[:user].admin %>
             <div class="form-group">
-              <label for="InputServer" class="col-md-3 control-label" >Server</label>
+              <label for="InputServer" class="col-md-3 control-label" >Server 
+              <a data-toggle="tooltip" data-placement="right" data-html="true" title="Select the desired server you want the job dispatched to. Leave the default value for automatic assignment."><i class="fa fa-question-circle"></i></a>
+              </label>
               <div class="col-md-9">
                 <select class="form-control" id="InputServer"  name="InputServer">
-                  <option>Automatic</option>
+                  <option value="">Automatic</option>
                   <% server_list.each do |server| %>
                     <option value="<%= server.id %>"><%= server.name %></option>
                   <% end %>
@@ -109,7 +158,8 @@
           <% end %>
 
           <div class="form-group">
-            <label for="InputOrganism" class="col-md-3 control-label">Organism</label>
+            <label for="InputOrganism" class="col-md-3 control-label">Organism 
+            </label>
             <div class="col-md-3 move-down-10px">
               <input type="checkbox" name="InputOrganismUnknown" value="true" id="Organism"> Unknown
             </div>
@@ -127,12 +177,13 @@
               <input type="checkbox" name="InputGeneNameUnknown" value="true" id="GeneName"> Unknown
             </div>
             <div class="col-md-6">
-              <input type="text" class="form-control" id="InputGeneName" placeholder="eg: caramel" required>
+              <input type="text" class="form-control" name="InputGeneName" id="InputGeneName" placeholder="eg: caramel" required>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="InputTranscripts" class="col-md-3 control-label">Transcripts</label>
+            <label for="InputTranscripts" class="col-md-3 control-label">Transcripts 
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title="Enable to fetch the annotated transcripts relative to the gene you specified."><i class="fa fa-question-circle"></i></a></label>
             <div class="col-md-9 move-down-10px">
               <input type="checkbox" name="InputTranscripts" value="true" id="InputTranscripts">
               Download from ENSEMBL
@@ -191,7 +242,7 @@
           <div class="form-group">
             <label for="InputQuality" class="col-md-3 control-label" >Quality Threshold</label>
             <div class="col-md-9">
-              <input type="text" value=""
+              <input type="text" value="33"
                 data-slider-min="33" data-slider-max="126" data-slider-step="1" data-slider-value="33"
                 id="InputQuality" name="InputQuality" >
             </div>
