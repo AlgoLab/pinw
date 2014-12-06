@@ -1,12 +1,15 @@
 development:
   adapter: sqlite3
   database: db/dev.db
+  timeout: 30000
 
 test:
   adapter: sqlite3
   database: db/test.db
+  timeout: 30000
 
 production:
   adapter: sqlite3
   database: db/pinw.db
+  timeout: 30000
 
