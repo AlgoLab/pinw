@@ -11,6 +11,8 @@ class Init < ActiveRecord::Migration
       table.column :description,       :string
 
 
+      table.column :paused, :boolean, default: false
+
       
       table.column :awaiting_download, :boolean, default: false
 
@@ -52,7 +54,6 @@ class Init < ActiveRecord::Migration
 
       table.column :processing_metrics,  :string
       table.column :processing_error, :string # pids are stored on the remote machine and polling is peformed by another script
-      table.column :processing_ok, :boolean, default: false
 
 
       
@@ -105,11 +106,12 @@ class Init < ActiveRecord::Migration
 
     ## RESULTS ##
     create_table :results do |table|
-      table.column :filename_o_qualcosaDLG,      :string
-      table.column :working_dir,     :string
-      table.references :users
-      table.references :servers
-      table.references :jobs
+      table.column :TODO,      :string
+      table.references :user
+      table.references :server
+      table.references :job
+
+      table.index :job_id, unique: true
       table.timestamps
     end
 

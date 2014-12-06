@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.string   "gene_name"
     t.integer  "quality_threshold",         default: 33
     t.string   "description"
+    t.boolean  "paused",                    default: false
     t.boolean  "awaiting_download",         default: false
     t.string   "ensembl"
     t.integer  "ensembl_pid"
@@ -48,7 +49,6 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.boolean  "processing_dispatch_ok",    default: false
     t.string   "processing_metrics"
     t.string   "processing_error"
-    t.boolean  "processing_ok",             default: false
     t.integer  "server_id"
     t.integer  "user_id"
     t.integer  "result_id"
@@ -81,14 +81,15 @@ ActiveRecord::Schema.define(version: 20141123081409) do
   end
 
   create_table "results", force: true do |t|
-    t.string   "filename_o_qualcosaDLG"
-    t.string   "working_dir"
-    t.integer  "users_id"
-    t.integer  "servers_id"
-    t.integer  "jobs_id"
+    t.string   "TODO"
+    t.integer  "user_id"
+    t.integer  "server_id"
+    t.integer  "job_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "results", ["job_id"], name: "index_results_on_job_id", unique: true
 
   create_table "servers", force: true do |t|
     t.integer  "priority"

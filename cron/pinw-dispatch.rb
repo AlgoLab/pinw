@@ -1,6 +1,8 @@
 require 'active_record'
 require 'net/ssh'
 require "net/scp"
+require 'yaml'
+require 'fileutils'
 
 PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
 
@@ -79,6 +81,9 @@ class PinWDispatch
 
     def check_server server, async: true
 
+        # Exit if the server is disabled:
+        return if server.disabled
+
         # Exit if there is a lock still in place:
         return if server.check_pid and (Time.now < server.check_lock + @lock_timeout) # 60s
 
@@ -88,7 +93,7 @@ class PinWDispatch
         #  and routine checks are really not necessary)
 
         # Clear lock if needed:        
-        Process.kill 9, server.check_pid if server.check_pid
+        kill 9, server.check_pid if server.check_pid
         debug 'killed old check process' if server.check_pid
 
         launch lambda {
@@ -122,70 +127,144 @@ class PinWDispatch
 
                     ## CHECK SERVER ##
 
-                    ssh.exec!("pyton script")
+                    # Move to the pinw working dir:
+                    if server.working_dir
+                        ssh.exec!("cd #{server.working_dir}") do |ch, success|
+                            raise 'GenericSSHProcedureError' unless success
+                        end
+                    end
+
+                    # Remove old report if present:
+                    # (this prevents stale readings in case of wonky failures)
+                    ssh.exec!("rm -f check_report.yml") do |ch, success|
+                        raise 'GenericSSHProcedureError' unless success
+                    end
+
+                    # Generate a new report:
+                    start_check = Time.now
+                    already_typed = false
+                    ssh.exec!("python -i") do |ch, stream, data|
+                        unless already_typed
+                            ch.send_data("open('check_report.yml', 'w').write('HELLO WORLD')")
+                            ch.eof!
+                            already_typed = true
+                            debug 'python script "typed"'
+                        end
+                        # Renew lock:
+                        server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
+
+                        # Die if hanging:
+                        if Time.now - start_check > 60 # seconds
+                            ch.close
+                            raise 'CheckScriptTimeoutError'
+                        end
+                    end
                     debug 'check script executed'
 
-                    # Get results:
-                    results = scp.download! 'check_report.yml'
+                    # Parse results:
+                    results = YAML.load scp.download! 'check_report.yml'
                     debug "gotten report:\n #{results}"
 
-                    # Parse results:
-                    # TODO: parse results
+                    # TODO: validate results?
 
+                    active_jobs = [8,9,0]
+                    failed_jobs = [4,5,6]
                     completed_jobs = [1,2,3] # get from results
+
+                    # TODO: manage missing jobs
                     free_slots = 3
 
                     # TODO: maybe change style to async for better troughput? (must understand how to correctly handle errors)
 
-                    # ACK completed jobs:
+                    ## ACK COMPLETED JOBS ##
                     completed_jobs.each do |job|
+                        # Renew lock:
+                        server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
+                        begin
+                            # All this code must be idempotent as
+                            # it might run twice in some circumstances!
 
+                            # LOCAL SAVE DB
+                            result = Result.create_with({
+                                user_id: job.user_id, 
+                                server_id: server.id, 
+                                TODO: "BANANA!"
+                            }).find_or_create_by!(job_id: job.id)
 
+                            # Delete job:
+                            job.destroy
+
+                            # LOCAL DELETE FILES
+                            FileUtils.rm_rf @download_path + "job-#{job.id}"
+                            
+                            # ACK REMOTE SERVER
+                            ssh.exec!("echo '#{job.id}|#{Time.now}' > jobs/job-#{job.id}/pinw-ack")
+                            ssh.exec!("mv -f jobs/job-#{job.id} results/result-#{result.id}")
+
+                        rescue => ex
+                            job.update processing_failed: true, processing_last_error: "Unexpected error while ACK: #{ex.message}"
+                        end
                     end
 
+                    ## SPURIOUS JOBS ##
+                    Job.where(server_id: server.id).where.not(id: active_jobs + failed_jobs + completed_jobs).each do |job|
+                        job.update processing_failed: true, processing_last_error: "Spurious job: the server has no knowledge of this job."
+                    end
 
-                    # This nested block is only used to ensure that
-                    # channels don't get interrupted by errors that 
-                    # might happen during a job dispatch (and to 
-                    # convert the errors in JobDispatchErrors so that
-                    # we know that the curlpit might not be the server
-                    # but the job instance, and flag it accordingly).
-                    # All error handling is still done in the main
-                    # begin/rescue block.
                     
                     ## DISPATCH NEW JOBS ##
+
                     while free_slots > 0 and (not server.remote_network or ProcessingState.get_active_remote_transfers < @max_remote_transfers)
+                        # Renew lock:
+                        server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
                         begin
-
                             # TODO: remove transaction by using a conditional UPDATE ... LIMIT 1 ?
-
                             dispatch_job = nil # TODO: scope!
-
+                            old_pid = nil
                             Job.transaction do
-                                dispatch_job = Job.find_by(awaiting_dispatch: true,
+                                dispatch_job = Job.find_by(awaiting_dispatch: true, paused: false,
                                                   # Job.arel_table[:processing_dispatch_lock].lt(Time.now - 5 * 60), # 5 minutes
                                                   processing_dispatch_lock: Time.at(0)..(Time.now - 5 * 60), # 5 minutes
                                                   server_id: [server.id, nil]).order(:server_id)
-                            
+                                
+                                # Exit if there are no more jobs to dispatch:
                                 break unless dispatch_job
 
-                                if dispatch_job.processing_dispatch_pid
-                                    Process.kill 9, dispatch_job.processing_dispatch_pid
-                                    puts 'killed old dispatch'
-                                end
+                                # Save stale pid (no unecessary operations inside the transaction):
+                                old_pid = dispatch_job.processing_dispatch_pid
 
-
-                                dispatch_job.update server_id: server.id, processing_dispatch_lock: Time.now, processing_dispatch_pid: Process.pid
-                                    
+                                # Lock job:
+                                dispatch_job.update({
+                                    server_id: server.id, 
+                                    processing_dispatch_lock: Time.now, 
+                                    processing_dispatch_pid: Process.pid
+                                })    
                             end
 
-
+                            # Kill eventual stale pid:
+                            if old_pid
+                                kill 9, old_pid
+                                debug "killed old dispatch for dispatch job: #{dispatch_job.id}"
+                            end
 
                             # clear remote directory? no, fail
                             ProcessingState.add_remote_transfer server_id: server.id, job_id: dispatch_job.id
-                            scp.download!('/filezz/', 'myfilezz/')
-            
+                            scp.upload!(@download_path + "job-#{dispatch_job.id}/", "jobs/job-#{dispatch_job.id}/", recursive: true) do |ch, name, sent, total|
+                                # Renew server lock:
+                                server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
 
+                                # Renew job lock:
+                                dispatch_job.update processing_dispatch_lock: Time.now if Time.now - server.check_lock > 20 # seconds
+                            end
+                            debug 'done uploading files!'
+
+                            # TODO: send processing script
+
+                            # Start the processing script
+                            ssh.exec!('python launch.py &')
+                            ssh.exec!('disown')
+
+                            # Mark job as dispatched!
                             dispatch_job.update awaiting_dispatch: false, processing_dispatch_ok: true
                             free_slots -= 1
 
@@ -197,7 +276,6 @@ class PinWDispatch
 
                             # If channels took more time to complete than dispatch 
                             # (or there was no dispatch), wait for them all to complete:
-                            channels.each {|ch| ch.wait}
                         end
                     end
                 end
@@ -230,11 +308,11 @@ class PinWDispatch
             
             # Close the DB connection (required when forking):
             ActiveRecord::Base.connection_pool.disconnect!
-            Process.detach Process.fork do 
+            Process.detach(Process.fork do 
                 # Connect to the database:
                 ActiveRecord::Base.establish_connection @db_settings
                 processing_block.call
-            end
+            end)
 
             # Restablish the database connection:
             ActiveRecord::Base.establish_connection @db_settings
@@ -258,7 +336,7 @@ class PinWDispatch
                 Process.exit(0)
             else
                 # The other instance is either hanging or dead
-                Process.kill 9, cron_lock.value
+                kill 9, cron_lock.value
                 puts "Warning: last pinw-dispatch cronjob was terminated."
             end
         end
@@ -274,6 +352,11 @@ class PinWDispatch
         prefixes = ["P:#{Process.pid}"] + @debug_prefixes
         puts "[#{prefixes.join('|')}] #{string}" if @debug
     end
+
+    def kill sig, pid
+        Process.kill 9, pid rescue nil
+    end
+
 
 end
 

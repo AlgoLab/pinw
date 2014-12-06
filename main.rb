@@ -18,7 +18,7 @@ class PinW < Sinatra::Application
   set :session_secret, 'ACTTGTGATAGTACGTGT'
 
 
-  set :download_path, PROJECT_BASE_PATH + 'download/'
+  set :download_path, PROJECT_BASE_PATH + 'downloads/'
   set :max_reads_uploads, 5
   set :max_reads_urls, 5
 

@@ -109,7 +109,7 @@ class PinWFetch
 
 
         # Loop over all jobs awaiting for download/preprocessing:
-        Job.where(awaiting_download: true).each do |job|
+        Job.where(awaiting_download: true, paused: false).each do |job|
         	@debug_prefixes << "J:#{job.id}" if @debug
 	        # NOTE: trick to be able to use find_each?
           	debug 'BEGIN JOB LOOP'
@@ -178,7 +178,7 @@ class PinWFetch
         debug 'past second'
 
         # Clear lock if needed:
-        Process.kill 9, job.genomics_pid if job.genomics_pid
+        kill 9, job.genomics_pid if job.genomics_pid
         debug 'there was a stale pid, killed' if job.genomics_pid
 
         # The function that does the actual work:
@@ -199,7 +199,7 @@ class PinWFetch
                 debug "GRABBED LOCK"
 
 
-                genomics_filepath = @download_path + "#{job.id}/genomics.fasta"
+                genomics_filepath = @download_path + "job-#{job.id}/genomics.fasta"
 
                 # There are 3 possible cases:
 
@@ -219,7 +219,7 @@ class PinWFetch
 
                    
                     # Make sure the path exists:
-                    FileUtils.mkpath @download_path + "#{job.id}"
+                    FileUtils.mkpath @download_path + "job-#{job.id}"
                     debug "created path: #{genomics_filepath}"
 
                     # Test that the URL is valid and that is either http/ftp
@@ -377,7 +377,7 @@ class PinWFetch
         
         # Clear lock if needed:
         if job.ensembl_pid
-            Process.kill 9, job.ensembl_pid
+            kill 9, job.ensembl_pid
             debug 'stale pid found, killed old process'
         end
 
@@ -402,7 +402,7 @@ class PinWFetch
 
                 # TODO: ENSEMBL API     
 
-                job.update ensembl_ok: true
+                job.update ensembl_ok: true, ensembl: "Banana!"
                 debug '### OK ###'
 
                 job = Job.find(job.id)
@@ -469,7 +469,7 @@ class PinWFetch
                 
                 # Clear lock if needed:
                 if reads.pid
-                    Process.kill 9, reads.pid
+                    kill 9, reads.pid
                     debug 'stale pid found, killed'
                 end
 
@@ -496,7 +496,7 @@ class PinWFetch
                         debug "we have enough disk space, proceed"
 
                         # Make sure the download path exists:
-                        reads_path = @download_path + "#{job.id}/reads/"
+                        reads_path = @download_path + "job-#{job.id}/reads/"
                         FileUtils.mkpath reads_path
                         debug "created reads download path: #{reads_path}"
 
@@ -612,11 +612,11 @@ class PinWFetch
             
             # Close the DB connection (required when forking):
             ActiveRecord::Base.connection_pool.disconnect!
-            Process.detach Process.fork do 
+            Process.detach(Process.fork do 
                 # Connect to the database:
                 ActiveRecord::Base.establish_connection @db_settings
                 processing_block.call
-            end
+            end)
 
             # Restablish the database connection:
             ActiveRecord::Base.establish_connection @db_settings
@@ -641,7 +641,7 @@ class PinWFetch
                 Process.exit(0)
             else
                 # The other instance is either hanging or dead
-                Process.kill 9, cron_lock.value
+                kill 9, cron_lock.value
                 debug "Warning: last pinw-fetch cronjob was terminated."
             end
         end
@@ -673,6 +673,10 @@ class PinWFetch
         prefixes = ["P:#{Process.pid}"] + @debug_prefixes
         puts "[#{prefixes.join('|')}] #{string}" if @debug
     end
+
+    def kill sig, pid
+        Process.kill 9, pid rescue nil
+    end
 end
 
 
@@ -686,7 +690,7 @@ if __FILE__ == $0
 
     PinWFetch.new({
         adapter: settings['test']['adapter'],
-        database: PROJECT_BASE_PATH + settings['test']['database'],
+        database: PROJECT_BASE_PATH + settings['development']['database'],
         timeout: 30000,
     }, debug: debug, force: force).run_main_loop
 end
