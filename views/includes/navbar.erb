@@ -2,17 +2,17 @@
   <div class="container">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
-      <a class="navbar-brand" href="/">PinW</a>
+      <div class="navbar-brand">PinW</div>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <%  if session[:user] %>
-        <ul class="nav navbar-nav">
+      <ul class="nav navbar-nav">
+        <%  if session[:user] %>
           <li><a href="/jobs">Jobs</a></li>
-          <li><a href="/archive">Archive</a></li>
-        </ul>
-      <% end %>
+        <% end %>
+        <li><a href="/results">Results</a></li>
+      </ul>
       <ul class="nav navbar-nav navbar-right">
         <%  if session[:user] and session[:user].admin %>
           <li class="dropdown">
@@ -20,13 +20,20 @@
               <ul class="dropdown-menu" role="menu">
                 <li><a href="/admin"><i class="fa fa-dashboard"></i> Dashboard</a></li>
                 <li><a href="/admin/users"><i class="fa fa-group"></i> Users</a></li>
+                <li><a href="/admin/jobs"><i class="fa fa-cubes"></i> Active Jobs</a></li>
                 <li><a href="/admin/servers"><i class="fa fa-sitemap"></i> Servers</a></li>
+                <li><a href="/admin/organisms"><i class="fa fa-paw"></i> Organisms</a></li>
                 <li><a href="/admin/settings"><i class="fa fa-gears"></i> Settings</a></li>
               </ul>
           </li>
         <% end %>
         <%  if session[:user] %>
-          <li><a href="/logout">Logout</a></li>
+          <li><a href="/logout">
+          Logout
+          <% if session[:user].nickname == 'guest' %>
+           <b>from Guest account</b>
+          <% end %>
+          </a></li>
         <% else %>
           <li><a data-toggle="modal" data-target="#login">Login</a></li>
         <% end %>
@@ -53,6 +60,10 @@
         <% elsif params[:err] == '2' %>
           <div class="alert alert-danger">
             <strong><i class="fa fa-warning"></i> Error:</strong> This is account is disabled.
+          </div>
+        <% elsif params[:err] == '3' %>
+          <div class="alert alert-danger">
+            <strong><i class="fa fa-warning"></i> Error:</strong> No guest account enabled, please login.
           </div>
         <% end %>
         <form role="form" class="form-horizontal" method="post" action="/login">

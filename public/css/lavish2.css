@@ -253,8 +253,8 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.428571429;
-  color: #85794d;
-  background-color: #ced9bc;
+  color: #6f6f6f;
+  background-color: #f6fbfb;
 }
 input,
 button,
@@ -314,7 +314,7 @@ hr {
   margin-top: 20px;
   margin-bottom: 20px;
   border: 0;
-  border-top: 1px solid #abc147;
+  border-top: 1px solid #6f6f6f;
 }
 .sr-only {
   position: absolute;
@@ -403,7 +403,7 @@ h6 small,
 .h6 small {
   font-weight: normal;
   line-height: 1;
-  color: #95a65b;
+  color: #989898;
 }
 h1,
 h2,
@@ -458,7 +458,7 @@ h4 small,
 .page-header {
   padding-bottom: 9px;
   margin: 40px 0 20px;
-  border-bottom: 1px solid #abc147;
+  border-bottom: 1px solid #6f6f6f;
 }
 ul,
 ol {
@@ -1555,16 +1555,16 @@ input[type="number"]::-webkit-inner-spin-button {
   height: auto;
 }
 .form-control:-moz-placeholder {
-  color: #95a65b;
+  color: #a0a0a0;
 }
 .form-control::-moz-placeholder {
-  color: #95a65b;
+  color: #a0a0a0;
 }
 .form-control:-ms-input-placeholder {
-  color: #95a65b;
+  color: #a0a0a0;
 }
 .form-control::-webkit-input-placeholder {
-  color: #95a65b;
+  color: #a0a0a0;
 }
 .form-control {
   display: block;
@@ -1573,7 +1573,7 @@ input[type="number"]::-webkit-inner-spin-button {
   padding: 6px 12px;
   font-size: 14px;
   line-height: 1.428571429;
-  color: #608d4e;
+  color: #5f5f5f;
   vertical-align: middle;
   background-color: #ffffff;
   border: 1px solid #cccccc;
@@ -2836,7 +2836,7 @@ input[type="button"].btn-block {
   clear: both;
   font-weight: normal;
   line-height: 1.428571429;
-  color: #85794d;
+  color: #4c4c4c;
   white-space: nowrap;
 }
 .dropdown-menu > li > a:hover,
@@ -3923,11 +3923,11 @@ textarea.input-group-sm > .input-group-btn > .btn {
   color: #333333;
 }
 .navbar-inverse {
-  background-color: #3c5b45;
-  border-color: #283c2e;
+  background-color: #26ADA1;
+  border-color: #1e8a80;
 }
 .navbar-inverse .navbar-brand {
-  color: #95a65b;
+  color: #ffffff;
 }
 .navbar-inverse .navbar-brand:hover,
 .navbar-inverse .navbar-brand:focus {
@@ -3935,10 +3935,10 @@ textarea.input-group-sm > .input-group-btn > .btn {
   background-color: transparent;
 }
 .navbar-inverse .navbar-text {
-  color: #95a65b;
+  color: #ffffff;
 }
 .navbar-inverse .navbar-nav > li > a {
-  color: #95a65b;
+  color: #ffffff;
 }
 .navbar-inverse .navbar-nav > li > a:hover,
 .navbar-inverse .navbar-nav > li > a:focus {
@@ -3974,7 +3974,7 @@ textarea.input-group-sm > .input-group-btn > .btn {
 .navbar-inverse .navbar-nav > .open > a,
 .navbar-inverse .navbar-nav > .open > a:hover,
 .navbar-inverse .navbar-nav > .open > a:focus {
-  background-color: #283c2e;
+  background-color: #135650;
   color: #ffffff;
 }
 .navbar-inverse .navbar-nav > .dropdown > a:hover .caret {
@@ -3982,8 +3982,8 @@ textarea.input-group-sm > .input-group-btn > .btn {
   border-bottom-color: #ffffff;
 }
 .navbar-inverse .navbar-nav > .dropdown > a .caret {
-  border-top-color: #95a65b;
-  border-bottom-color: #95a65b;
+  border-top-color: #ffffff;
+  border-bottom-color: #ffffff;
 }
 .navbar-inverse .navbar-nav > .open > a .caret,
 .navbar-inverse .navbar-nav > .open > a:hover .caret,

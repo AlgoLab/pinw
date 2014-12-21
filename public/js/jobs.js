@@ -5,6 +5,11 @@ $(document).ready(function() {
     // The maximum number of options
     var MAX_OPTIONS_URLS = 5;
     var MAX_OPTIONS_FILES = 5;
+    var querystring = _querystring('auto');
+
+    if (querystring.length) {
+        $('#newJob').modal('show');
+    }
 
     $('#newJob')
 
@@ -175,9 +180,7 @@ $(document).ready(function() {
             $('#rowInputGeneFile').removeClass('hide');
         }
     });
-
-    $("[data-toggle=tooltip]").tooltip();
-    
+ 
 
     // reads block
     $("#firstReadFile").change(function(){
@@ -190,6 +193,14 @@ $(document).ready(function() {
 
     // form JS  (jobs load in realtime)
     _get_jobs();
+
+    // confirm after delete
+    $(".delete").click(function(){
+        var res = confirm('Do you really want to delete the job?');
+        if ( !res ) {
+            return false;
+        }
+    });
 
 });
 
@@ -233,90 +244,84 @@ function _createTable ( i ) {
     } else {
         $.each(data.jobs, function(i, item){
             previous_job_list.push(item.id);
-            $('#jobsList tr:last').after(
-                "<tr class='green hidden-top " + item.id + "_tr'>" +
-                    "<td class='btl'><div id='" + item.id + "_name'>" + _get_name(item.organism_name, item.gene_name, item.id) + '</div></td>' +
-                    '<td class="btr" colspan="3">' +
-                        (item.paused ? '<strong>PAUSED</strong> ' : '') +
-                        'QT:' + item.quality_threshold +
-                        (item.description ? ' Description:' + item.description : '') +
-                    '</td>' +
-                '</tr>' +
-                "<tr class='green  " + item.id + "_tr'>" +
-                    '<td width="32%" class="centered hidden-bottom">Genomics</td>' +
-                    '<td width="32%" class="centered hidden-bottom">Ensembl</td>' +
-                    '<td width="32%" class="centered hidden-bottom">Reads</td>' +
-                    '<td width="4%"  class="centered hidden-bottom">Actions</td>' +
-                '</tr>' +
-                "<tr class='green  " + item.id + "_tr'>" +
-                    '<td>' +
-                        "<div id='" + item.id + "_genomics_status'>" +
-                        _create_alert(item.genomics_ok,
-                                      item.genomics_failed,
-                                      item.genomics_last_error) +
-                        "</div>" +
-                    '</td>' +
-                    "<td>" +
-                        "<div id='" + item.id + "_ensembl_status'>" +
-                        (item.ensembl_disabled ? "" +
-                            '<div class="alert alert-success hidden-form">' +
-                                "<strong><i class='fa fa-check'></i> No download requested!</strong>" +
-                            '</div>' :
-                        _create_alert(item.ensembl_ok,
-                                      item.ensembl_failed,
-                                      item.ensembl_last_error)) +
-                        "</div>" +
-                    '</td>' +
-                    "<td>" +
-                        "<div class='progress hidden-form'>" +
-                            "<div id='" + item.id + "_bar'" +
-                                "class='progress-bar progress-bar-striped active' " +
-                                "role='progressbar' aria-valuenow='" + item.reads_done + "'" +
-                                "aria-valuemin='0' aria-valuemax='" + item.reads_total + "'" +
-                                "style='width: " + (item.reads_done / item.reads_total * 100) + "%'>" +
-                            '</div>' +
+            $('#jobsList br:last').after(
+                "<div class='anchor' id='job_" + item.id +"'></div>" +
+                "<div class='panel panel-default panel-primary result'>" +
+                    "<div class='panel-heading'>" +
+                        "<div id='" + item.id + "_name'>" +
+                        _get_name(item.organism.name, item.gene_name, item.id) +
+                        (item.paused ? ' (PAUSED) ' : ' ') +
+                        (data.admin_view ? 'Owner: ' + item.owner : '') +
                         '</div>' +
-                        '<br />' +
-                        "<div id='" + item.id + "_reads_status'>" +
-                        _create_alert(item.all_reads_ok,
-                                      item.some_reads_failed,
-                                      item.reads_last_error,
-                                      item.reads_done,
-                                      item.reads_total) +
-                        "</div>" +
-                    '</td>' +
-                    "<td rowspan='2'class='centered bbr'>" +
-                        _create_play_pause(item.paused, item.id) +
-                        "<form action='/jobs/delete' method='post'>" +
-                            "<input type='hidden' name='job_id' value='" + item.id + "' class='btn'>" +
-                            "<button " +
-                                "onClick='return confirm('Would you like to delete this job?');'" +
-                                "type='submit' class='btn btn-primary' title='delete'>" +
-                                "<i class='fa fa-trash-o'></i>" +
-                            "</button>" +
-                        "</form>" +
-                    '</td>' +
-                '</tr>' +
-                "<tr class='green  " + item.id + "_tr'>" +
-                    "<td class='bbl' colspan='3' >" +
-                        "<div>" +
-                            "<ul class='progressbar'>" +
-                                "<li class='down active' id='" + item.id +"_download'>Download</li>" +
-                                "<li class='wait' id='" + item.id +"_waiting'>Awaiting dispatch</li>" +
-                                "<li class='disp' id='" + item.id +"_dispatch'>Dispatch</li>" +
-                                "<li class='proc' id='" + item.id +"_processing' >Processing</li>" +
-                            "</ul>" +
-                        "</div>" +
-                        "<div id='" + item.id +"_error' class='alert alert-danger hidden-form nascosto'>" +
-                            "<strong><i class='fa fa-times'></i> Error: </strong>" +
-                            (item.processing_error ? item.processing_error : item.dispatch_error) +
-                        "</div>" +
-                    '</td>' +
-                '</tr>' +
-                // riga vuote per separare le tabelle
-                "<tr class='" + item.id + "_tr'>" +
-                    '<td colspan="4" class="hidden-left hidden-right hidden-bottom hidden-top"></td>' +
-                '</tr>'
+                    "</div>" +
+                    "<div class='panel-body reduce-padding'>" +
+                                (item.description ? ' Description:' + item.description : '') +
+                    "</div>" +
+                    "<table class='table table-condensed table-result hidden-border'>" +
+                        "<tr class='" + item.id + "_tr'>" +
+                            '<td width="32%"class="centered hidden-bottom">Genomics</td>' +
+                            '<td width="32%" class="centered hidden-bottom">Ensembl</td>' +
+                            '<td width="32%" class="centered hidden-bottom">Reads (QT: ' + item.quality_threshold + ') </td>' +
+                            '<td class="centered hidden-bottom"> Actions </td>' +
+                        '</tr>' +
+                        "<tr class='" + item.id + "_tr'>" +
+                            '<td>' +
+                                "<div id='" + item.id + "_genomics_status' class='minibox'>" +
+                                _create_alert(item.genomics_ok,
+                                              item.genomics_failed,
+                                              item.genomics_last_error) +
+                                "</div>" +
+                            '</td>' +
+                            "<td>" +
+                                "<div id='" + item.id + "_ensembl_status' class='minibox'>" +
+                                (item.ensembl_disabled ? "" +
+                                    '<div class="alert alert-success hidden-form">' +
+                                        "<strong><i class='fa fa-check'></i> No download requested!</strong>" +
+                                    '</div>' :
+                                _create_alert(item.ensembl_ok,
+                                              item.ensembl_failed,
+                                              item.ensembl_last_error)) +
+                                "</div>" +
+                            '</td>' +
+                            "<td>" +
+                                "<div id='" + item.id + "_reads_status' class='minibox'>" +
+                                _create_alert(item.all_reads_ok,
+                                              item.some_reads_failed,
+                                              item.reads_last_error,
+                                              item.reads_done,
+                                              item.reads_total) +
+                                "</div>" +
+                            '</td>' +
+                            "<td rowspan='2'class='centered'>" +
+                                _create_play_pause(item.paused, item.id) +
+                                "<form action='jobs/delete' method='post' >" +
+                                    "<input type='hidden' name='job_id' value='" + item.id + "' class='btn'>" +
+                                    "<button " +
+                                        "type='submit' class='btn btn-primary delete' title='delete'>" +
+                                        "<i class='fa fa-trash-o'></i>" +
+                                    "</button>" +
+                                "</form>" +
+                            '</td>' +
+                        '</tr>' +
+                        "<tr class='" + item.id + "_tr'>" +
+                            "<td colspan='3' >" +
+                                "<div>" +
+                                    "<ul class='progressbar'>" +
+                                        "<li class='down active' id='" + item.id +"_download'>Download</li>" +
+                                        "<li class='wait' id='" + item.id +"_waiting'>Awaiting dispatch</li>" +
+                                        "<li class='disp' id='" + item.id +"_dispatch'>Dispatch</li>" +
+                                        "<li class='proc' id='" + item.id +"_processing' >Processing</li>" +
+                                    "</ul>" +
+                                "</div>" +
+                                "<div id='" + item.id +"_error' class='alert alert-danger hidden-form nascosto'>" +
+                                    "<strong><i class='fa fa-times'></i> Error: </strong>" +
+                                    (item.processing_error ? item.processing_error : item.dispatch_error) +
+                                "</div>" +
+                            '</td>' +
+                        '</tr>' +
+                    "</table>" +
+                "</div>" +
+                "<br />"
             );
             _update_status(item);
             _update_error(item);
@@ -331,7 +336,10 @@ function _modify_table( i ) {
     } else {
         $.each(data.jobs, function(i, item){
             actual_job_list.push(item.id);
-            $("#" + item.id + "_name").empty().append(_get_name(item.organism_name, item.gene_name, item.id));
+            $("#" + item.id + "_name").empty().append('' +
+                _get_name(item.organism.name, item.gene_name, item.id) +
+                (item.paused ? ' (PAUSED) ' : '')+
+                (data.admin_view ? 'Owner: ' + item.owner : ''));
             $("#" + item.id + "_genomics_status").empty().append(
                 _create_alert(item.genomics_ok,
                               item.genomics_failed,
@@ -351,7 +359,6 @@ function _modify_table( i ) {
                               item.reads_done,
                               item.reads_total)
             );
-            $("#" + item.id + "_bar").css("width", ((item.reads_done / item.reads_total * 100) + "%"));
             $("#" + item.id + "_error").empty().append(
                 "<strong><i class='fa fa-times'></i> Error: </strong>" +
                 (item.processing_error ? item.processing_error : item.dispatch_error)
@@ -445,4 +452,13 @@ function _create_play_pause ( paused, id ) {
                 "</form>";
     }
     return r;
+}
+
+// funzione per autoshow del modale
+
+function _querystring(key) {
+  var re=new RegExp('(?:\\?|&)'+key+'=(.*?)(?=&|$)','gi');
+  var r=[], m;
+  while ((m=re.exec(document.location.search)) !== null) r.push(m[1]);
+  return r;
 }

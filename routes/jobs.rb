@@ -28,9 +28,9 @@ class PinW < Sinatra::Application
     end
 
     get '/jobs/?' do
-        job_list = session[:user].jobs(true)
         server_list = Server.all.to_a
-        erb :'jobs', :locals => {:job_list => job_list, :server_list => server_list}
+        organism_list = Organism.where(enabled: true)
+        erb :'jobs', locals: {server_list: server_list, organism_list: organism_list, admin_view: false}
     end
 
     post '/jobs/new' do
@@ -55,7 +55,7 @@ class PinW < Sinatra::Application
 	            end 
 	        end
 	        
-	        job.organism_name = params[:InputOrganism] unless params[:InputOrganismUnknown]
+	        job.organism = Organism.find_by!(id: params[:InputOrganism], enabled: true) unless params[:InputOrganismUnknown]
 	        job.gene_name = params[:InputGeneName] unless params[:InputGeneNameUnknown]
 
 	        # If we don't have to fetch the ensembl data, we set the `ensembl_ok` flag to true.
@@ -141,7 +141,7 @@ class PinW < Sinatra::Application
 	        end
 
 	        all_went_ok = true
-	        redirect to '/jobs'
+	        redirect to "/jobs#job_#{ job.id }"
 
 	    rescue TooManyJobsError 
 	    	puts "Too many jobs!"
@@ -198,29 +198,39 @@ class PinW < Sinatra::Application
 
     post '/jobs/pause' do
     	job = Job.find(params[:job_id])
-    	redirect '/jobs' unless job
-    	redirect '/jobs' unless session[:user].admin or job.user_id == session[:user].id
+    	redirect back unless job
+    	redirect back unless session[:user].admin or job.user_id == session[:user].id
     	job.update paused: true
-    	redirect '/jobs'
+    	redirect back + "#job_#{ job.id }"
     end
 
     post '/jobs/resume' do
     	job = Job.find(params[:job_id])
-    	redirect '/jobs' unless job
-    	redirect '/jobs' unless session[:user].admin or job.user_id == session[:user].id
+    	redirect back unless job
+    	redirect back unless session[:user].admin or job.user_id == session[:user].id
     	job.update paused: false
-    	redirect '/jobs'
+    	redirect back + "#job_#{ job.id }"
     end
 
     get '/jobs/update' do
         jobs_state = []
-        session[:user].jobs(true).each do |job|
+        admin_view = false
+
+        if request.referrer.include? "admin" and session[:user].admin
+        	job_list = Job.all
+        	admin_view = true
+        else
+        	job_list = session[:user].jobs(true)
+        end
+
+        job_list.each do |job|
             jobs_state << {
                 id: job.id,
+                owner: job.user.nickname,
 
                 paused: job.paused,
 
-                organism_name: job.organism_name,
+                organism: job.organism,
                 gene_name: job.gene_name,
                 quality_threshold: job.quality_threshold,
                 description: job.description,
@@ -256,6 +266,6 @@ class PinW < Sinatra::Application
 
         puts jobs_state
 
-        json({success: true, jobs: jobs_state})
+        json({success: true, jobs: jobs_state, admin_view: admin_view})
     end
 end

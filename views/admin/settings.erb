@@ -22,10 +22,6 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <form action="/admin/settings" method="POST" class="hidden-form">
-        <button class="btn btn-primary" type="submit">
-          Save
-        </button>
         <a href="/admin" class="btn btn-primary pull-right" role="button">Back to admin panel</a>
       </div>
     </div>
@@ -48,6 +44,7 @@
     </div>
     <div class="row">
       <div class="col-md-12">
+        <form action="/admin/settings" method="POST" class="hidden-form">
         <table class="table">
           <thead>
             <th>Name</th>
@@ -61,8 +58,8 @@
               <td><%= setting[:name] %></td>
               <td><%= setting[:description] %></td>
               <td>
-                  <input type="<%= setting[:type] %>" name="<%= setting[:key] %>"
-                  <% if setting[:type] == "checkbox" 
+                  <input type="<%= setting[:html_field_type] %>" name="<%= setting[:key] %>"
+                  <% if setting[:html_field_type] == "checkbox" 
                     if setting[:value] %>
                       checked
                     <% end %>

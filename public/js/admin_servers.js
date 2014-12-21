@@ -95,7 +95,6 @@ $(document).ready(function() {
     $("#AdvancedOptions").click(function(){
         $("#rowAdvancedOptions").addClass('hide');
         $("#rowInputPintronParh").fadeIn(800);
-        $("#rowInputPythonPath").fadeIn(800);
         $("#rowInputWorkingDir").fadeIn(800);
         $("#rowInputCallback").fadeIn(800);
         $("#rowInputCallbackURL").fadeIn(800);
@@ -182,8 +181,9 @@ $(document).ready(function() {
                     return false;
                 }
                 submit = true;
-                $("#newServerForm").submit();
-                submit = false;
+
+                document.forms['newServerForm'].submit();
+                return false;
             });
     });
 

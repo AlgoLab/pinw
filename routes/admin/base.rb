@@ -28,5 +28,7 @@ class PinW < Sinatra::Application
 end
 
 require_relative 'users'
+require_relative 'jobs'
 require_relative 'servers'
+require_relative 'organisms'
 require_relative 'settings'

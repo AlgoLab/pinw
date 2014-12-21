@@ -5,7 +5,7 @@ class PinW < Sinatra::Application
 
     get '/admin/users/?' do
         user_list = User.all.to_a
-        erb :'admin/users', :locals => { :user_list => user_list }
+        erb :'admin/users', locals: { user_list: user_list }
     end
 
     post '/admin/users/new' do

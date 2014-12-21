@@ -10,9 +10,3 @@ if (querystring.length) {
   $(window).load(function(){$('#login').modal('show');});
 }
 
-
-$(window).load(function() {
-  $('.modal').on('shown.bs.modal', function () {
-    $(this).find("[autofocus]:first").focus();
-  });
-});

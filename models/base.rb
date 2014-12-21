@@ -1,3 +1,4 @@
+require_relative 'organisms'
 require_relative 'jobs'
 require_relative 'processing_status'
 require_relative 'servers'

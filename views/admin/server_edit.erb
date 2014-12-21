@@ -54,7 +54,7 @@
       <%# detail block %>
       <div class="col-md-6">
         <form role="form" class="form-horizontal" method="post" action="/admin/servers/edit" id="editServerForm">
-          <input type="hidden" name="user_id" value="<%= server.id %>">
+          <input type="hidden" name="server_id" value="<%= server.id %>">
 
           <div class="form-group">
             <label for="InputName" class="col-md-4 control-label" >Name</label>
@@ -143,21 +143,6 @@
             </div>
           </div>
 
-          <div class="form-group nascosto" id="rowInputPintronPath">
-            <label for="InputPintronPath" class="col-md-4 control-label" >Pintron path</label>
-            <div class="col-md-8">
-              <input type="text" class="form-control" id="InputPintronPath" 
-               placeholder="eg: /foo/bar" name="InputPintronPath" >
-            </div>
-          </div>
-
-          <div class="form-group nascosto" id="rowInputPythonPath">
-            <label for="InputPythonPath" class="col-md-4 control-label" >Python path</label>
-            <div class="col-md-8">
-              <input type="text" class="form-control" id="InputPythonPath" 
-               placeholder="eg: /foo/bar" name="InputPythonPath" >
-            </div>
-          </div>
 
           <div class="form-group nascosto" id="rowInputWorkingDir">
             <label for="InputWorkingDir" class="col-md-4 control-label" >Working dir</label>

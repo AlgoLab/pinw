@@ -14,7 +14,6 @@
 ActiveRecord::Schema.define(version: 20141123081409) do
 
   create_table "jobs", force: true do |t|
-    t.string   "organism_name"
     t.string   "gene_name"
     t.integer  "quality_threshold",         default: 33
     t.string   "description"
@@ -51,6 +50,7 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.string   "processing_error"
     t.integer  "server_id"
     t.integer  "user_id"
+    t.integer  "organism_id"
     t.integer  "result_id"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -70,6 +70,13 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.string   "last_error"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "organisms", force: true do |t|
+    t.string  "name"
+    t.string  "ensembl_id"
+    t.string  "description"
+    t.boolean "enabled",     default: true
   end
 
   create_table "processing_status", force: true do |t|
@@ -100,8 +107,6 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.string   "password"
     t.string   "client_certificate"
     t.string   "client_passphrase"
-    t.string   "pintron_path"
-    t.string   "python_command"
     t.string   "working_dir"
     t.boolean  "use_callback",       default: true
     t.string   "callback_url"
@@ -123,7 +128,7 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.text     "value"
     t.string   "name"
     t.string   "description"
-    t.string   "type"
+    t.string   "html_field_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

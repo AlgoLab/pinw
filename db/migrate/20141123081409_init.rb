@@ -5,7 +5,6 @@ class Init < ActiveRecord::Migration
       create_table :jobs do |table|
       #table.column :status,         :string, default: 'QUEUED_DOWNLOAD'
 
-      table.column :organism_name,     :string
       table.column :gene_name,         :string
       table.column :quality_threshold, :integer, default: 33
       table.column :description,       :string
@@ -59,6 +58,7 @@ class Init < ActiveRecord::Migration
       
       table.references :server
       table.references :user
+      table.references :organism
       table.references :result,    :index => true
       table.timestamps
 
@@ -99,7 +99,7 @@ class Init < ActiveRecord::Migration
       table.column :value, :text
       table.column :name, :string
       table.column :description, :string
-      table.column :type, :string
+      table.column :html_field_type, :string
       table.timestamps
     end
 
@@ -131,8 +131,8 @@ class Init < ActiveRecord::Migration
       table.column :client_certificate, :string
       table.column :client_passphrase,  :string       
 
-      table.column :pintron_path,   :string             
-      table.column :python_command, :string         
+      # table.column :pintron_path,   :string             
+      # table.column :python_command, :string         
       table.column :working_dir,      :string            
 
       table.column :use_callback,  :boolean, default: true
@@ -180,6 +180,15 @@ class Init < ActiveRecord::Migration
       table.column :message, :string
       table.timestamps
     end
+
+    ## ORGANISMS ##
+    create_table :organisms do |table|
+      table.column :name, :string
+      table.column :ensembl_id, :string
+      table.column :description, :string
+      table.column :enabled, :boolean, default: true
+    end
+
 
   end
 end

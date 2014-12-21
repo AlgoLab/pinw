@@ -3,7 +3,7 @@
 
   <%# JS & CSS #%>
   <%= erb :'/includes/header' %>
-  <script type="text/javascript" src="/js/active.js"></script>
+  <script type="text/javascript" src="/js/jobs.js"></script>
   <script type="text/javascript" src="/js/bootstrap-slider.js"></script>
   <link href="/css/slider.css"   rel="stylesheet" media="screen">
   <link href="/css/progress.css" rel="stylesheet" media="screen">
@@ -20,7 +20,11 @@
     <div class="row">
       <div class="col-md-12">
         <div class="page-header">
-          <h1><i class="fa fa-cubes"></i> Jobs <small></small></h1>
+          <h1><i class="fa fa-cubes"></i> Jobs <small>
+            <% if admin_view %>
+              Admin view
+            <% end %>
+          </small></h1>
         </div>
       </div>
     </div>
@@ -30,7 +34,6 @@
           <button class="btn btn-primary" data-toggle="modal" data-target="#newJob">
           New job
           </button>
-          <a href="/home" class="btn btn-primary pull-right" role="button">Back to home</a>
         </div>
       </div>
     </div>
@@ -113,11 +116,9 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <table class="table table-condensed" id="jobsList">
-          <tbody>
-            <tr></tr>
-          </tbody>
-        </table>
+        <div id="jobsList">
+          <br />
+        </div>
       </div>
     </div>
 
@@ -165,8 +166,9 @@
             </div>
             <div class="col-md-6">
               <select class="form-control" id="InputOrganism"  name="InputOrganism" required>
-                <option value="human">Human</option>
-                <option value="papera">Papera</option>
+                <% organism_list.each do |organism| %>
+                  <option value="<%= organism.id %>"><%= organism.name %></option>
+                <% end %>
               </select>
             </div>
           </div>

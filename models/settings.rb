@@ -7,6 +7,7 @@ class Settings < ActiveRecord::Base
         Settings.find_or_create_by!(key: 'MAX_ACTIVE_DOWNLOADS') do |max_active_downloads|
             max_active_downloads.value = 0
             max_active_downloads.name = "Max active downloads"
+            max_active_downloads.html_field_type = 'number'
             max_active_downloads.description = "Maximum number of concurrently active downloads."
         end
     end
@@ -20,6 +21,7 @@ class Settings < ActiveRecord::Base
     def Settings._get_or_create_max_remote_transfers
         Settings.find_or_create_by!(key: 'MAX_REMOTE_TRANSFERS') do |max_remote_transfers|
             max_remote_transfers.value = 0
+            max_remote_transfers.html_field_type = 'number'
             max_remote_transfers.name = "Max remote transfers"
             max_remote_transfers.description = "Maximum number of concurrently active transfers from/to servers marked as located in a remote network."
         end

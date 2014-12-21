@@ -5,7 +5,7 @@ class PinW < Sinatra::Application
 
     get '/admin/servers/?' do
         server_list = Server.order(priority: :asc)
-        erb :'admin/servers', :locals => { :server_list => server_list }
+        erb :'admin/servers', locals: { server_list: server_list }
     end
 
 
@@ -29,8 +29,6 @@ class PinW < Sinatra::Application
 
 
         # ENV SETTINGS
-        server.pintron_path = params[:InputPintronPath]
-        server.python_command = params[:InputPythonPath]
         server.working_dir = params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]
@@ -60,8 +58,6 @@ class PinW < Sinatra::Application
         end
 
         # ENV SETTINGS
-        server.pintron_path = params[:InputPintronPath]
-        server.python_command = params[:InputPythonPath]
         server.working_dir = params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]
@@ -71,12 +67,42 @@ class PinW < Sinatra::Application
     get '/admin/servers/edit/:server_id' do
         server = Server.find params[:server_id]
         return 404 unless server
-        erb :'admin/server_edit', :locals => { :server => server }
+        erb :'admin/server_edit', locals: { server: server }
     end
 
 
-    post '/admin/servers/edit/:server_id' do
-        erb :'admin/servers'
+    post '/admin/servers/edit' do
+        server = Server.find(params[:server_id])
+        redirect to '/admin/servers?err=2' unless server
+
+        server.priority = (Server.maximum(:priority) or 0) + 1
+        server.name = params[:InputName]
+        server.host = params[:InputHost]
+        server.port =  params[:InputPort]
+        server.username = params[:InputUsername]
+
+        # PASSWORD OR KEY
+        case params[:type]
+        when '1'
+            server.password = params[:InputPassword]
+        when '2'
+            server.client_certificate = params[:InputCertificate]
+            server.client_passphrase = params[:InputPassphrase] if params[:InputPassphrase].length > 0
+        end
+
+
+        # ENV SETTINGS
+        server.working_dir = params[:InputWorkingDir]
+        server.use_callback = params[:InputUseCallback]
+        server.callback_url = params[:InputCallbackURL]
+        
+        server.local_network = params[:InputLocalNetwork]
+        
+        redirect to '/admin/servers?err=2' unless server.valid?
+
+        server.save
+
+        redirect to '/admin/servers?ok=3'
     end
 
 

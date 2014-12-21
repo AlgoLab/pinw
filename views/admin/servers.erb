@@ -44,6 +44,11 @@
             <p><strong><i class="fa fa-save"></i> Success!</strong> The server has been removed from server list.
           </div>
         <% end %>
+        <% if params[:ok] == '3' %>
+          <div class="alert alert-success">
+            <p><strong><i class="fa fa-save"></i> Success!</strong>
+          </div>
+        <% end %>
 
         <% if params[:err] == '1' %>
           <div class="alert alert-danger">
@@ -222,8 +227,6 @@
 
           <div class="form-group">
             <label for="InputAuth" class="col-md-3 control-label" >Auth
-            <a data-toggle="tooltip" data-placement="right" data-html="true" title="info">
-            <i class="fa fa-question-circle"></i></a>
             </label>
             <div class="col-md-4">
               <label class="radio">
@@ -262,7 +265,7 @@
           </div>
 
           <div class="form-group hide" id="rowInputPassphrase">
-            <label for="InputPassphrase" class="col-md-3 control-label" >Passphrase</label>
+            <label for="InputPassphrase" class="col-md-3 control-label" > Cert Passphrase</label>
             <div class="col-md-9">
               <input type="password" class="form-control" id="InputPassphrase" name="InputPassphrase" >
             </div>
@@ -278,7 +281,11 @@
           %>
 
           <div class="form-group" id="rowLocalNetwork">
-            <label for="InputLocalNetwork" class="col-md-3 control-label" >Local Network</label>
+            <label for="InputLocalNetwork" class="col-md-3 control-label" >Local Network
+
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title="If there server is located in a remote network you can limit the number of concurrent transfers. This way you don't risk degrading the web service for remote clients.">
+            <i class="fa fa-question-circle"></i></a>
+            </label>
             <div class="col-md-1">
               <input type="checkbox"  id="InputLocalNetwork" checked="true" name="InputLocalNetwork" class="flag">
             </div>
@@ -290,24 +297,11 @@
             </div>
           </div>
 
-          <div class="form-group nascosto" id="rowInputPintronPath">
-            <label for="InputPintronPath" class="col-md-3 control-label" >Pintron path</label>
-            <div class="col-md-9">
-              <input type="text" class="form-control" id="InputPintronPath" 
-               placeholder="eg: /foo/bar" name="InputPintronPath" >
-            </div>
-          </div>
-
-          <div class="form-group nascosto" id="rowInputPythonPath">
-            <label for="InputPythonPath" class="col-md-3 control-label" >Python path</label>
-            <div class="col-md-9">
-              <input type="text" class="form-control" id="InputPythonPath" 
-               placeholder="eg: /foo/bar" name="InputPythonPath" >
-            </div>
-          </div>
-
           <div class="form-group nascosto" id="rowInputWorkingDir">
-            <label for="InputWorkingDir" class="col-md-3 control-label" >Working dir</label>
+            <label for="InputWorkingDir" class="col-md-3 control-label" >Working dir
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title=" The dispatch script will first `cd` into this directory before doing anything. The result is that all generated files will be contained in there.">
+              <i class="fa fa-question-circle"></i></a>
+            </label>
             <div class="col-md-9">
               <input type="text" class="form-control" id="InputWorkingDir" 
                placeholder="eg: /foo/bar" name="InputWorkingDir" >
@@ -315,14 +309,20 @@
           </div>
 
           <div class="form-group nascosto" id="rowInputCallback">
-            <label for="InputCallback" class="col-md-3 control-label" >Use Callback</label>
+            <label for="InputCallback" class="col-md-3 control-label" >Use Callback
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title="If enabled, allows the work server to notify completed jobs to the server ASAP, without waiting for the scheduled polling check.">
+              <i class="fa fa-question-circle"></i></a>
+            </label>
             <div class="col-md-1">
               <input type="checkbox"  id="InputCallback" checked="true" value="1" name="InputCallback" class="flag">
             </div>
           </div>
 
           <div class="form-group nascosto" id="rowInputCallbackURL">
-            <label for="InputCallbackURL" class="col-md-3 control-label" >Callback url</label>
+            <label for="InputCallbackURL" class="col-md-3 control-label" >Callback url
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title=" In case of a particular HTTP configuration, if your work server can only access the web server via an address different than the public-facing hostname, you can specify it here.">
+            <i class="fa fa-question-circle"></i></a>
+            </label>
             <div class="col-md-9">
               <input type="text" class="form-control" id="InputCallbackURL" 
                placeholder="default" name="InputCallbackURL" >

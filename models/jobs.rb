@@ -3,11 +3,11 @@ require 'open-uri'
 class Job < ActiveRecord::Base
   validates :quality_threshold, numericality: { only_integer: true, greater_than: 33 - 1, less_than: 126 + 1 }
   validates :description, length: {maximum: 100000}, allow_nil: true # 100kB
-  # TODO: complete organism list
-  validates :organism_name, inclusion: { in: %w(human)}, allow_nil: true
   validate :validateGenomicsURL
   belongs_to :user, :class_name => 'User'
   belongs_to :server, :class_name => 'Server'
+  belongs_to :organism
+  validates :organism, presence: true, allow_nil: true
 
   def header_regex
     return /\A>(?:chr)?(?:[XYxy]|\d+):\d+:\d+:(?:1|-1|\+1|-|\+)\n\z/

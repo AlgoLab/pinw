@@ -16,4 +16,12 @@ class PinW < Sinatra::Application
          session[:user] = nil
          redirect to '/'
     end
+
+    get '/quick_new_job/?' do
+        redirect to '/home' if session[:user]
+        guest = User.find_by_nickname 'guest'
+        redirect to '/?err=3' unless guest.enabled
+        session[:user] = guest
+        redirect to '/jobs?auto=1'
+    end
 end

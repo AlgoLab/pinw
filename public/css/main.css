@@ -39,6 +39,10 @@ body.modal {
     margin-left: 15px;
 }
 
+.hidden-border {
+    border-style: hidden !important;
+}
+
 .hidden-left {
     border-left-style: hidden !important;
 }
@@ -69,4 +73,47 @@ body.modal {
 
 .move-down-10px {
     padding-top: 7px;
+}
+
+.result {
+background-color: #e9f6f5 !important;
+}
+
+.table-result {
+    color: #4c4c4c !important;
+}
+
+.panel-body {
+    color: #4c4c4c !important;
+}
+
+.table-result-hover > tbody > tr:hover > td,
+.table-result-hover > tbody > tr:hover > th {
+  background-color: #d3eeec;
+}
+
+.table-result head > tr > th,
+.table-result tbody > tr > th,
+.table-result tfoot > tr > th,
+.table-result thead > tr > td,
+.table-result tbody > tr > td,
+.table-result tfoot > tr > td {
+  border-top: 0px !important;
+}
+
+.minibox {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.reduce-padding {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
+
+.anchor {
+    display: block; 
+    position: relative; 
+    top: -70px; 
+    visibility: hidden;
 }

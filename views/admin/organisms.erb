@@ -1,0 +1,149 @@
+<head>
+  <title>PIntron | Manage Orgamisms</title>
+
+  <%# JS & CSS #%>
+  <%= erb :'/includes/header' %>
+  <script type="text/javascript" src="/js/admin_organisms.js"></script>
+</head>
+<body>
+
+  <%# HEADER #%>
+  <%= erb :'/includes/navbar' %>
+
+
+  <%# PAGE CODE HERE #%>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1><i class="fa fa-paw"></i> Organisms management</h1>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="">
+          <button class="btn btn-primary" data-toggle="modal" data-target="#newOrganism">
+          Add new organism
+          </button>
+          <a href="/admin" class="btn btn-primary pull-right" role="button">Back to admin panel</a>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <hr />
+        <% if params[:ok] == '1' %>
+          <div class="alert alert-success">
+            <p><strong><i class="fa fa-save"></i> Success!</strong> The organism has been added to organism list.
+          </div>
+        <% end %>
+
+        <% if params[:err] == '1' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Error!</strong> A field hasn't been validated correctly, if not enabled please try to enable javascript or use a different browser.
+          </div>
+        <% end %>       
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <table class="table">
+          <thead>
+            <th>Name</th>
+            <th>ENSEMBL</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Action</th>
+          </thead>
+          <tbody>
+            <% organism_list.each do |organism| %>
+            <tr>
+              <td><%= organism.name %></td>
+              <td><%= organism.ensembl_id %></td>
+              <td><%= organism.description %></td>
+              <td>
+                <% if organism.enabled %>
+                  <i class="fa fa-check"></i>
+                <% else %>
+                  <i class="fa fa-remove"></i>
+                <% end %>
+              </td>
+              <td>
+                <% if organism.enabled %>
+                  <form action="/admin/organisms/disable" method="post" class="btn-group">
+                    <button type="submit" class="btn btn-primary" title="disable" value="">
+                      <i class="fa fa-lock"></i>
+                    </button>
+                    <input type="hidden" name="organism_id" value="<%= organism.id %>" class="btn">
+                  </form>
+                <% else %>
+                  <form action="/admin/organisms/enable" method="post" class="btn-group">
+                    <button type="submit" class="btn btn-primary" title="enable" value="">
+                      <i class="fa fa-unlock"></i>
+                    </button>
+                    <input type="hidden" name="organism_id" value="<%= organism.id %>" class="btn">
+                  </form>
+                <% end %>
+              </td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <%# FOOTER #%>
+  <%= erb :'/includes/footer' %>
+</body>
+
+
+
+<!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="newOrganism" tabindex="-1" role="dialog" aria-labelledby="newOrganismLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="newServerLabel">Add new organism</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" method="post" action="/admin/organisms/new" id="newOrganismForm">
+          <div class="form-group">
+            <label for="InputName" class="col-md-3 control-label" >Name</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="InputName" placeholder="Enter name" name="InputName" >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputEnsembl" class="col-md-3 control-label" >Ensembl 
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title="Ensembl identifier for this organism.">
+              <i class="fa fa-question-circle"></i></a>
+            </label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="InputEnsembl" placeholder="Enter Ensembl name" name="InputEnsembl" >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="InputDescription" class="col-md-3 control-label" >Description</label>
+            <div class="col-md-9">
+              <textarea class="form-control" rows="2" id="InputDescription"  name="InputDescription" ></textarea>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>

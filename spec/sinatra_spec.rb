@@ -50,45 +50,49 @@ describe "#web_interface" do
         post '/jobs/new', {
             InputOrganismUnknown: 'true', 
             InputGeneNameUnknown: 'true',
-            InputQuality: 33
+            InputQuality: 33,
+            type: 1
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs?err=3"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=2"
 
         # InputOrganismUnknown: true, and no InputGeneURL
         # or InputGeneFile => error!
         post '/jobs/new', {
             InputOrganismUnknown: 'true',
-            InputQuality: 33 
+            InputQuality: 33,
+            type: 1
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs?err=3"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=2"
 
         # InputGeneNameUnknown: true, and no InputGeneURL
         # or InputGeneFile => error!
         post '/jobs/new', { 
             InputGeneNameUnknown: 'true',
-            InputQuality: 33
+            InputQuality: 33,
+            type: 1
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs?err=3"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=11"
 
         # InputOrganismUnknown: true, InputGeneName: something, and no InputGeneURL
         # or InputGeneFile => error!
         post '/jobs/new', {
             InputOrganismUnknown: 'true', 
             InputGeneName: 'asd123asd',
-            InputQuality: 33
+            InputQuality: 33,
+            type: 1
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs?err=3"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=2"
 
         # InputOrganism: something, InputGeneNameUnknown: true, and no InputGeneURL
         # or InputGeneFile => error!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneNameUnknown: 'true',
-            InputQuality: 33
+            InputQuality: 33,
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
         expect(last_response.header['location']).to eq "http://example.org/jobs?err=3"
@@ -96,7 +100,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 1 
         # and no reads URL or file => error!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '1',
             InputQuality: 33
@@ -107,7 +111,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 2, InputGeneURL: url
         # and no reads URL or file => error!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '2',
             InputGeneURL: 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta',
@@ -119,7 +123,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 3, InputGeneFile: file
         # and no reads URL or file => error!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '3',
             InputGeneFile: Rack::Test::UploadedFile.new(PROJECT_BASE_PATH + 'spec/test_files/genomic_ok.fasta', "text/plain"),
@@ -135,7 +139,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 1, InputGeneFile: file
         # and reads URL or file =>ok!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '1',
             InputQuality: 33,
@@ -147,7 +151,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 2, InputGeneURL: url
         # and reads URL or file =>ok!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '2',
             InputGeneURL: 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta',
@@ -174,7 +178,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 3, InputGeneFile: file
         # and reads URL or file =>ok!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '3',
             InputGeneFile: Rack::Test::UploadedFile.new(PROJECT_BASE_PATH + 'spec/test_files/genomic_ok.fasta', "text/plain"),
@@ -212,7 +216,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 1, InputGeneFile: file
         # and reads URL or file =>ok!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '1',
             InputQuality: 50,
@@ -223,7 +227,7 @@ describe "#web_interface" do
         expect(last_response.header['location']).to eq "http://example.org/jobs"
 
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '1',
             InputQuality: 33,
@@ -240,7 +244,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 2, InputGeneURL: url
         # and reads URL or file =>ok!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '2',
             InputGeneURL: 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta',
@@ -257,7 +261,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 2, InputGeneURL: url
         # and reads URL or file =>ok!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '2',
             InputGeneURL: 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta',
@@ -274,7 +278,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 2, InputGeneURL: url
         # and reads URL or file =>ok!
         post '/jobs/new', {
-            InputOrganism: 'dalek', 
+            InputOrganism: '-1', 
             InputGeneName: 'asd123asd',
             type: '2',
             InputGeneURL: 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta',
@@ -282,7 +286,7 @@ describe "#web_interface" do
             InputURLs: ['http://www.google.com', 'http://www.ciao.com']
         }
         expect(Job.find_by(user_id: @user.id)).to eq nil
-        expect(last_response.header['location']).to eq "http://example.org/jobs?err=4"
+        expect(last_response.header['location']).to eq "http://example.org/jobs?err=11"
     end
 
     it "does not accept new job when server has invalid ID (##{__LINE__})" do
@@ -298,7 +302,7 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 2, InputGeneURL: url
         # and reads URL or file =>ok!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '2',
             InputServer: 0,
@@ -333,6 +337,7 @@ describe "#web_interface" do
         # InputOrganismUnknown: true, InputGeneNameUnknown: true, and no InputGeneURL
         # or InputGeneFile => error!
         post '/jobs/new', {
+            InputOrganismUnknown: 'true',
             type: '2',
             InputGeneURL: 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta',
             InputQuality: 33,
@@ -355,7 +360,8 @@ describe "#web_interface" do
         # InputOrganism: something, InputGeneName: something, type: 2, InputGeneURL: url
         # and reads URL or file =>ok!
         post '/jobs/new', {
-            InputOrganism: 'human', 
+            InputServer: '',
+            InputOrganism: '1', 
             InputGeneName: 'asd123asd',
             type: '2',
             InputGeneURL: 'https://raw.githubusercontent.com/AlgoLab/pinw/master/spec/test_files/genomic_ok.fasta',

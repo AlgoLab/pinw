@@ -16,7 +16,10 @@ describe PinWFetch, "#ensembl" do
     before(:all) {FileUtils.rm_rf(PROJECT_BASE_PATH + 'test_temp/downloads/')}
     after(:all) {FileUtils.rm_rf(PROJECT_BASE_PATH + 'test_temp/downloads/')}
     
-    before(:each) {@job = Job.create quality_threshold: 33}
+    before(:each) {
+        @job = Job.create quality_threshold: 33
+        @organism = Organism.find(1)
+    }
 
     it "does not process jobs with ensembl_ok: true (##{__LINE__})" do
         @job.update ensembl_ok: true
@@ -86,7 +89,7 @@ describe PinWFetch, "#ensembl" do
     it "does not process jobs which hasn't gene name (##{__LINE__})" do
         @job.update ({
             ensembl_ok: false, 
-            organism_name: "human", 
+            organism: @organism, 
             ensembl_failed: false
         })
 
@@ -101,7 +104,6 @@ describe PinWFetch, "#ensembl" do
             gene_name: "job-#{@job.id}",
             ensembl_failed: false
         })
-
         result = myFetch.ensembl @job, async: false
         expect(Job.find(@job.id).ensembl_failed).to eq true
         expect(Job.find(@job.id).ensembl_last_error).to eq "Missing gene name and/or organism name, which are required to fetch annotated transcripts from ensembl."
@@ -122,7 +124,7 @@ describe PinWFetch, "#ensembl" do
         @job.update ({
             ensembl_ok: false, 
             gene_name: "job-#{@job.id}",
-            organism_name: "human", 
+            organism: @organism, 
             ensembl_failed: false,
             genomics_ok: true,
             all_reads_ok: true

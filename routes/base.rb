@@ -23,14 +23,12 @@ class PinW < Sinatra::Application
     end
 
     get '/home/?' do
-        erb :home
+        redirect to '/jobs'
     end
 
-    get '/archive/?' do
-      "elenco risultati"
-    end
 end
 
 require_relative 'auth'
 require_relative 'jobs'
+require_relative 'results'
 require_relative 'admin/base'
