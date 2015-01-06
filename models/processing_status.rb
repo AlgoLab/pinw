@@ -59,6 +59,15 @@ class ProcessingState < ActiveRecord::Base
         end
     end
 
+    def ProcessingState._get_last_update_error
+       return ProcessingState.find_or_create_by(key: 'LAST_UPDATE_ERROR')
+    end
 
+    def ProcessingState.get_last_update_error
+        return ProcessingState._get_last_update_error.value
+    end
 
+    def ProcessingState.set_last_update_error value
+        ProcessingState._get_last_update_error.update value: value
+    end
 end
