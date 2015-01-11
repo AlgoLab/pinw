@@ -40,6 +40,9 @@ RUN cp Docker/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
 
 # TODO: External location for the DB
 # Clean up APT when done.
+RUN echo "unattended-upgrades	unattended-upgrades/enable_auto_updates	boolean	true" > /root/debconf.tmp
+RUN debconf-set-selections /root/debconf.tmp
+RUN rm -f /root/debconf.tmp
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 EXPOSE 80 8080
