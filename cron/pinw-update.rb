@@ -85,6 +85,22 @@ class PinWUpdate
                 git.checkout tag
 
                 if need_migration
+                    # Kill all possibly running cron processes:
+                    Job.all.each do |job|
+                        Process.kill 9, job.ensembl_pid if job.ensembl_pid rescue nil
+                        Process.kill 9, job.genomics_pid if job.genomics_pid rescue nil
+                        Process.kill 9, job.processing_dispatch_pid if job.processing_dispatch_pid rescue nil
+                    end
+
+                    JobRead.all.each do |reads|
+                        Process.kill 9, reads.pid if reads.pid rescue nil
+                    end
+
+                    Server.all.each do |server|
+                        Process.kill 9, server.check_pid if server.check_pid rescue nil
+                    end
+
+
                     # Backup the database if required:
                     unless db_backup_done
                         `gzip -c #{PROJECT_BASE_PATH}db/pinw.db > #{db_update_filepath}`
@@ -95,6 +111,7 @@ class PinWUpdate
                 
                     # Run the migration:
                     `rake -f #{PROJECT_BASE_PATH}Rakefile db:migrate`
+                    ProcessingState.set_last_update_error nil
                 end
             end
 
@@ -114,8 +131,14 @@ class PinWUpdate
             # Nothing to revert if the filepath wasn't set:
             return unless db_update_filepath
 
+
             # If we have a backup, restore it:
-            `gizp -cd #{db_update_filepath} > #{PROJECT_BASE_PATH}db/pinw.db` if File.exist? db_update_filepath
+            if File.exist? db_update_filepath
+                ActiveRecord::Base.connection_pool.disconnect!
+                `gizp -cd #{db_update_filepath} > #{PROJECT_BASE_PATH}db/pinw.db` 
+                ActiveRecord::Base.establish_connection @db_settings
+            end
+
 
             # Rollback to the correct commit:
             safe_tag = ProcessingState.get_current_tag

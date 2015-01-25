@@ -396,7 +396,7 @@ class PinWFetch
                     ensembl_pid: Process.pid
                 })
 
-                raise InvalidJobStateError unless job.gene_name and job.organism_name
+                raise InvalidJobStateError unless job.gene_name and job.organism_id
 
                 # Fetch the data:
 
@@ -594,7 +594,7 @@ class PinWFetch
 
                     ensure
                         reads.update pid: nil
-                        ProcessingState.remove_active_download(reads.url)
+                        ProcessingState.remove_active_download
                         debug '###### END OF MAIN READS WORK ######'
                     end
                 }, async: async

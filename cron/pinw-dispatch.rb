@@ -144,8 +144,39 @@ class PinWDispatch
                     start_check = Time.now
                     already_typed = false
                     ssh.exec!("python -i") do |ch, stream, data|
+                        # TODO: proper timeout check by writing timeouts as job metadata
+                        # TODO: cd working dir
                         unless already_typed
-                            ch.send_data("open('check_report.yml', 'w').write('HELLO WORLD')")
+                            ch.send_data(<<-END_OF_PYTHON_SCRIPT)
+                                
+                            import os, sys, itertools, time
+
+                            job_dirs = os.listdir('jobs')
+
+                            completed_jobs = []
+                            failed_jobs = []
+                            running_jobs = []
+
+                            for dir in job_dirs:
+                                if os.path.isfile(dir+'/results.json'):
+                                    # Completed
+                                    completed_jobs.append(int(dir.split('-')[1]))
+                                elif os.path.isfile(dir+'/python_pid') and os.path.getmtime(dir+'/python_pid') < time.time() - 60 * 5:
+                                    # Running 
+                                    running_jobs.append(int(dir.split('-')[1]))
+                                else:
+                                    # Timeout or some other kind of error
+                                    failed_jobs.append(int(dir.split('-')[1]))
+
+
+                            # Write the report:
+                            # TODO
+
+
+
+
+                            END_OF_PYTHON_SCRIPT
+
                             ch.eof!
                             already_typed = true
                             debug 'python script "typed"'
@@ -247,8 +278,10 @@ class PinWDispatch
                                 debug "killed old dispatch for dispatch job: #{dispatch_job.id}"
                             end
 
-                            # clear remote directory? no, fail
-                            ProcessingState.add_remote_transfer server_id: server.id, job_id: dispatch_job.id
+                            # Clear remote dir
+                            ssh.exec!("rm -rf jobs/job-#{dispatch_job.id}")
+
+                            ProcessingState.add_remote_transfer "Server: #{server.id} | Job: #{dispatch_job.id}"
                             scp.upload!(@download_path + "job-#{dispatch_job.id}/", "jobs/job-#{dispatch_job.id}/", recursive: true) do |ch, name, sent, total|
                                 # Renew server lock:
                                 server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
@@ -258,7 +291,7 @@ class PinWDispatch
                             end
                             debug 'done uploading files!'
 
-                            # TODO: send processing script
+                            # TODO: send processing script and other metadata (timeouts, ...)
 
                             # Start the processing script
                             ssh.exec!('python launch.py &')
@@ -272,6 +305,7 @@ class PinWDispatch
                             raise JobDispatchError, ex.message
 
                         ensure
+                            ProcessingState.remove_remote_transfer
                             dispatch_job.update processing_dispatch_pid: nil
 
                             # If channels took more time to complete than dispatch 

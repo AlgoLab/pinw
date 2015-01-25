@@ -26,6 +26,21 @@ class PinW < Sinatra::Application
         redirect to '/jobs'
     end
 
+    get '/job_notification_callback' do 
+        job = Job.find params[:job_id]
+        # Test if the token is correct:
+        return 500 unless job.callback_token == params[:token]
+
+        # Check the server in a separated process:
+        ActiveRecords::Base.disconnect
+        spid = Process.fork do
+            PinWFetch.new db_settings,
+        end
+        Process.detatch spid
+
+
+    end
+
 end
 
 require_relative 'auth'
