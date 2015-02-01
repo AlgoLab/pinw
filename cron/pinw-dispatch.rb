@@ -108,9 +108,9 @@ class PinWDispatch
                 debug 'acquired server lock'
 
                 options = {port: server.port || 22}
-                if server.password
+                if server.password.length > 0
                     options[:password] = server.password
-                elsif server.client_certificate
+                elsif server.client_certificate.length > 0
                     options[:key_data] = [server.client_certificate]
                     options[:passphrase] = server.passphrase
                 else
@@ -118,6 +118,12 @@ class PinWDispatch
                 end
 
                 debug "connecting to #{server.user}@#{server.host} with data: #{options}"
+
+                # Proxy Command support:
+                if server.proxy_command.length > 0
+                    debug "instantiating proxy command"
+                    options[:proxy] = Net::SSH::Proxy::Command.new(server.proxy_command)
+                end
 
                 Net::SSH.start(server.host, server.username, options) do |ssh|
                     debug 'connected!'

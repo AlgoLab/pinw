@@ -131,8 +131,7 @@ class Init < ActiveRecord::Migration
       table.column :client_certificate, :string
       table.column :client_passphrase,  :string       
 
-      # table.column :pintron_path,   :string             
-      # table.column :python_command, :string         
+      table.column :proxy_command,    :string         
       table.column :working_dir,      :string            
 
       table.column :use_callback,  :boolean, default: true

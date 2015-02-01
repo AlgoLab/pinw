@@ -27,6 +27,9 @@ class PinW < Sinatra::Application
             server.client_passphrase = params[:InputPassphrase] if params[:InputPassphrase].length > 0
         end
 
+        # PROXY COMMAND
+        server.proxy_command = params[:InputProxyCommand] 
+
 
         # ENV SETTINGS
         server.working_dir = params[:InputWorkingDir]
@@ -54,8 +57,11 @@ class PinW < Sinatra::Application
             server.password = params[:InputPassword]
         when '2'
             server.client_certificate = params[:InputCertificate]
-            server.client_passphrase = params[:InputPassphrase] if params[:InputPassphrase].length > 0
+            server.client_passphrase = params[:InputPassphrase]
         end
+
+        # PROXY COMMAND
+        server.proxy_command = params[:InputProxyCommand]
 
         # ENV SETTINGS
         server.working_dir = params[:InputWorkingDir]
@@ -87,9 +93,11 @@ class PinW < Sinatra::Application
             server.password = params[:InputPassword]
         when '2'
             server.client_certificate = params[:InputCertificate]
-            server.client_passphrase = params[:InputPassphrase] if params[:InputPassphrase].length > 0
+            server.client_passphrase = params[:InputPassphrase]
         end
 
+        # PROXY COMMAND
+        server.proxy_command = params[:InputProxyCommand]
 
         # ENV SETTINGS
         server.working_dir = params[:InputWorkingDir]
