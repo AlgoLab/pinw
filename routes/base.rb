@@ -32,11 +32,11 @@ class PinW < Sinatra::Application
         return 500 unless job.callback_token == params[:token]
 
         # Check the server in a separated process:
-        ActiveRecords::Base.disconnect
-        spid = Process.fork do
-            PinWFetch.new db_settings,
-        end
-        Process.detatch spid
+        # ActiveRecords::Base.disconnect
+        # spid = Process.fork do
+            # PinWFetch.new db_settings
+        # end
+        # Process.detatch spid
 
 
     end
