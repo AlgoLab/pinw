@@ -18,10 +18,10 @@ RUN /build/ruby2.0.sh
 # Enable nginx + passenger
 RUN rm -f /etc/service/nginx/down
 
-WORKDIR /home/app
 
 # Get PInW
 USER app
+WORKDIR /home/app
 RUN git clone https://github.com/AlgoLab/pinw
 WORKDIR /home/app/pinw
 ENV RACK_ENV production
