@@ -44,5 +44,6 @@ RUN echo "unattended-upgrades	unattended-upgrades/enable_auto_updates	boolean	tr
 RUN debconf-set-selections /root/debconf.tmp
 RUN rm -f /root/debconf.tmp
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+COPY init-ssh.sh /etc/my_init.d/init-ssh.sh
 
 EXPOSE 80
