@@ -45,4 +45,4 @@ RUN debconf-set-selections /root/debconf.tmp
 RUN rm -f /root/debconf.tmp
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-EXPOSE 80 8080
+EXPOSE 80
