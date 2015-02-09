@@ -90,6 +90,7 @@ $(document).ready(function() {
 
     $("#AdvancedOptions").click(function(){
         $("#rowAdvancedOptions").addClass('hide');
+        $("#rowInputProxyCommand").fadeIn(800);
         $("#rowInputPintronParh").fadeIn(800);
         $("#rowInputWorkingDir").fadeIn(800);
         $("#rowInputCallback").fadeIn(800);

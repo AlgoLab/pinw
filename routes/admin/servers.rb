@@ -28,7 +28,7 @@ class PinW < Sinatra::Application
         end
 
         # PROXY COMMAND
-        server.proxy_command = params[:InputProxyCommand] 
+        server.ssh_proxy_command = params[:InputProxyCommand] 
 
 
         # ENV SETTINGS
@@ -61,7 +61,7 @@ class PinW < Sinatra::Application
         end
 
         # PROXY COMMAND
-        server.proxy_command = params[:InputProxyCommand]
+        server.ssh_proxy_command = params[:InputProxyCommand]
 
         # ENV SETTINGS
         server.working_dir = params[:InputWorkingDir]
@@ -97,7 +97,7 @@ class PinW < Sinatra::Application
         end
 
         # PROXY COMMAND
-        server.proxy_command = params[:InputProxyCommand]
+        server.ssh_proxy_command = params[:InputProxyCommand]
 
         # ENV SETTINGS
         server.working_dir = params[:InputWorkingDir]
