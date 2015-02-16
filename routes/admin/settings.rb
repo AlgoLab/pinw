@@ -3,6 +3,10 @@ require "sinatra/json"
 
 class PinW < Sinatra::Application
     get '/admin/settings/?' do
+        # Init settings:
+        Settings.get_ssh_keys
+        Settings.get_max_active_downloads
+        Settings.get_max_remote_transfers
         erb :'admin/settings', locals: {setting_list: Settings.all}
     end
 

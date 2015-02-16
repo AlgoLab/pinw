@@ -35,7 +35,7 @@ class Settings < ActiveRecord::Base
 
     def Settings._get_or_create_ssh_keys
         require 'sshkey'
-        
+
         k = SSHKey.generate(type: "RSA", bits: 2048, comment: "PinW")
         private_key = Settings.find_or_create_by(key: 'SSH_PRIVATE_KEY') do |ssh_key|
             ssh_key.name = 'PinW SSH private key'
@@ -54,11 +54,6 @@ class Settings < ActiveRecord::Base
     def Settings.get_ssh_keys
         return Settings._get_or_create_ssh_keys
     end
-
-    # Init settings
-    Settings.get_ssh_keys
-    Settings.get_max_active_downloads
-    Settings.get_max_remote_transfers
 
 
 end

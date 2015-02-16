@@ -105,8 +105,6 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.string   "port"
     t.string   "username",                                           null: false
     t.string   "password"
-    t.string   "client_certificate"
-    t.string   "client_passphrase"
     t.string   "ssh_proxy_command"
     t.string   "working_dir"
     t.boolean  "use_callback",       default: true

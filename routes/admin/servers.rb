@@ -4,8 +4,9 @@ require "sinatra/json"
 class PinW < Sinatra::Application
 
     get '/admin/servers/?' do
+        k = Settings.get_ssh_keys
         server_list = Server.order(priority: :asc)
-        erb :'admin/servers', locals: { server_list: server_list }
+        erb :'admin/servers', locals: {server_list: server_list, pinw_public_key: k[:public_key]}
     end
 
 
@@ -73,7 +74,8 @@ class PinW < Sinatra::Application
     get '/admin/servers/edit/:server_id' do
         server = Server.find params[:server_id]
         return 404 unless server
-        erb :'admin/server_edit', locals: { server: server }
+        k = Settings.get_ssh_keys
+        erb :'admin/server_edit', locals: { server: server, pinw_public_key: k[:public_key]}
     end
 
 
