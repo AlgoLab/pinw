@@ -107,15 +107,19 @@ class PinWDispatch
 
                 debug 'acquired server lock'
 
+                k = Settings.get_ssh_keys
+
+                debug 'grabbed pinw ssh key'
+
                 options = {port: server.port || 22}
-                if server.password.length > 0
+                # if server.password.length > 0
                     options[:password] = server.password
-                elsif server.client_certificate.length > 0
-                    options[:key_data] = [server.client_certificate]
-                    options[:passphrase] = server.passphrase
-                else
-                    raise ServerConfigurationError
-                end
+                # elsif server.client_certificate.length > 0
+                    options[:key_data] = [k[:private_key]]
+                #     options[:passphrase] = server.passphrase
+                # else
+                #     raise ServerConfigurationError
+                # end
 
                 debug "connecting to #{server.user}@#{server.host} with data: #{options}"
 
