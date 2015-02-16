@@ -128,8 +128,6 @@ class Init < ActiveRecord::Migration
 
 
       table.column :password,           :string
-      table.column :client_certificate, :string
-      table.column :client_passphrase,  :string       
 
       table.column :ssh_proxy_command,    :string         
       table.column :working_dir,      :string            
