@@ -13,11 +13,12 @@ class Server < ActiveRecord::Base
 
   def test_configuration
     require 'net/ssh'
+    k = Settings.get_ssh_keys
     options = {}
     options[:port] = self.port
     options[:password] = self.password if self.password
-    options[:key_data] = self.client_certificate if self.client_certificate
-    options[:passphrase] = self.client_passphrase if self.client_passphrase
+    options[:key_data] = [k[:private_key]]
+    # options[:passphrase] = 
     begin 
       Net::SSH.start(self.host, self.username, options) do |ssh|
           return {:success => true, :msg => ssh.exec!('uname -a')}

@@ -19,13 +19,13 @@ class PinW < Sinatra::Application
         server.username = params[:InputUsername]
 
         # PASSWORD OR KEY
-        case params[:type]
-        when '1'
+        # case params[:type]
+        # when '1'
             server.password = params[:InputPassword]
-        when '2'
-            server.client_certificate = params[:InputCertificate]
-            server.client_passphrase = params[:InputPassphrase] if params[:InputPassphrase].length > 0
-        end
+        # when '2'
+        #     server.client_certificate = params[:InputCertificate]
+        #     server.client_passphrase = params[:InputPassphrase] if params[:InputPassphrase].length > 0
+        # end
 
         # PROXY COMMAND
         server.ssh_proxy_command = params[:InputProxyCommand] 
@@ -52,13 +52,13 @@ class PinW < Sinatra::Application
         server.port = params[:InputPort]
 
         server.username = params[:InputUsername]
-        case params[:type]
-        when '1'
+        # case params[:type]
+        # when '1'
             server.password = params[:InputPassword]
-        when '2'
-            server.client_certificate = params[:InputCertificate]
-            server.client_passphrase = params[:InputPassphrase]
-        end
+        # when '2'
+        #     server.client_certificate = params[:InputCertificate]
+        #     server.client_passphrase = params[:InputPassphrase]
+        # end
 
         # PROXY COMMAND
         server.ssh_proxy_command = params[:InputProxyCommand]
@@ -88,13 +88,13 @@ class PinW < Sinatra::Application
         server.username = params[:InputUsername]
 
         # PASSWORD OR KEY
-        case params[:type]
-        when '1'
+        # case params[:type]
+        # when '1'
             server.password = params[:InputPassword]
-        when '2'
-            server.client_certificate = params[:InputCertificate]
-            server.client_passphrase = params[:InputPassphrase]
-        end
+        # when '2'
+        #     server.client_certificate = params[:InputCertificate]
+        #     server.client_passphrase = params[:InputPassphrase]
+        # end
 
         # PROXY COMMAND
         server.ssh_proxy_command = params[:InputProxyCommand]
