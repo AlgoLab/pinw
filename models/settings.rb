@@ -1,3 +1,5 @@
+require 'sshkey'
+
 class Settings < ActiveRecord::Base
     self.table_name = "settings"
     self.primary_key = 'key'
@@ -32,5 +34,34 @@ class Settings < ActiveRecord::Base
         return 20 unless value.between? 0, 500
         return value
     end
+
+    Settings.find('SSH_PRIVATE_KEY').destroy
+    Settings.find('SSH_PUBLIC_KEY').destroy
+
+    def Settings._get_or_create_ssh_keys
+        k = SSHKey.generate(type: "RSA", bits: 2048, comment: "PinW")
+        private_key = Settings.find_or_create_by(key: 'SSH_PRIVATE_KEY') do |ssh_key|
+            ssh_key.name = 'PinW SSH private key'
+            ssh_key.description = "Used for public key authentication."
+            ssh_key.value = k.private_key
+        end
+
+        public_key = Settings.find_or_create_by(key: 'SSH_PUBLIC_KEY') do |ssh_key|
+            ssh_key.name = 'PinW SSH Public Key'
+            ssh_key.description = "To be placed on remote hosts using public key authentication."
+            ssh_key.value = k.ssh_public_key
+        end 
+        return {private_key: private_key.value, public_key: public_key.value}       
+    end
+
+    def Settings.get_ssh_keys
+        return Settings._get_or_create_ssh_keys
+    end
+
+    # Init settings
+    Settings.get_ssh_keys
+    Settings.get_max_active_downloads
+    Settings.get_max_remote_transfers
+
 
 end

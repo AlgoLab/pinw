@@ -32,19 +32,6 @@ class PinW < Sinatra::Application
   not_found do
     erb :'404'
   end
-  
-  # set(:auth) do |*roles|   
-  #   condition do
-  #     roles.each do |role|
-  #       if role == :admin
-  #         redirect to '/login' unless session[:user] and session[:user].admin
-  #       elsif role == :user
-  #         redirect to '/login' unless session[:user]
-  #       # elsif role ==
-  #       end
-  #     end  
-  #   end
-  # end
 
   after do
     ActiveRecord::Base.connection.close
@@ -58,5 +45,6 @@ require_relative 'models/base'
 
 # Routes:
 require_relative 'routes/base'
+
 
 PinW.run! if PinW.app_file == $0
