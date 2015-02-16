@@ -1,5 +1,3 @@
-require 'sshkey'
-
 class Settings < ActiveRecord::Base
     self.table_name = "settings"
     self.primary_key = 'key'
@@ -35,10 +33,9 @@ class Settings < ActiveRecord::Base
         return value
     end
 
-    Settings.find('SSH_PRIVATE_KEY').destroy
-    Settings.find('SSH_PUBLIC_KEY').destroy
-
     def Settings._get_or_create_ssh_keys
+        require 'sshkey'
+        
         k = SSHKey.generate(type: "RSA", bits: 2048, comment: "PinW")
         private_key = Settings.find_or_create_by(key: 'SSH_PRIVATE_KEY') do |ssh_key|
             ssh_key.name = 'PinW SSH private key'
