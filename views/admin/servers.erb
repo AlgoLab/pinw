@@ -256,21 +256,22 @@
             </div>
           </div>
 
-          <div class="form-group hide" id="rowInputCertificate">
-            <label for="InputCertificate" class="col-md-3 control-label" >Certificate</label>
+          <div class="form-group hide" id="rowInputPublicKey">
+            <label for="InputPublicKey" class="col-md-3 control-label" >Public key</label>
             <div class="col-md-9">
-              <textarea class="form-control" id="InputCertificate" name="InputCertificate"
-               placeholder="Past the certificate here"></textarea>
+              <textarea readonly class="form-control" id="InputPublicKey" name="InputPublicKey"
+               rows="10"><%= pinw_public_key %></textarea>
             </div>
           </div>
 
-          <div class="form-group hide" id="rowInputPassphrase">
-            <label for="InputPassphrase" class="col-md-3 control-label" > Cert Passphrase</label>
-            <div class="col-md-9">
-              <input type="password" class="form-control" id="InputPassphrase" name="InputPassphrase" >
-            </div>
-          </div>
-          <% 
+          <%
+          # <div class="form-group hide" id="rowInputPassphrase">
+          #   <label for="InputPassphrase" class="col-md-3 control-label" > Cert Passphrase</label>
+          #   <div class="col-md-9">
+          #     <input type="password" class="form-control" id="InputPassphrase" name="InputPassphrase" >
+          #   </div>
+          # </div>
+           
           # <div class="form-group" id="rowInputHostCertificate">
           #   <label for="InputHostCertificate" class="col-md-3 control-label" >Host Certificate</label>
           #   <div class="col-md-9">

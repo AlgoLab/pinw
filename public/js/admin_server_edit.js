@@ -51,13 +51,6 @@ var options = {
                     }
                 }
             },
-            InputCertificate: {
-                validators: {
-                    notEmpty: {
-                        message: 'The certificate is required'
-                    }
-                }
-            },
             InputCallbackURL: {
                 validators: {
                     uri: {
@@ -72,19 +65,15 @@ $(document).ready(function() {
     $("[data-toggle=tooltip]").tooltip();
     $("input[name='type']").change(function(){
         if ($(this).val() === '1') {
-            $('#rowInputCertificate').addClass('hide');
-            $('#rowInputPassphrase').addClass('hide');
+            $('#rowInputPublicKey').addClass('hide');
             $('#rowInputPassword').removeClass('hide');
             $('#newServerForm')
-                    .bootstrapValidator('enableFieldValidators', 'InputPassword', true)
-                    .bootstrapValidator('enableFieldValidators', 'InputCertificate', false);
+                    .bootstrapValidator('enableFieldValidators', 'InputPassword', true);
         } else {
             $('#rowInputPassword').addClass('hide');
-            $('#rowInputCertificate').removeClass('hide');
-            $('#rowInputPassphrase').removeClass('hide');
+            $('#rowInputPublicKey').removeClass('hide');
             $('#newServerForm')
-                    .bootstrapValidator('enableFieldValidators', 'InputPassword', false)
-                    .bootstrapValidator('enableFieldValidators', 'InputCertificate', true);
+                    .bootstrapValidator('enableFieldValidators', 'InputPassword', false);
         }
     });
 
