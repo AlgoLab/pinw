@@ -36,14 +36,13 @@ USER root
 # Add configuration to nginx:
 RUN rm /etc/nginx/sites-enabled/default
 RUN cp Docker/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
+# New crontab
+RUN cp Docker/crontab /etc/crontab
 # TODO: better configuration
 
 # TODO: External location for the DB
 # Clean up APT when done.
-RUN echo "unattended-upgrades	unattended-upgrades/enable_auto_updates	boolean	true" > /root/debconf.tmp
-RUN debconf-set-selections /root/debconf.tmp
-RUN rm -f /root/debconf.tmp
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get clean
 COPY init-ssh.sh /etc/my_init.d/init-ssh.sh
 
 EXPOSE 80
