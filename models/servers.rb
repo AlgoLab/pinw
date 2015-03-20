@@ -18,7 +18,11 @@ class Server < ActiveRecord::Base
     options[:port] = self.port
     options[:password] = self.password if self.password
     options[:key_data] = [k[:private_key]]
-    # options[:passphrase] = 
+    # Proxy Command support:
+    if server.proxy_command.length > 0
+        debug "instantiating proxy command"
+        options[:proxy] = Net::SSH::Proxy::Command.new(server.proxy_command)
+    end
     begin 
       Net::SSH.start(self.host, self.username, options) do |ssh|
           return {:success => true, :msg => ssh.exec!('uname -a')}
