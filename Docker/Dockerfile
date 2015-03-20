@@ -31,14 +31,20 @@ RUN bundle install
 
 USER app
 RUN rake db:setup
-RUN whenever -w
+
+# New crontab:
 USER root
+RUN cp Docker/crontab /etc/crontab
+
+# Pinw cron jobs:
+USER app
+RUN whenever -w
+
 # Add configuration to nginx:
+USER root
 RUN rm /etc/nginx/sites-enabled/default
 RUN cp Docker/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
-# New crontab
-RUN cp Docker/crontab /etc/crontab
-# TODO: better configuration
+
 
 # TODO: External location for the DB
 # Clean up APT when done.
