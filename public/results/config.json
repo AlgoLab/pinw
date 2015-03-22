@@ -1,0 +1,14 @@
+
+{
+	"gene_structures" : [
+		{ 
+			"name" : "ATP6AP1example1.json"
+		},
+		{ 
+			"name" : "ATP6AP1example2.json"
+		},
+		{ 
+			"name" : "ATP6AP1example3.json"
+		}	
+	]
+}

@@ -1,0 +1,427 @@
+[
+	{
+		"sequence_id" : "chr1:1:1338447:-1",
+		
+		"program_version" : "blablabla",
+		
+		"file_format_version" : "blablabla",
+		
+		"gene" : "ATP6AP1_v1",
+		
+		"regions" : [
+			
+			{
+				"start" : 542687,
+				"end" : 542893,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : true,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 0
+			},
+			
+			{
+				"start" : 542894,
+				"end" : 542902,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : false,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 1
+			},
+			
+			{
+				"start" : 542903,
+				"end" : 543096,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : true,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 2
+			},
+			
+			{
+				"start" : 543097,
+				"end" : 543223,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : false,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 3
+			},
+			
+			{
+				"start" : 543224,
+				"end" : 544806,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : true,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 4
+			},
+				
+			{
+				"start" : 544807,
+				"end" : 545878,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "spliced",
+				"last" : false,
+				"id" : 5
+			},
+
+			{
+				"start" : 545879,
+				"end" : 545953,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : false,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 6
+			},
+			
+			{
+				"start" : 545954,
+				"end" : 546414,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "spliced",
+				"last" : false,
+				"id" : 7
+			},
+			
+			{
+				"start" : 546415,
+				"end" : 546525,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : true,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 8
+			},
+
+			{
+				"start" : 546526,
+				"end" : 546608,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : true,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 9
+			},
+			
+			{
+				"start" : 546609,
+				"end" : 546979,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "spliced",
+				"last" : false,
+				"id" : 10
+			},
+		
+			{
+				"start" : 546980,
+				"end" : 547020,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : true,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 11
+			},
+			
+			{
+				"start" : 547021,
+				"end" : 547683,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "spliced",
+				"last" : false,
+				"id" : 12
+			},
+		
+			{
+				"start" : 547684,
+				"end" : 547908,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : true,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 13
+			},
+
+			{
+				"start" : 547909,
+				"end" : 547969,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : true,
+				"coverage" : 100,
+				"last" : false,
+				"id" : 14
+			},
+			
+			{
+				"start" : 547970,
+				"end" : 548656,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "spliced",
+				"last" : false,
+				"id" : 15
+			},
+
+			{
+				"start" : 548657,
+				"end" : 549095,
+				"sequence" : "aaaaaaaaaaaa",
+				"type" : "codifying",
+				"alternative" : true,
+				"coverage" : 100,
+				"last" : true,
+				"id" : 16
+			}
+		
+		],
+				
+		"boundaries" : [
+		
+			{
+				"first" : -1,
+				"type" : "unknown"
+			},
+			
+			{
+				"first" : 0,
+				"type" : "init"
+			},
+
+			{
+				"first" : 1,
+				"type" : "5"
+			},
+
+			{
+				"first" : 2,
+				"type" : "3"
+			},
+
+			{
+				"first" : 3,
+				"type" : "5"
+			},
+
+			{
+				"first" : 4,
+				"type" : "5"
+			},
+
+			{
+				"first" : 5,
+				"type" : "3"
+			},
+
+			{
+				"first" : 6,
+				"type" : "5"
+			},
+
+			{
+				"first" : 7,
+				"type" : "3"
+			},
+
+			{
+				"first" : 8,
+				"type" : "5"
+			},
+
+			{
+				"first" : 9,
+				"type" : "5"
+			},
+
+			{
+				"first" : 10,
+				"type" : "3"
+			},
+
+			{
+				"first" : 11,
+				"type" : "5"
+			},
+
+			{
+				"first" : 12,
+				"type" : "3"
+			},
+
+			{
+				"first" : 13,
+				"type" : "3"
+			},
+
+			{
+				"first" : 14,
+				"type" : "5"
+			},
+
+			{
+				"first" : 15,
+				"type" : "3"
+			},
+
+			{
+				"first" : 16,
+				"type" : "term"
+			}
+		],
+		
+		"exons" : [
+		
+			{
+				"left_boundary" : 0,
+				"right_boundary" : 2,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 1,
+				"right_boundary" : 2,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 1,
+				"right_boundary" : 4,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 3,
+				"right_boundary" : 4,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 3,
+				"right_boundary" : 5,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 6,
+				"right_boundary" : 7,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 8,
+				"right_boundary" : 9,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 8,
+				"right_boundary" : 10,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 11,
+				"right_boundary" : 12,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 13,
+				"right_boundary" : 15,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 14,
+				"right_boundary" : 15,
+				"annotated" : false
+			},
+
+			{
+				"left_boundary" : 16,
+				"right_boundary" : 17,
+				"annotated" : false
+			}
+
+		],
+
+		"introns" : [
+
+			{
+				"left_boundary" : 2,
+				"right_boundary" : 3,
+				"prefix" : "gtggggggg",
+				"suffix" : "ccccccag"
+			},
+			
+			{
+				"left_boundary" : 4,
+				"right_boundary" : 6,
+				"prefix" : "gtggggggg",
+				"suffix" : "ccccccag"
+			},
+			
+			{
+				"left_boundary" : 5,
+				"right_boundary" : 6,
+				"prefix" : "gtggggggg",
+				"suffix" : "ccccccag"
+			},
+
+			{
+				"left_boundary" : 7,
+				"right_boundary" : 8,
+				"prefix" : "gtggggggg",
+				"suffix" : "ccccccag"
+			},
+
+			{
+				"left_boundary" : 7,
+				"right_boundary" : 14,
+				"prefix" : "gtggggggg",
+				"suffix" : "ccccccag"
+			},
+		
+			{
+				"left_boundary" : 9,
+				"right_boundary" : 16,
+				"prefix" : "gtggggggg",
+				"suffix" : "ccccccag"
+			},
+
+			{
+				"left_boundary" : 10,
+				"right_boundary" : 11,
+				"prefix" : "gtggggggg",
+				"suffix" : "ccccccag"
+			},
+
+			{
+				"left_boundary" : 12,
+				"right_boundary" : 13,
+				"prefix" : "gtggggggg",
+				"suffix" : "ccccccag"
+			},
+
+			{
+				"left_boundary" : 15,
+				"right_boundary" : 16,
+				"prefix" : "gtggggggg",
+				"suffix" : "ccccccag"
+			}
+		]
+	}
+]
