@@ -1,16 +1,16 @@
 (function(globals) {
   function d3Transform(chain) {
     var transforms = [];
-    if (chain !== undefined) { transforms.push(chain) }
+    if (chain !== undefined) { transforms.push(chain); }
 
     function push(kind, args) {
       var n = args.length;
 
       transforms.push(function() {
-        return kind + '(' + (n == 1 && typeof args[0] == 'function'
-            ? args[0].apply(this, arr(arguments)) : args) + ')';
+        return kind + '(' +
+         (n == 1 && typeof args[0] == 'function' ? args[0].apply(this, arr(arguments)) : args) + ')';
       });
-    };
+    }
 
     function arr(args) {
       return Array.prototype.slice.call(args);

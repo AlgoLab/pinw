@@ -4,7 +4,8 @@
   <%# JS & CSS #%>
   <%= erb :'/includes/header' %>
   <link href="/css/d3-structure_gene.css" rel="stylesheet" type="text/css">
-  
+
+  <script type="text/javascript" src="/js/result.js"></script>
   <script type="text/javascript" src="/js/d3.v3.min.js"></script>
   <script type="text/javascript" src="/js/d3-transform.js"></script>
   <script type="text/javascript" src="/js/d3-structure_gene.js"></script>
@@ -31,16 +32,16 @@
         <a href="/results" class="btn btn-primary pull-right" role="button">Back to results</a>
       </div>
     </div>
-        <hr>
+    <hr>
     <div class="row">
       <div class="col-md-3">
         <!-- Navigation bar -->
-    <nav class="navbar navbar-default" role="navigation">
-        <div class="container-fluid">
-          <div class="navbar-header">
-              <a id="home_gene" class="navbar-brand" href="#"></a>
-          </div>
-          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <nav class="navbar navbar-default" role="navigation">
+          <div class="container-fluid">
+            <div class="navbar-header">
+                <a id="home_gene" class="navbar-brand" href="#"></a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
               <ul class="nav navbar-nav">
                 <li class="dropdown">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown">File structure information</a>
@@ -52,43 +53,67 @@
                     <ul id="select_gene" class="dropdown-menu" role="menu"></ul>
                 </li>
               </ul> 
-              <button id="zoom_button_on" type="button" class="btn btn-default">Zoom On</button> 
-              <button id="zoom_button_off" type="button" class="btn btn-default">Zoom Off</button> 
-              <button id="reset_button" type="button" class="btn btn-default">Reset</button> 
-          </div>
-        </div>
-
-        <div class="col-md-7">
-
-
-          <!-- Modal window -->
-    <div id="myModal" class="modal fade">
-      <div class="modal-dialog">
-          <div class="modal-content">
-            <div id="modal_t" class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div id="modal_body" class="modal-body">
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" data-toggle="tooltip" data-placement="bottom" title="Coming Soon!">Download</button>
-              <button type="button" class="btn btn-success" data-dismiss="modal">Chiudi</button>
+              <button id="zoom_button_on" type="button" class="btn btn-default">
+                Zoom On
+              </button> 
+              <button id="zoom_button_off" type="button" class="btn btn-default">
+                Zoom Off
+              </button> 
+              <button id="reset_button" type="button" class="btn btn-default">
+                Reset
+              </button> 
             </div>
           </div>
-      </div>
-    </div>    
+        </nav>
 
+        <!-- INIZIO BLOCCO LEGENDA -->
 
-
-
+        <div id="legend-container">
+        
         </div>
-    </nav>
-    
-    <script type = "text/javascript">
-      window.onload = setup_interface;
-    </script>
+
+        <!-- FINE BLOCCO LEGENDA -->
+
+
       </div>
+      
+      <div class="col-md-7">
+
+        <!-- INIZIO BLOCCO ISOFORM -->
+        <div id="isoform-container"></div>
+        <!-- FINE BLOCCO ISOFORM -->
+        <br/>
+        <!-- INIZIO BLOCCO EXPANDE -->
+        <div id="expande-container"></div>
+        <!-- FINE BLOCCO EXPANDE -->
+
+        <!-- Modal window -->
+        <div id="myModal" class="modal fade">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div id="modal_t" class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                  &times;
+                </button>
+              </div>
+              <div id="modal_body" class="modal-body">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-toggle="tooltip" data-placement="bottom" title="Coming Soon!">
+                  Download
+                </button>
+                <button type="button" class="btn btn-success" data-dismiss="modal">
+                  Chiudi
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- FINE MODALE -->
+
+      </div>    
     </div>
+  </div>
 
   <%# FOOTER #%>
   <%= erb :'/includes/footer' %>
