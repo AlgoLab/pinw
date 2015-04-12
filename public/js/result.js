@@ -10,9 +10,11 @@ $(document).ready(function() {
   //var width = window.innerWidth;
   width = $('#viz-block').width();
   console.log(width);
-  width_isoform = 300;
+  width_isoform = $('#isoform-block').width();
   console.log(width_isoform);
   height_isoform = 250;
+  margin_left=$('#isoform-block').position().left;
+  console.log('margin left: ', margin_left);
 
   //dimensioni fisse della finestra degli elementi selezionati (struttura espansa)
   s_w = width;

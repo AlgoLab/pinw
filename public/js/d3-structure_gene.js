@@ -15,6 +15,7 @@ var height;
 var width;
 var width_isoform;
 var height_isoform;
+var margin_left;
 
 //dimensioni fisse della finestra degli elementi selezionati (struttura espansa)
 var s_w;
@@ -335,13 +336,18 @@ function splice_site_structure(extract_boundaries, extract_regions){
  */
 function isoform_range(reg) {
 
+  console.log('definizione range max:');
+  console.log(width_isoform - margin_isoform.left - margin_isoform.right);
+  console.log('dominio:');
+
   //range per la finestra della struttura
   var x = d3.scale.log()
-          .rangeRound([0, width - width_isoform - margin_isoform.left - margin_isoform.right], .1);
+          .rangeRound([0, width_isoform - margin_isoform.left - margin_isoform.right], .1);
   
   //valorei minimo e massimo di inizio e fine dei blocchi
   var min = d3.min(reg, function(d) { return d.start; });
   var max = d3.max(reg, function(d) { return d.end; });
+  console.log(min, max);
 
   x.domain([min, max], .1);
 
@@ -429,7 +435,7 @@ function legend_box() {
   border_width = 8;
 
   //dimensioni fisse degli elementi della legenda
-  l_w = width_isoform - margin_isoform.right - margin_isoform.left - border_width;
+  l_w = width - width_isoform - margin_isoform.right - margin_isoform.left - border_width;
   var l_h = 250;
   var off_set = 80;
   var off_set_y = 25;
@@ -925,15 +931,15 @@ function buttons() {
 
       //disabilita gli eventi mouse sulla struttura genica
       d3.selectAll("#exon")
-      .attr("pointer-events", "none");
+        .attr("pointer-events", "none");
       d3.selectAll("#exon_stripe")
-      .attr("pointer-events", "none");
+        .attr("pointer-events", "none");
       d3.select("#exon_stripe_over")
-      .attr("pointer-events", "none");                       
+        .attr("pointer-events", "none");
       d3.selectAll("#exon_stripes")
-      .attr("pointer-events", "none");                        
+        .attr("pointer-events", "none");
       d3.selectAll("#intron")
-      .attr("pointer-events", "none");    
+        .attr("pointer-events", "none");
 
       //la sequenza nucleotidica viene resa invisibile
       //per evitare l'effetto dell'ingrandimento
@@ -1053,6 +1059,8 @@ function svg_expande_box() {
  * Rimuove tutti gli elementi di una eventuale selezione precedente 
  */
 function regions_select(c_x) {
+
+  console.log(c_x);
 
   //ad ogni click vengono visualizzati gli elementi selezionati
   //senza resettare la struttura genica
@@ -1272,7 +1280,7 @@ function display_info(s_i, x_iso, elements, r) {
   var introns_info = elements.i_i;
 
   //posizione e dimensione della tabella
-  var start_table = s_w - width_isoform + margin_isoform.left + margin_isoform.right;
+  var start_table = width_isoform + margin_isoform.left + margin_isoform.right;
   var column_start = 50, column_end = 200;
 
   //valori originali delle regioni
@@ -1673,7 +1681,7 @@ function display_info_stripe(s_i, x_iso, elements, r) {
   var introns_info = elements.i_i;
 
   //posizione e dimensione della tabella
-  var start_table = s_w - width_isoform + margin_isoform.left + margin_isoform.right;
+  var start_table = width_isoform + margin_isoform.left + margin_isoform.right;
   var column_start = 50, column_end = 200;
 
   //colori degli elementi
@@ -2277,7 +2285,10 @@ function draw_exons(box, exons, x_scale){
         }
 
         //coordinate della posizione del mouse al momento del "click"
-        var coord_x = x_scale.invert(d3.event.pageX - 25);
+        var coord_x = x_scale.invert(d3.event.pageX - margin_left - margin_isoform.left - border_width);
+
+        console.log("cliccato in: ", d3.event.pageX - margin_left - margin_isoform.left - border_width);
+        console.log("che va in: ", coord_x);
         
         //sottrae i valori della traslazione
         var xc = d3.event.pageX - 15;
@@ -2357,7 +2368,11 @@ function draw_exons(box, exons, x_scale){
       }
 
       //coordinate della posizione del mouse al momento del "click"       
-      var coord_x = x_scale.invert(d3.event.pageX - 25);
+      var coord_x = x_scale.invert(d3.event.pageX - margin_left - margin_isoform.left - border_width);
+
+      console.log("cliccato in: ", d3.event.pageX - margin_left - margin_isoform.left - border_width);
+      console.log("che va in: ", coord_x);
+
       var xc = d3.event.pageX - 15;
       var yc = d3.event.pageY - 60;
       mouse_pos(xc, yc);
@@ -2448,7 +2463,11 @@ function draw_introns(box, introns, x_scale){
       }
 
       //coordinate della posizione del mouse al momento del "click"
-      var coord_x = x_scale.invert(d3.event.pageX - 25);
+      var coord_x = x_scale.invert(d3.event.pageX - margin_left - margin_isoform.left - border_width);
+
+      console.log("cliccato in: ", d3.event.pageX - margin_left - margin_isoform.left - border_width);
+      console.log("che va in: ", coord_x);
+
       var xc = d3.event.pageX - 15;
       var yc = d3.event.pageY - 60;
       mouse_pos(xc, yc);
@@ -2897,7 +2916,7 @@ function setup_interface(){
   //svg_isoform = set_svg("isoform", width - width_isoform, height_isoform, pos_box); 
   svg_isoform = d3.select('#isoform-container').append('svg:svg')
     .attr('id', 'isoform')
-    .attr("width", width - width_isoform)
+    .attr("width", width_isoform)
     .attr("height", height_isoform);
 
   init();   
@@ -3023,6 +3042,8 @@ function init(){
     }
 
     isoform = atp[0];
+
+    console.log(isoform.regions);
 
     original_info = copy_info_gene(isoform);
 
