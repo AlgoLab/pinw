@@ -2017,7 +2017,9 @@ function display_info_stripe(s_i, x_iso, elements, r) {
  */                
 function pattern_exons(){
 
-  defs = d3.select("body").append("svg")
+  defs = d3.select("#pattern-exon").append("svg")
+    .attr('width', 4)
+    .attr('height', 4)
     .append('defs');
   
   defs.append('defs')
