@@ -7,26 +7,27 @@
 
 
 //margini
-var margin_isoform = {top: 100, right: 15, bottom: 15, left: 10};
+var margin_isoform;
 
 //dimensione della finestra di visualizzazione dell'isoforma
-var height = window.innerHeight + 100 - margin_isoform.top - margin_isoform.bottom;
-var width = window.innerWidth;
-var width_isoform = 300;
-var height_isoform = 250;
+var height;
+//var width = window.innerWidth;
+var width;
+var width_isoform;
+var height_isoform;
 
 //dimensioni fisse della finestra degli elementi selezionati (struttura espansa)
-var s_w = width - margin_isoform.left - margin_isoform.right;
-var s_h = 300;
+var s_w;
+var s_h;
 
 //flag per segnalare l'attivazione della struttura, dello zoom e 
 //della presenza della sequenza nucleotidica
-var flag_structure = false, flag_zoom = false, flag_sequence = false, flag_exon = true;
+var flag_structure, flag_zoom, flag_sequence, flag_exon;
 
 //stringa per il nome del gene da visualizzare
-var string_gene = "ATP6AP1";
+var string_gene;
 //stringa per il pathname del file json
-var default_structure = "ATP6AP1example2.json";
+var default_structure;
 
 
 //rimuove i duplicati da un array (indipendente dal tipo di elemento)
@@ -2243,13 +2244,15 @@ function draw_exons(box, exons, x_scale){
       //aggiorna la selezione
       if(flag_structure == true){
         d3.selectAll("#exon_s")
-        .remove();  
+          .remove();
+
         d3.selectAll("#intron_s")
-        .remove();              
+          .remove();              
       }
 
       //selezione sopra esoni 'alternative'           
       if(d.alternative == true){
+        
         //colora di grigio la struttura per evidenziare la selezione
         d3.selectAll("#exon")
           .style("fill", color_exon_after);
@@ -2283,7 +2286,10 @@ function draw_exons(box, exons, x_scale){
       
         //funzioni per gli elementi selezionati
         var regions = regions_select(coord_x);
-        flag_exon = true;                   
+        flag_exon = true;    
+
+        console.log(regions);
+
         info_structure = check_structure_element(regions, coord_x, rect_exons);   
         display_info(svg_expande, x_scale, info_structure, rect_exons);
         sequence_box(box, info_structure);
@@ -2856,7 +2862,7 @@ function navigation_bar(){
 
   //legge il file JSON di configurazione. Contiene la lista
   //dei file JSON
-  d3.json("Json_file/config.json", function(error, list) {
+  d3.json("/js/config.json", function(error, list) {
 
     //aggiunge la lista selezionabile dei file JSON
     var dp_s = d3.select("#select_gene");
@@ -2895,8 +2901,6 @@ function setup_interface(){
     .attr("height", height_isoform);
 
   init();   
-
-  console.log('done post init!');
 
   svg_expande = svg_expande_box();  
 
@@ -3003,7 +3007,8 @@ function file_information(){
  */
 function init(){
 
-  var path_file = "Json_file/";
+  //var path_file = "Json_file/";
+  var path_file = '/results/';
 
   //carica i dati contenuti nel file json e richiama le funzioni per disegnare la struttura
   //dell'isoforma

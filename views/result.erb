@@ -29,59 +29,62 @@
     </div>
     <div class="row">
       <div class="col-md-12">
+
         <a href="/results" class="btn btn-primary pull-right" role="button">Back to results</a>
       </div>
     </div>
     <hr>
+
     <div class="row">
-      <div class="col-md-3">
-        <!-- Navigation bar -->
-        <nav class="navbar navbar-default" role="navigation">
-          <div class="container-fluid">
-            <div class="navbar-header">
-                <a id="home_gene" class="navbar-brand" href="#"></a>
-            </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-              <ul class="nav navbar-nav">
-                <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">File structure information</a>
-                    <ul id="info_gene" class="dropdown-menu" role="menu">
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Select Gene <span class="caret"></span></a>
-                    <ul id="select_gene" class="dropdown-menu" role="menu"></ul>
-                </li>
-              </ul> 
-              <button id="zoom_button_on" type="button" class="btn btn-default">
-                Zoom On
-              </button> 
-              <button id="zoom_button_off" type="button" class="btn btn-default">
-                Zoom Off
-              </button> 
-              <button id="reset_button" type="button" class="btn btn-default">
-                Reset
-              </button> 
-            </div>
-          </div>
-        </nav>
-
-        <!-- INIZIO BLOCCO LEGENDA -->
-
-        <div id="legend-container">
-        
+      <div class="col-md-4">
+        <p id="home_gene"></p>
+        <p id="info_gene"></p>
+      </div>
+      <div class="col-md-4">
+        <div class="btn-group">
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Gene <span class="caret"></span>
+          </button>
+          <ul id="select_gene" class="dropdown-menu" role="menu"></ul>
         </div>
+      </div>
+      <div class="col-md-4">
 
-        <!-- FINE BLOCCO LEGENDA -->
-
+        <button id="zoom_button_on" type="button" class="btn btn-default">
+          Zoom On
+        </button> 
+        <button id="zoom_button_off" type="button" class="btn btn-default">
+          Zoom Off
+        </button> 
+        <button id="reset_button" type="button" class="btn btn-default">
+          Reset
+        </button> 
 
       </div>
-      
-      <div class="col-md-7">
+
+    </div>
+
+    <div class="row">
+      <div class="col-md-9" id='isoform-block'>
 
         <!-- INIZIO BLOCCO ISOFORM -->
         <div id="isoform-container"></div>
         <!-- FINE BLOCCO ISOFORM -->
+
+      </div>
+      <div class="col-md-3">
+        <!-- INIZIO BLOCCO LEGENDA -->
+        <div id="legend-container"></div>
+        <!-- FINE BLOCCO LEGENDA -->
+      </div>
+    </div>
+
+    <div class="row">
+
+      
+      <div class="col-md-12" id='viz-block'>
+
+        
         <br/>
         <!-- INIZIO BLOCCO EXPANDE -->
         <div id="expande-container"></div>
