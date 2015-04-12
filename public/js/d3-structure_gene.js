@@ -1153,17 +1153,24 @@ function connect_exon(exon, sequence) {
 
   //coordinate degli elementi da collegare    
   var xr_s = +exon.attr("x");
-  //var yr_s = +exon.attr("y") + +exon.attr("height") + 1;
-  var yr_s = +exon.attr("y") + exon.attr("height") + 1;
+  var yr_s = (+exon.attr("y")  + (+exon.attr("height") / 2));
   var xt_s = +sequence.attr("x") + 4;
   var yt_s = +sequence.attr("y") - 4;
 
-  //var xr_e = +exon.attr("x") + +exon.attr("width");
-  var xr_e = +exon.attr("x") + exon.attr("width");
-  //var yr_e = +exon.attr("y") + +exon.attr("height") + 1;
-  var yr_e = +exon.attr("y") + exon.attr("height") + 1;
-  var xt_e = +sequence.attr("x") + sequence.text().length * 5.5 + 2;
+  console.log('esone!');
+
+  console.log(exon);
+
+  console.log('xr_s: ', xr_s);
+  console.log('yr_s: ', yr_s);
+
+  var xr_e = +exon.attr("x") + +exon.attr("width");
+  var yr_e = (+exon.attr("y") + (+exon.attr("height") / 2));
+  var xt_e = (+sequence.attr("x") + (+sequence.text().length * 5.5 + 2));
   var yt_e = +sequence.attr("y") - 4;
+
+  console.log('xr_e: ', xr_e);
+  console.log('yr_e: ', yr_e);
 
   //oggetto che contiente le coordinate rimappate in "source" e "target"
   point = [
@@ -1205,10 +1212,18 @@ function connect_intron(intron, sequence) {
   var xt_s = +sequence.attr("x") + 4;
   var yt_s = +sequence.attr("y") - 4;
 
+  console.log('introne!');
+
+  console.log('xr_s: ', xr_s);
+  console.log('yr_s: ', yr_s);
+
   var xr_e = +intron.attr("x2");
   var yr_e = +intron.attr("y2");
   var xt_e = +sequence.attr("x") + sequence.text().length * 7;
   var yt_e = +sequence.attr("y") - 4;
+
+  console.log('xr_e: ', xr_e);
+  console.log('yr_e: ', yr_e);
 
   var off_set_s = off_set_ex + (margin_isoform.left * 20) - sequence.text().length * 12 + 2;
   var off_set_e = off_set_ex + (margin_isoform.left * 20) - sequence.text().length * 13;
