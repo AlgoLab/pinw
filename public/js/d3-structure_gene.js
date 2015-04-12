@@ -336,10 +336,6 @@ function splice_site_structure(extract_boundaries, extract_regions){
  */
 function isoform_range(reg) {
 
-  console.log('definizione range max:');
-  console.log(width_isoform - margin_isoform.left - margin_isoform.right);
-  console.log('dominio:');
-
   //range per la finestra della struttura
   var x = d3.scale.log()
           .rangeRound([0, width_isoform - margin_isoform.left - margin_isoform.right], .1);
@@ -347,7 +343,6 @@ function isoform_range(reg) {
   //valorei minimo e massimo di inizio e fine dei blocchi
   var min = d3.min(reg, function(d) { return d.start; });
   var max = d3.max(reg, function(d) { return d.end; });
-  console.log(min, max);
 
   x.domain([min, max], .1);
 
@@ -475,7 +470,6 @@ function legend_box() {
     //.style("right", p_s.right)
     //.style("top", p_s.top);
 
-  console.log('done!');
 
   //"viewbox" rimappa le coordinate della finestra all'interno dei 
   //valori specificati dal risultato della funzione
@@ -1060,8 +1054,6 @@ function svg_expande_box() {
  */
 function regions_select(c_x) {
 
-  console.log(c_x);
-
   //ad ogni click vengono visualizzati gli elementi selezionati
   //senza resettare la struttura genica
   d3.select("#regions_selected")
@@ -1157,20 +1149,10 @@ function connect_exon(exon, sequence) {
   var xt_s = +sequence.attr("x") + 4;
   var yt_s = +sequence.attr("y") - 4;
 
-  console.log('esone!');
-
-  console.log(exon);
-
-  console.log('xr_s: ', xr_s);
-  console.log('yr_s: ', yr_s);
-
   var xr_e = +exon.attr("x") + +exon.attr("width");
   var yr_e = (+exon.attr("y") + (+exon.attr("height") / 2));
   var xt_e = (+sequence.attr("x") + (+sequence.text().length * 5.5 + 2));
   var yt_e = +sequence.attr("y") - 4;
-
-  console.log('xr_e: ', xr_e);
-  console.log('yr_e: ', yr_e);
 
   //oggetto che contiente le coordinate rimappate in "source" e "target"
   point = [
@@ -1212,18 +1194,10 @@ function connect_intron(intron, sequence) {
   var xt_s = +sequence.attr("x") + 4;
   var yt_s = +sequence.attr("y") - 4;
 
-  console.log('introne!');
-
-  console.log('xr_s: ', xr_s);
-  console.log('yr_s: ', yr_s);
-
   var xr_e = +intron.attr("x2");
   var yr_e = +intron.attr("y2");
   var xt_e = +sequence.attr("x") + sequence.text().length * 7;
   var yt_e = +sequence.attr("y") - 4;
-
-  console.log('xr_e: ', xr_e);
-  console.log('yr_e: ', yr_e);
 
   var off_set_s = off_set_ex + (margin_isoform.left * 20) - sequence.text().length * 12 + 2;
   var off_set_e = off_set_ex + (margin_isoform.left * 20) - sequence.text().length * 13;
@@ -2301,9 +2275,6 @@ function draw_exons(box, exons, x_scale){
 
         //coordinate della posizione del mouse al momento del "click"
         var coord_x = x_scale.invert(d3.event.pageX - margin_left - margin_isoform.left - border_width);
-
-        console.log("cliccato in: ", d3.event.pageX - margin_left - margin_isoform.left - border_width);
-        console.log("che va in: ", coord_x);
         
         //sottrae i valori della traslazione
         var xc = d3.event.pageX - 15;
@@ -2313,8 +2284,6 @@ function draw_exons(box, exons, x_scale){
         //funzioni per gli elementi selezionati
         var regions = regions_select(coord_x);
         flag_exon = true;    
-
-        console.log(regions);
 
         info_structure = check_structure_element(regions, coord_x, rect_exons);   
         display_info(svg_expande, x_scale, info_structure, rect_exons);
@@ -2384,9 +2353,6 @@ function draw_exons(box, exons, x_scale){
 
       //coordinate della posizione del mouse al momento del "click"       
       var coord_x = x_scale.invert(d3.event.pageX - margin_left - margin_isoform.left - border_width);
-
-      console.log("cliccato in: ", d3.event.pageX - margin_left - margin_isoform.left - border_width);
-      console.log("che va in: ", coord_x);
 
       var xc = d3.event.pageX - 15;
       var yc = d3.event.pageY - 60;
@@ -2479,9 +2445,6 @@ function draw_introns(box, introns, x_scale){
 
       //coordinate della posizione del mouse al momento del "click"
       var coord_x = x_scale.invert(d3.event.pageX - margin_left - margin_isoform.left - border_width);
-
-      console.log("cliccato in: ", d3.event.pageX - margin_left - margin_isoform.left - border_width);
-      console.log("che va in: ", coord_x);
 
       var xc = d3.event.pageX - 15;
       var yc = d3.event.pageY - 60;
@@ -3057,8 +3020,6 @@ function init(){
     }
 
     isoform = atp[0];
-
-    console.log(isoform.regions);
 
     original_info = copy_info_gene(isoform);
 
