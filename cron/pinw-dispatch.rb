@@ -124,9 +124,9 @@ class PinWDispatch
                 debug "connecting to #{server.user}@#{server.host} with data: #{options}"
 
                 # Proxy Command support:
-                if server.proxy_command.length > 0
+                if server.ssh_proxy_command.length > 0
                     debug "instantiating proxy command"
-                    options[:proxy] = Net::SSH::Proxy::Command.new(server.proxy_command)
+                    options[:proxy] = Net::SSH::Proxy::Command.new(server.ssh_proxy_command)
                 end
 
                 Net::SSH.start(server.host, server.username, options) do |ssh|
