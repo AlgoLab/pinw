@@ -13,6 +13,7 @@ import subprocess
 #   - timeout
 # parametri di pitron:
 #   - vedi sotto
+# mettere da qualche parte il pid dello script e quello di pintron così da killarli se serve
 
 # pintron crea il json -> lo wrappiamo e ci mettiamo le informazioni aggiunte dal python
 
@@ -31,7 +32,15 @@ import subprocess
 def notify():
     pass
 
-def prepare_result(output):
+def prepare_result(parameters, output):
+    use_callback = parameters['use_callback']
+    callback_url = parameters['callback_url']
+    if output == 0:
+        # pintron execution started - check output
+        pass
+    elif output == -1:
+        # timeout
+        pass
     return None
 
 def run_pintron(parameters):
@@ -42,7 +51,7 @@ def run_pintron(parameters):
     genomic = "--genomic=" + path + "/genomics.fasta"
     est = "--EST=" + parameters['est']
     organism = "--organism=" + parameters['organism']
-    gene = "--gene=" + parameters['gene']
+    gene = "--gene=" + parameters['gene_name']
     output = "--output=" + parameters['output']
     min_read_length = "--min-read-length=" + str(parameters['min_read_length'])
 
@@ -88,7 +97,7 @@ def get_parameters():
 def main():
     parameters = get_parameters()
     output = run_pintron(parameters)
-    prepare_result(output)
+    prepare_result(parameters, output)
     notify()
 
 if __name__ == '__main__':
