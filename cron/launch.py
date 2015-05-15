@@ -36,13 +36,15 @@ def prepare_result(output):
 
 def run_pintron(parameters):
     '''run pintron'''
+    path = os.path.dirname(os.path.abspath(__file__))
     pintron_path = parameters['pintron_path'] + "pintron"
-    bin_dir = "--bin-dir=" + parameters['pintron_path'] + "pintron"
-    genomic = "--genomic=" + parameters['genomic']
+    bin_dir = "--bin-dir=" + parameters['pintron_path']
+    genomic = "--genomic=" + path + "/genomics.fasta"
     est = "--EST=" + parameters['est']
     organism = "--organism=" + parameters['organism']
     gene = "--gene=" + parameters['gene']
     output = "--output=" + parameters['output']
+    min_read_length = "--min-read-length=" + str(parameters['min_read_length'])
 
     
 
@@ -55,6 +57,7 @@ def run_pintron(parameters):
     print("\t" + est)
     print("\t" + organism)
     print("\t" + gene)
+    print("\t" + min_read_length)
     print("\t" + output)
     print("\nSelected timeout: " + str(timeout))
     print()
