@@ -1,0 +1,9 @@
+{
+	"pintron_path": "/usr/bin/",
+	"genomic": "banana.txt",
+	"timeout": 5000,
+	"est": "stocazzo.txt",
+	"organism": "mouse",
+	"gene": "APC",
+	"output": "output/path.txt"
+}
