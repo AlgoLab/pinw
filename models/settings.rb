@@ -33,6 +33,35 @@ class Settings < ActiveRecord::Base
         return value
     end
 
+    def Settings._get_or_create_min_read_length
+        Settings.find_or_create_by!(key: 'MIN_READ_LENGTH') do |min_read_length|
+            min_read_length.value = 0
+            min_read_length.html_field_type = 'number'
+            min_read_length.name = "Minimum read length"
+            min_read_length.description = "Mininum read length considered by pintron."
+        end
+    end
+
+    def Settings.get_min_read_length
+        value = Settings._get_or_create_min_read_length.value
+        return 0 if value < 0
+        return value
+    end
+
+    def Settings._get_or_create_max_job_runtime
+        Settings.find_or_create_by!(key: 'MAX_JOB_RUNTIME') do |max_job_runtime|
+            max_job_runtime.value = 0
+            max_job_runtime.html_field_type = 'number'
+            max_job_runtime.name = "Max job run time"
+            max_job_runtime.description = "How long (in seconds) can the PIntron process run before it times out."
+        end
+    end
+
+    def Settings.get_min_read_length
+        value = Settings._get_or_create_min_read_length.value
+        return value
+    end
+
     def Settings._get_or_create_ssh_keys
         require 'sshkey'
 

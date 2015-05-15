@@ -52,6 +52,8 @@ class PinWDispatch
         ActiveRecord::Base.establish_connection @db_settings
 
         @max_remote_transfers = Settings.get_max_remote_transfers
+        @min_read_length = Settings.get_min_read_length
+        @max_job_runtime = Settings.get_max_job_runtime
     end
 
     def run_main_loop
@@ -295,9 +297,15 @@ class PinWDispatch
                             # Write the config snippet (rewritten every dispatch in case of job restart)
 
                             File.write(@download_path + "job-#{dispatch_job.id}/job_params.json", JSON.generate {
-                                timeout: 10, 
-                                gene_name: "banana", 
-                                organism: 'human'
+                                # Shortest read length considered by pintron:
+                                min_read_length: @min_read_length,
+                                # Job processing timeout:
+                                timeout: @job_max_runtime, 
+                                # Job params:
+                                gene_name: dispatch_job.gene_name, 
+                                organism: dispatch_job.organism.name,
+                                use_callback: server.use_callback,
+                                callback_url: server.callback_url
                             })
 
                             # Write the execution script:
