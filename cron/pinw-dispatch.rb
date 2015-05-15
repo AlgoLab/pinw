@@ -2,12 +2,13 @@ require 'active_record'
 require 'net/ssh'
 require "net/scp"
 require 'yaml'
+require 'json'
 require 'fileutils'
 
 PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
 
 # Models:
-require PROJECT_BASE_PATH + '/models/base'
+require PROJECT_BASE_PATH + 'models/base'
 
 # TODO: check timelock math
 # TODO: --super-force option
@@ -291,6 +292,17 @@ class PinWDispatch
                             # Clear remote dir
                             ssh.exec!("rm -rf jobs/job-#{dispatch_job.id}")
 
+                            # Write the config snippet (rewritten every dispatch in case of job restart)
+
+                            File.write(@download_path + "job-#{dispatch_job.id}/job_params.json", JSON.generate {
+                                timeout: 10, 
+                                gene_name: "banana", 
+                                organism: 'human'
+                            })
+
+                            # Write the execution script:
+                            FileUtils.cp(PROJECT_BASE_PATH + "cron/launch.py", @download_path + "job-#{dispatch_job.id}/", force: true)
+
                             ProcessingState.add_remote_transfer "Server: #{server.id} | Job: #{dispatch_job.id}"
                             scp.upload!(@download_path + "job-#{dispatch_job.id}/", "jobs/job-#{dispatch_job.id}/", recursive: true) do |ch, name, sent, total|
                                 # Renew server lock:
@@ -301,10 +313,9 @@ class PinWDispatch
                             end
                             debug 'done uploading files!'
 
-                            # TODO: send processing script and other metadata (timeouts, ...)
-
                             # Start the processing script
-                            ssh.exec!('python launch.py &')
+                            ssh.exec!("chmod +x jobs/job-#{dispatch_job.id}/launch.py")
+                            ssh.exec!("./jobs/job-#{dispatch_job.id}/launch.py &")
                             ssh.exec!('disown')
 
                             # Mark job as dispatched!
