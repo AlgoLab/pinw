@@ -5,5 +5,5 @@
 	"gene": "TP53",
 	"output": "output.txt",
 	"min_read_length": 100,
-	"timeout": 5000
+	"timeout": 1
 }

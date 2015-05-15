@@ -2,7 +2,7 @@
 
 import json
 import os
-from subprocess import call
+import subprocess
 
 # leggere file cfg  (JSON)
 # avviare pintron con quei parametri (gestire problemi)
@@ -62,13 +62,18 @@ def run_pintron(parameters):
     print("\nSelected timeout: " + str(timeout))
     print()
 
-    exit_code = call([pintron_path, 
-                      bin_dir, 
-                      genomic, 
-                      est,
-                      organism,
-                      gene,
-                      output], timeout=timeout)
+    try:
+        exit_code = subprocess.call([pintron_path, 
+                          bin_dir, 
+                          genomic, 
+                          est,
+                          organism,
+                          gene,
+                          output], timeout=timeout)
+    except subprocess.TimeoutExpired:
+        exit_code = -1
+
+    print("exit code:" + str(exit_code))
     return exit_code
 
 def get_parameters():
