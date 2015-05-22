@@ -28,6 +28,7 @@ import subprocess
 #        --extended-gtf=pintron-all-isoforms.gtf          
 #        --logfile=pintron-pipeline-log.txt               
 #        --general-logfile=pintron-log.txt
+#        --ngs (se est è fastq metto ngs)
 
 def notify():
     pass

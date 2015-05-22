@@ -1,3 +1,11 @@
+/cron/genomics.fasta
+/cron/output.txt
+/cron/pintron-all-isoforms.gtf
+/cron/pintron-log.txt
+/cron/pintron-pipeline-log.txt
+/cron/genomic.txt
+/cron/ests.txt
+/cron/AML-annotated.zip
 *.gem
 *.rbc
 .bundle
