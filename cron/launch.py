@@ -13,7 +13,7 @@ import subprocess
 #   - timeout
 # parametri di pitron:
 #   - vedi sotto
-# mettere da qualche parte il pid dello script e quello di pintron così da killarli se serve
+# mettere da qualche parte il pid dello script e quello di pintron cos da killarli se serve
 
 # pintron crea il json -> lo wrappiamo e ci mettiamo le informazioni aggiunte dal python
 
@@ -28,29 +28,45 @@ import subprocess
 #        --extended-gtf=pintron-all-isoforms.gtf          
 #        --logfile=pintron-pipeline-log.txt               
 #        --general-logfile=pintron-log.txt
-#        --ngs (se est è fastq metto ngs)
+#        --ngs (se est e fastq metto ngs)
 
-def notify():
-    pass
+def create_json(path, success):
+    '''create json output'''
+    data = {}
+    if success: 
+        try:
+            with open(path + '/output.txt') as out:
+                output = out.read()
+            output = json.loads(output)
+            data['pintron-output'] = output
+            # rielaborare il file
+        except:
+            success = False
+            
+    data['success'] = success
+    with open('job-result.json', 'w') as outfile:
+        json.dump(data, outfile, sort_keys=True, indent=4)
 
-def prepare_result(parameters, output):
+def notify(parameters):
+    '''send notification to pinw'''
     use_callback = parameters['use_callback']
     callback_url = parameters['callback_url']
-    if output == 0:
-        # pintron execution started - check output
-        pass
-    elif output == -1:
-        # timeout
-        pass
-    return None
+    pass
 
-def run_pintron(parameters):
+def prepare_result(path, output):
+    '''checks exit code'''
+    if output == 0:
+        create_json(path, True)
+    elif output == -1:
+        create_json(path, False)
+
+
+def run_pintron(path, parameters):
     '''run pintron'''
-    path = os.path.dirname(os.path.abspath(__file__))
     pintron_path = parameters['pintron_path'] + "pintron"
     bin_dir = "--bin-dir=" + parameters['pintron_path']
     genomic = "--genomic=" + path + "/genomics.fasta"
-    est = "--EST=" + parameters['est']
+    est = "--EST=" + path + "/" + parameters['est']
     organism = "--organism=" + parameters['organism']
     gene = "--gene=" + parameters['gene_name']
     output = "--output=" + parameters['output']
@@ -86,20 +102,28 @@ def run_pintron(parameters):
     print("exit code:" + str(exit_code))
     return exit_code
 
-def get_parameters():
+def get_parameters(path):
     '''get parameters from json configurazion file'''
     parameters = None
-    path = os.path.dirname(os.path.abspath(__file__))
     with open(path + '/job-params.json') as p:
         parameters = p.read()
     parameters = json.loads(parameters)
     return parameters
 
+def check_folder(path):
+    '''remove old output file'''
+    if os.path.isfile(path + '/output.txt'):
+        os.remove(path + '/output.txt')
+    if os.path.isfile(path + '/job-result.json'):
+        os.remove(path + '/job-result.json')
+
 def main():
-    parameters = get_parameters()
-    output = run_pintron(parameters)
-    prepare_result(parameters, output)
-    notify()
+    path = os.path.dirname(os.path.abspath(__file__))
+    check_folder(path)
+    parameters = get_parameters(path)
+    output = run_pintron(path, parameters)
+    prepare_result(path, output)
+    notify(parameters)
 
 if __name__ == '__main__':
     main()

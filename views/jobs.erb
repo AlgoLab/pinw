@@ -140,7 +140,7 @@
         <h4 class="modal-title" id="newJobsLabel"><i class="fa fa-cube"></i> Create new job</h4>
       </div>
       <div class="modal-body">
-        <form role="form" class="form-horizontal" method="post" action="/jobs/new">
+        <form role="form" class="form-horizontal" method="post" action="/jobs/new" enctype="multipart/form-data">
           
           <% if session[:user].admin %>
             <div class="form-group">
