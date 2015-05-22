@@ -85,7 +85,7 @@ class PinWDispatch
     def check_server server, async: true
 
         # Exit if the server is disabled:
-        return if server.disabled
+        return unless server.enabled
 
         # Exit if there is a lock still in place:
         return if server.check_pid and (Time.now < server.check_lock + @lock_timeout) # 60s
@@ -124,7 +124,7 @@ class PinWDispatch
                 #     raise ServerConfigurationError
                 # end
 
-                debug "connecting to #{server.user}@#{server.host} with data: #{options}"
+                debug "connecting to #{server.username}@#{server.host} with data: #{options}"
 
                 # Proxy Command support:
                 if server.ssh_proxy_command.length > 0
@@ -430,9 +430,19 @@ if __FILE__ == $0
     force = ARGV.include?('-f') or ARGV.include? '--force'
     debug = ARGV.include?('-d') or ARGV.include? '--debug'
 
-    PinWDispatch.new({
-        adapter: settings['test']['adapter'],
-        database: PROJECT_BASE_PATH + settings['test']['database'],
-        timeout: 30000,
-    }, debug: debug, force: force).run_main_loop
+    # Testing:
+
+    # x = PinWDispatch.new({
+    #     adapter: settings['test']['adapter'],
+    #     database: PROJECT_BASE_PATH + settings['production']['database'],
+    #     timeout: 30000,
+    # }, debug: debug, force: true)
+
+
+    # j = Job.find(2)
+    # j.awaiting_dispatch = true
+    # j.processing = false
+    # j.save    
+
+    # x.check_server(Server.find(1))
 end

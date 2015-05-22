@@ -125,17 +125,21 @@ class PinW < Sinatra::Application
 	            	reads.save
 	            end
 
+	            if reads_urls.length == 0 
+	            	job.all_reads_ok = true
+	            end
+
     	        # Pepare the folder structure
                 FileUtils.mkpath settings.download_path + "job-#{job.id}/reads/"
 
             	# SAVE FILES #
             	if params[:type] == '3'
-                    File.open(settings.download_path + "job-#{job.id}/genomics.fasta", 'w') {|f| f.write params[:InputGeneFile]}
+                    File.open(settings.download_path + "job-#{job.id}/genomics.fasta", 'w') {|f| f.write params[:InputGeneFile][:tempfile].read}
                 end
 
                 if params[:InputFiles]
                 	params[:InputFiles].each_with_index do |read_file, index|
-        	            File.open(settings.download_path + "job-#{job.id}/reads/reads-upload-#{index}", 'w') {|f| f.write read_file}
+        	            File.open(settings.download_path + "job-#{job.id}/reads/reads-upload-#{index}", 'w') {|f| f.write read_file[:tempfile].read}
                 	end
                 end
 	        end
