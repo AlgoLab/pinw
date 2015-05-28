@@ -81,7 +81,7 @@ $(document).ready(function() {
 
     $("#AdvancedOptions").click(function(){
         $("#rowAdvancedOptions").addClass('hide');
-        $("#rowInputPintronParh").fadeIn(800);
+        $("#rowInputPintronPath").fadeIn(800);
         $("#rowInputProxyCommand").fadeIn(800);
         $("#rowInputWorkingDir").fadeIn(800);
         $("#rowInputCallback").fadeIn(800);
