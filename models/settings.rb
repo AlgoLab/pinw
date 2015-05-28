@@ -58,7 +58,7 @@ class Settings < ActiveRecord::Base
     end
 
     def Settings.get_max_job_runtime
-        value = Settings._get_max_job_runtime.value
+        value = Settings._get_or_create_max_job_runtime.value
         return 0 if value < 0
         return value
     end

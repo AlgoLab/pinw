@@ -438,7 +438,7 @@ if __FILE__ == $0
 
     j = Job.find(2)
     j.awaiting_dispatch = true
-    j.processing = false
+    j.processing_dispatch_lock = Time.at(0)
     j.save    
 
     x.check_server(Server.find(1))
