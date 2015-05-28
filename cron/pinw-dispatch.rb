@@ -147,6 +147,11 @@ class PinWDispatch
                         end
                     end
 
+                    # Make sure jobs/ directory exists
+                    ssh.exec!("mkdir -p jobs") do |ch, success|
+                        raise 'GenericSSHProcedureError' unless success
+                    end
+
                     # Remove old report if present:
                     # (this prevents stale readings in case of wonky failures)
                     ssh.exec!("rm -f pinw_report.json") do |ch, success|
@@ -254,7 +259,7 @@ class PinWDispatch
 
                     
                     ## DISPATCH NEW JOBS ##
-                    while free_slots > 0 and (not server.remote_network or ProcessingState.get_active_remote_transfers < @max_remote_transfers)
+                    while free_slots > 0 and (server.local_network or ProcessingState.get_active_remote_transfers < @max_remote_transfers)
                         # Renew lock:
                         server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
                         begin
@@ -262,12 +267,11 @@ class PinWDispatch
                             dispatch_job = nil # TODO: scope!
                             old_pid = nil
                             Job.transaction do
-                                dispatch_job = Job.find_by(awaiting_dispatch: true, paused: false,
-                                                  # Job.arel_table[:processing_dispatch_lock].lt(Time.now - 5 * 60), # 5 minutes
-                                                  processing_dispatch_lock: Time.at(0)..(Time.now - 5 * 60), # 5 minutes
-                                                  server_id: [server.id, nil]).order(:server_id)
+                                dispatch_job = Job.order(:server_id).find_by(Job.arel_table[:processing_dispatch_lock].lt(Time.now - 5 * 60), 
+                                                  awaiting_dispatch: true, paused: false, server_id: [server.id, nil])
                                 
                                 # Exit if there are no more jobs to dispatch:
+                                debug "uhmmm"
                                 break unless dispatch_job
                                 debug "dispatching a job!"
 
@@ -294,6 +298,7 @@ class PinWDispatch
                             # Write the config snippet (rewritten every dispatch in case of job restart)
 
                             File.write(@download_path + "job-#{dispatch_job.id}/job-params.json", JSON.generate({
+                                pintron_path: server.pintron_path,
                                 # Shortest read length considered by pintron:
                                 min_read_length: @min_read_length,
                                 # Job processing timeout:
@@ -306,7 +311,7 @@ class PinWDispatch
                             }))
 
                             # Write the execution script:
-                            FileUtils.cp(PROJECT_BASE_PATH + "cron/launch.py", @download_path + "job-#{dispatch_job.id}/", force: true)
+                            FileUtils.cp(PROJECT_BASE_PATH + "cron/launch.py", @download_path + "job-#{dispatch_job.id}/")
 
                             ProcessingState.add_remote_transfer "Server: #{server.id} | Job: #{dispatch_job.id}"
                             scp.upload!(@download_path + "job-#{dispatch_job.id}/", "jobs/job-#{dispatch_job.id}/", recursive: true) do |ch, name, sent, total|
@@ -331,8 +336,8 @@ class PinWDispatch
                             raise JobDispatchError, ex.message
 
                         ensure
-                            ProcessingState.remove_remote_transfer
-                            dispatch_job.update processing_dispatch_pid: nil
+                            ProcessingState.remove_remote_transfer rescue nil
+                            dispatch_job.update(processing_dispatch_pid: nil) rescue nil
 
                             # If channels took more time to complete than dispatch 
                             # (or there was no dispatch), wait for them all to complete:
@@ -439,9 +444,17 @@ if __FILE__ == $0
     j = Job.find(2)
     j.awaiting_dispatch = true
     j.processing_dispatch_lock = Time.at(0)
-    j.save    
+    j.paused = false
+    j.server_id = 1
+    j.save   
+
+    Job.all.each {|job|
+        puts "job: #{job.id}, #{job.awaiting_dispatch}, #{job.paused}, #{job.server_id}, #{job.processing_dispatch_lock}"
+    } 
 
     s = Server.find(1)
     s.check_pid = nil
+    s.save 
+
     x.check_server(Server.find(1), async: false)
 end

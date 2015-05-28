@@ -33,6 +33,7 @@ class PinW < Sinatra::Application
 
 
         # ENV SETTINGS
+        server.pintron_path = params[:InputPintronPath]
         server.working_dir = params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]
@@ -65,6 +66,7 @@ class PinW < Sinatra::Application
         server.ssh_proxy_command = params[:InputProxyCommand]
 
         # ENV SETTINGS
+        server.pintron_path = params[:InputPintronPath]
         server.working_dir = params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]
@@ -102,6 +104,7 @@ class PinW < Sinatra::Application
         server.ssh_proxy_command = params[:InputProxyCommand]
 
         # ENV SETTINGS
+        server.pintron_path = params[:InputPintronPath]
         server.working_dir = params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]

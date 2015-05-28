@@ -129,8 +129,9 @@ class Init < ActiveRecord::Migration
 
       table.column :password,           :string
 
-      table.column :ssh_proxy_command,    :string         
-      table.column :working_dir,      :string            
+      table.column :ssh_proxy_command, :string         
+      table.column :working_dir,       :string            
+      table.column :pintron_path,      :string            
 
       table.column :use_callback,  :boolean, default: true
       table.column :callback_url,  :string            
