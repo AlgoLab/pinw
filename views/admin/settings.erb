@@ -58,6 +58,12 @@
               <td><%= setting[:name] %></td>
               <td><%= setting[:description] %></td>
               <td>
+
+              <% if setting[:html_field_type] == 'textarea' %>
+                  <textarea name="<%= setting[:key] %>" class="form-control">
+                  <%= setting[:value] %>
+                  </textarea>
+              <% else %>
                   <input type="<%= setting[:html_field_type] %>" name="<%= setting[:key] %>"
                   <% if setting[:html_field_type] == "checkbox" 
                     if setting[:value] %>
@@ -68,6 +74,10 @@
                     class="form-control"
                   <% end %>
                   />
+              <% end %>
+
+
+
               </td>
             </tr>
             <% end %>
