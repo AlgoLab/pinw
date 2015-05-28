@@ -248,9 +248,9 @@ class PinWDispatch
                     end
 
                     ## SPURIOUS JOBS ##
-                    Job.where(server_id: server.id).where.not(id: active_jobs + failed_jobs + completed_jobs).each do |job|
-                        job.update processing_failed: true, processing_last_error: "Spurious job: the server has no knowledge of this job."
-                    end
+                    # Job.where(server_id: server.id).where.not(id: active_jobs + failed_jobs + completed_jobs).each do |job|
+                    #     job.update processing_failed: true, processing_last_error: "Spurious job: the server has no knowledge of this job."
+                    # end
 
                     
                     ## DISPATCH NEW JOBS ##
@@ -433,7 +433,7 @@ if __FILE__ == $0
         adapter: settings['test']['adapter'],
         database: PROJECT_BASE_PATH + settings['production']['database'],
         timeout: 30000,
-    }, debug: debug, force: true)
+    }, debug: true, force: true)
 
 
     j = Job.find(2)
@@ -441,5 +441,7 @@ if __FILE__ == $0
     j.processing_dispatch_lock = Time.at(0)
     j.save    
 
-    x.check_server(Server.find(1))
+    s = Server.find(1)
+    s.check_pid = nil
+    x.check_server(Server.find(1), async: false)
 end
