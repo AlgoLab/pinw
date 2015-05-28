@@ -13,7 +13,7 @@ class Settings < ActiveRecord::Base
     end
 
     def Settings.get_max_active_downloads
-        value = Settings._get_or_create_max_active_downloads.value
+        value = Settings._get_or_create_max_active_downloads.value.to_i
         return 20 unless value.between? 0, 500
         return value
     end
@@ -28,7 +28,7 @@ class Settings < ActiveRecord::Base
     end
 
     def Settings.get_max_remote_transfers
-        value = Settings._get_or_create_max_remote_transfers.value
+        value = Settings._get_or_create_max_remote_transfers.value.to_i
         return 20 unless value.between? 0, 500
         return value
     end
@@ -43,7 +43,7 @@ class Settings < ActiveRecord::Base
     end
 
     def Settings.get_min_read_length
-        value = Settings._get_or_create_min_read_length.value
+        value = Settings._get_or_create_min_read_length.value.to_i
         return 0 if value < 0
         return value
     end
@@ -58,8 +58,8 @@ class Settings < ActiveRecord::Base
     end
 
     def Settings.get_max_job_runtime
-        value = Settings._get_or_create_max_job_runtime.value
-        return 0 if value < 0
+        value = Settings._get_or_create_max_job_runtime.value.to_i
+        return 60 if value < 60
         return value
     end
 
@@ -69,12 +69,14 @@ class Settings < ActiveRecord::Base
         k = SSHKey.generate(type: "RSA", bits: 2048, comment: "PinW")
         private_key = Settings.find_or_create_by(key: 'SSH_PRIVATE_KEY') do |ssh_key|
             ssh_key.name = 'PinW SSH private key'
+            ssh_key.html_field_type = 'textarea'
             ssh_key.description = "Used for public key authentication."
             ssh_key.value = k.private_key
         end
 
         public_key = Settings.find_or_create_by(key: 'SSH_PUBLIC_KEY') do |ssh_key|
             ssh_key.name = 'PinW SSH Public Key'
+            ssh_key.html_field_type = 'textarea'
             ssh_key.description = "To be placed on remote hosts using public key authentication."
             ssh_key.value = k.ssh_public_key
         end 
