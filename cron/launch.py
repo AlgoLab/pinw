@@ -69,10 +69,10 @@ def run_pintron(path, parameters):
     #est = "--EST=" + path + "/" + parameters['est']
     # test version work only with one file
     # PIntron NGS option not yet implemented
-    est = "--EST=" + path + "/" + "reads-upload-0"
+    est = "--EST=" + path + "/" + "reads/reads-upload-0"
     organism = "--organism=" + parameters['organism']
     gene = "--gene=" + parameters['gene_name']
-    output = "--output=" + parameters['output']
+    output = "--output=output.txt"
     min_read_length = "--min-read-length=" + str(parameters['min_read_length'])
 
     

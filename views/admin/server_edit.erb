@@ -155,7 +155,7 @@
           <div class="form-group nascosto" id="rowInputCallback">
             <label for="InputCallback" class="col-md-4 control-label" >Use Callback</label>
             <div class="col-md-1">
-              <input type="checkbox"  id="InputCallback" checked="true" value="1" name="InputCallback" class="flag">
+              <input type="checkbox"  id="InputCallback" checked="<%= server.use_callback %>" value="1" name="InputCallback" class="flag">
             </div>
           </div>
 
@@ -163,7 +163,7 @@
             <label for="InputCallbackURL" class="col-md-4 control-label" >Callback url</label>
             <div class="col-md-8">
               <input type="text" class="form-control" id="InputCallbackURL" 
-               placeholder="default" name="InputCallbackURL" >
+               placeholder="default" name="InputCallbackURL" value="<%= server.callback_url %>">
             </div>
           </div>
 
@@ -171,7 +171,7 @@
             <label for="InputPintronPath" class="col-md-4 control-label" >Pintron path</label>
             <div class="col-md-8">
               <input type="text" class="form-control" id="InputPintronPath" 
-               placeholder="" name="InputPintronPath" >
+               placeholder="" name="InputPintronPath" value="<%= server.pintron_path %>">
             </div>
           </div>       
 
