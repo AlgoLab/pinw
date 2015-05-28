@@ -66,7 +66,10 @@ def run_pintron(path, parameters):
     pintron_path = parameters['pintron_path'] + "pintron"
     bin_dir = "--bin-dir=" + parameters['pintron_path']
     genomic = "--genomic=" + path + "/genomics.fasta"
-    est = "--EST=" + path + "/" + parameters['est']
+    #est = "--EST=" + path + "/" + parameters['est']
+    # test version work only with one file
+    # PIntron NGS option not yet implemented
+    est = "--EST=" + path + "/" + "reads-upload-0"
     organism = "--organism=" + parameters['organism']
     gene = "--gene=" + parameters['gene_name']
     output = "--output=" + parameters['output']
