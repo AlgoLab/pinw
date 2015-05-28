@@ -149,7 +149,7 @@ class PinWDispatch
 
                     # Remove old report if present:
                     # (this prevents stale readings in case of wonky failures)
-                    ssh.exec!("rm -f check_report.yml") do |ch, success|
+                    ssh.exec!("rm -f pinw_report.json") do |ch, success|
                         raise 'GenericSSHProcedureError' unless success
                     end
 
@@ -171,7 +171,7 @@ class PinWDispatch
                             running_jobs = []
 
                             for dir in job_dirs:
-                                if os.path.isfile(dir+'/results.json'):
+                                if os.path.isfile(dir+'/job-result.json'):
                                     # Completed
                                     completed_jobs.append(int(dir.split('-')[1]))
                                 elif os.path.isfile(dir+'/python_pid') and os.path.getmtime(dir+'/python_pid') < time.time() - 60 * 5:
@@ -184,9 +184,6 @@ class PinWDispatch
 
                             # Write the report:
                             # TODO
-
-
-
 
                             END_OF_PYTHON_SCRIPT
 
@@ -206,14 +203,14 @@ class PinWDispatch
                     debug 'check script executed'
 
                     # Parse results:
-                    results = YAML.load scp.download! 'check_report.yml'
-                    debug "gotten report:\n #{results}"
+                    # results = YAML.load scp.download! 'pinw_report.json'
+                    # debug "gotten report:\n #{results}"
 
                     # TODO: validate results?
 
-                    active_jobs = [8,9,0]
-                    failed_jobs = [4,5,6]
-                    completed_jobs = [1,2,3] # get from results
+                    active_jobs = []
+                    failed_jobs = []
+                    completed_jobs = [] # get from results
 
                     # TODO: manage missing jobs
                     free_slots = 3
@@ -257,7 +254,6 @@ class PinWDispatch
 
                     
                     ## DISPATCH NEW JOBS ##
-
                     while free_slots > 0 and (not server.remote_network or ProcessingState.get_active_remote_transfers < @max_remote_transfers)
                         # Renew lock:
                         server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
@@ -273,6 +269,7 @@ class PinWDispatch
                                 
                                 # Exit if there are no more jobs to dispatch:
                                 break unless dispatch_job
+                                debug "dispatching a job!"
 
                                 # Save stale pid (no unecessary operations inside the transaction):
                                 old_pid = dispatch_job.processing_dispatch_pid
@@ -296,7 +293,7 @@ class PinWDispatch
 
                             # Write the config snippet (rewritten every dispatch in case of job restart)
 
-                            File.write(@download_path + "job-#{dispatch_job.id}/job_params.json", JSON.generate {
+                            File.write(@download_path + "job-#{dispatch_job.id}/job-params.json", JSON.generate {
                                 # Shortest read length considered by pintron:
                                 min_read_length: @min_read_length,
                                 # Job processing timeout:
@@ -432,17 +429,17 @@ if __FILE__ == $0
 
     # Testing:
 
-    # x = PinWDispatch.new({
-    #     adapter: settings['test']['adapter'],
-    #     database: PROJECT_BASE_PATH + settings['production']['database'],
-    #     timeout: 30000,
-    # }, debug: debug, force: true)
+    x = PinWDispatch.new({
+        adapter: settings['test']['adapter'],
+        database: PROJECT_BASE_PATH + settings['production']['database'],
+        timeout: 30000,
+    }, debug: debug, force: true)
 
 
-    # j = Job.find(2)
-    # j.awaiting_dispatch = true
-    # j.processing = false
-    # j.save    
+    j = Job.find(2)
+    j.awaiting_dispatch = true
+    j.processing = false
+    j.save    
 
-    # x.check_server(Server.find(1))
+    x.check_server(Server.find(1))
 end
