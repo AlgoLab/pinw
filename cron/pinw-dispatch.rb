@@ -293,17 +293,17 @@ class PinWDispatch
 
                             # Write the config snippet (rewritten every dispatch in case of job restart)
 
-                            File.write(@download_path + "job-#{dispatch_job.id}/job-params.json", JSON.generate {
+                            File.write(@download_path + "job-#{dispatch_job.id}/job-params.json", JSON.generate({
                                 # Shortest read length considered by pintron:
                                 min_read_length: @min_read_length,
                                 # Job processing timeout:
-                                timeout: @job_max_runtime, 
+                                timeout: @max_job_runtime, 
                                 # Job params:
                                 gene_name: dispatch_job.gene_name, 
                                 organism: dispatch_job.organism.name,
                                 use_callback: server.use_callback,
                                 callback_url: server.callback_url
-                            })
+                            }))
 
                             # Write the execution script:
                             FileUtils.cp(PROJECT_BASE_PATH + "cron/launch.py", @download_path + "job-#{dispatch_job.id}/", force: true)

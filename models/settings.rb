@@ -57,8 +57,9 @@ class Settings < ActiveRecord::Base
         end
     end
 
-    def Settings.get_min_read_length
-        value = Settings._get_or_create_min_read_length.value
+    def Settings.get_max_job_runtime
+        value = Settings._get_max_job_runtime.value
+        return 0 if value < 0
         return value
     end
 
