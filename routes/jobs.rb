@@ -119,15 +119,16 @@ class PinW < Sinatra::Application
 
 	        # SAVE FOR REAL #
 	        Job.transaction do
+	            if reads_urls.length == 0 
+	            	job.all_reads_ok = true
+	            end
 	            job.save
 	            reads_urls.each do |reads|
 	            	reads.job_id = job.id
 	            	reads.save
 	            end
 
-	            if reads_urls.length == 0 
-	            	job.all_reads_ok = true
-	            end
+
 
     	        # Pepare the folder structure
                 FileUtils.mkpath settings.download_path + "job-#{job.id}/reads/"
