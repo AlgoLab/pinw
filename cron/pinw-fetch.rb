@@ -543,7 +543,7 @@ class PinWFetch
 
                             # TODO: validation?
                             
-                            File.open(reads_path + "reads-#{reads.id}", 'w') do |f| 
+                            File.open(reads_path + "reads-url-#{reads.id}", 'w') do |f| 
                                 #f.write first_char
                                 f.write transfer.read 
                             end
@@ -690,7 +690,7 @@ if __FILE__ == $0
 
     PinWFetch.new({
         adapter: settings['test']['adapter'],
-        database: PROJECT_BASE_PATH + settings['development']['database'],
+        database: PROJECT_BASE_PATH + settings['production']['database'],
         timeout: 30000,
     }, debug: debug, force: force).run_main_loop
 end

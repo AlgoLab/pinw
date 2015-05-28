@@ -325,7 +325,7 @@ class PinWDispatch
 
                             # Start the processing script
                             ssh.exec!("chmod +x jobs/job-#{dispatch_job.id}/launch.py")
-                            ssh.exec!("./jobs/job-#{dispatch_job.id}/launch.py &")
+                            ssh.exec!("cd jobs/job-#{dispatch_job.id} && ./launch.py &")
                             ssh.exec!('disown')
 
                             # Mark job as dispatched!
@@ -441,7 +441,7 @@ if __FILE__ == $0
     }, debug: true, force: true)
 
 
-    j = Job.find(2)
+    j = Job.find(1)
     j.awaiting_dispatch = true
     j.processing_dispatch_lock = Time.at(0)
     j.paused = false
