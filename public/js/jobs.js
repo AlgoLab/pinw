@@ -269,8 +269,8 @@ function _createTable ( i ) {
                                 "<div>" +
                                     "<ul class='progressbar'>" +
                                         "<li class='down active' id='" + item.id +"_download'>Download</li>" +
-                                        "<li class='wait' id='" + item.id +"_waiting'>Awaiting dispatch</li>" +
-                                        "<li class='disp' id='" + item.id +"_dispatch'>Dispatch</li>" +
+                                        "<li class='wait' id='" + item.id +"_waiting'>Awaiting Processing</li>" +
+                                        //"<li class='disp' id='" + item.id +"_dispatch'>Dispatch</li>" +
                                         "<li class='proc' id='" + item.id +"_processing' >Processing</li>" +
                                     "</ul>" +
                                 "</div>" +
