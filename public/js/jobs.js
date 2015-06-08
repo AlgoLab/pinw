@@ -101,6 +101,9 @@ $(document).ready(function() {
 
         .on('shown.bs.modal', function (e) {
             $("#InputQuality").slider();
+            $("#InputQuality").on("slide", function(slideEvt) {
+                $("#QualityTs").text(slideEvt.value);
+            });
         });
 
     // organism block
@@ -406,7 +409,7 @@ function _if_download_hide_indicators (item, delay) {
     if (item.genomics_ok && item.ensembl_ok && item.all_reads_ok) {
         $("#" + item.id + "_tr_down_name").fadeOut(delay);
         $("#" + item.id + "_tr_down_box").fadeOut(delay);
-    }   
+    }
 }
 
 function _get_name ( organism, gene, id ) {
