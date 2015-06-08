@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-import json
-import os
-import subprocess
+import os, subprocess, time, json
 
 # leggere file cfg  (JSON)
 # avviare pintron con quei parametri (gestire problemi)
@@ -91,16 +89,33 @@ def run_pintron(path, parameters):
     print("\nSelected timeout: " + str(timeout))
     print()
 
-    try:
-        exit_code = subprocess.call([pintron_path, 
-                          bin_dir, 
-                          genomic, 
-                          est,
-                          organism,
-                          gene,
-                          output], timeout=timeout)
-    except subprocess.TimeoutExpired:
+    pintron_process = subprocess.Popen([pintron_path, 
+                                          bin_dir, 
+                                          genomic, 
+                                          est,
+                                          organism,
+                                          gene,
+                                          output])
+
+    waited = 0
+    timed_out = False
+    pintron_process.poll()
+    while pintron_process.returncode is None:
+        if timeout > 0 and waited > timeout:
+            timed_out = True
+            pintron_process.kill()
+            break
+
+        time.sleep(10)
+        waited += 10
+        open(path + '/python_lock', 'a').close()
+        pintron_process.poll()
+
+
+    if timed_out:
         exit_code = -1
+    else:
+        exit_code = pintron_process.returncode
 
     print("exit code:" + str(exit_code))
     return exit_code
@@ -122,10 +137,15 @@ def check_folder(path):
 
 def main():
     path = os.path.dirname(os.path.abspath(__file__))
+    with open(path + '/python_lock', 'w') as lock:
+        lock.write(os.getpid())
+
     check_folder(path)
     parameters = get_parameters(path)
     output = run_pintron(path, parameters)
     prepare_result(path, output)
+
+    os.remove(path + '/python_lock')
     notify(parameters)
 
 if __name__ == '__main__':
