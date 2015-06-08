@@ -255,6 +255,9 @@ function _createTable ( i ) {
                         _get_name(item.organism.name, item.gene_name, item.id) +
                         (item.paused ? ' (PAUSED) ' : ' ') +
                         (data.admin_view ? 'Owner: ' + item.owner : '') +
+                        '<span class="date"> Started at ' +
+                        moment(item.created_at).format(" hh:mm, DD/MM/YYYY") +
+                        '</span>' +
                         '</div>' +
                     "</div>" +
                     "<div class='panel-body reduce-padding'>" +
@@ -344,7 +347,10 @@ function _modify_table( i ) {
             $("#" + item.id + "_name").empty().append('' +
                 _get_name(item.organism.name, item.gene_name, item.id) +
                 (item.paused ? ' (PAUSED) ' : '')+
-                (data.admin_view ? 'Owner: ' + item.owner : ''));
+                (data.admin_view ? 'Owner: ' + item.owner : '') +
+                '<span class="date"> Started at ' +
+                moment(item.created_at).format(" hh:mm, DD/MM/YYYY") +
+                '</span>');
             $("#" + item.id + "_genomics_status").empty().append(
                 _create_alert(item.genomics_ok,
                               item.genomics_failed,

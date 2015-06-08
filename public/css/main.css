@@ -138,3 +138,7 @@ background-color: #e9f6f5 !important;
 .input-url-first-row {
     margin-top: 30px !important;
 }
+
+.date {
+    float: right !important;
+}

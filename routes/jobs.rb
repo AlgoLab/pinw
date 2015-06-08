@@ -262,6 +262,7 @@ class PinW < Sinatra::Application
 
                 dispatch_error: job.processing_dispatch_error,
                 processing_error: job.processing_error,
+                created_at: job.created_at,
 
 
 
