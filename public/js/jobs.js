@@ -107,57 +107,57 @@ $(document).ready(function() {
         });
 
     // organism block
-    $('#Organism').change(function(){
-        if ($(this).is(':checked')) {
-            $('#InputOrganism').prop('disabled', 'disabled');
-            $('#InputOrganism').val('');
-            $('#InputOrganism').removeAttr('required');
-            $('#downloadEnsembl').prop('disabled', 'disabled');
-            $('#downloadEnsembl').prop('checked', false);
-            $('#downloadFastaURL').prop('checked', true);
-            $('#rowInputGeneFile').addClass('hide');
-            $('#InputGeneFile').removeAttr('required');
-            $('#InputGeneFile').val("");
-            $('#InputGeneURL').prop('required', true);
-            $('#rowInputGeneURL').removeClass('hide');
-            $('#InputTranscripts').prop('disabled', 'disabled');
-            $('#InputTranscripts').prop('checked', false);
-        } else {
-            $('#InputOrganism').prop('disabled', false);
-            $('#InputOrganism').attr('required', true);
-            if ( !$('#GeneName').is(':checked')) {
-                $('#downloadEnsembl').prop('disabled', false);
-                $('#InputTranscripts').prop('disabled', false);
-            }
-        }
-    });
+    //$('#Organism').change(function(){
+    //    if ($(this).is(':checked')) {
+    //        $('#InputOrganism').prop('disabled', 'disabled');
+    //        $('#InputOrganism').val('');
+    //        $('#InputOrganism').removeAttr('required');
+    //        $('#downloadEnsembl').prop('disabled', 'disabled');
+    //        $('#downloadEnsembl').prop('checked', false);
+    //        $('#downloadFastaURL').prop('checked', true);
+    //        $('#rowInputGeneFile').addClass('hide');
+    //        $('#InputGeneFile').removeAttr('required');
+    //        $('#InputGeneFile').val("");
+    //        $('#InputGeneURL').prop('required', true);
+    //        $('#rowInputGeneURL').removeClass('hide');
+    //        $('#InputTranscripts').prop('disabled', 'disabled');
+    //        $('#InputTranscripts').prop('checked', false);
+    //    } else {
+    //        $('#InputOrganism').prop('disabled', false);
+    //        $('#InputOrganism').attr('required', true);
+    //        if ( !$('#GeneName').is(':checked')) {
+    //            $('#downloadEnsembl').prop('disabled', false);
+    //            $('#InputTranscripts').prop('disabled', false);
+    //        }
+    //    }
+    //});
 
 
     // gene name block
-    $('#GeneName').change(function(){
-        if ($(this).is(':checked')) {
-            $('#InputGeneName').prop('disabled', 'disabled');
-            $('#InputGeneName').val('');
-            $('#InputGeneName').removeAttr('required');
-            $('#downloadEnsembl').prop('disabled', 'disabled');
-            $('#downloadEnsembl').prop('checked', false);
-            $('#downloadFastaURL').prop('checked', true);
-            $('#rowInputGeneFile').addClass('hide');
-            $('#InputGeneFile').removeAttr('required');
-            $('#InputGeneFile').val("");
-            $('#InputGeneURL').prop('required', true);
-            $('#rowInputGeneURL').removeClass('hide');
-            $('#InputTranscripts').prop('disabled', 'disabled');
-            $('#InputTranscripts').prop('checked', false);
-        } else {
-            $('#InputGeneName').prop('disabled', false);
-            $('#InputGeneName').attr('required', true);
-            if ( !$('#Organism').is(':checked')) {
-                $('#downloadEnsembl').prop('disabled', false);
-                $('#InputTranscripts').prop('disabled', false);
-            }
-        }
-    });
+    //$('#GeneName').change(function(){
+    //    if ($(this).is(':checked')) {
+    //        $('#InputGeneName').prop('disabled', 'disabled');
+    //        $('#InputGeneName').val('');
+    //        $('#InputGeneName').removeAttr('required');
+    //        $('#downloadEnsembl').prop('disabled', 'disabled');
+    //        $('#downloadEnsembl').prop('checked', false);
+    //        $('#downloadFastaURL').prop('checked', true);
+    //        $('#rowInputGeneFile').addClass('hide');
+    //        $('#InputGeneFile').removeAttr('required');
+    //        $('#InputGeneFile').val("");
+    //        $('#InputGeneURL').prop('required', true);
+    //        $('#rowInputGeneURL').removeClass('hide');
+    //        $('#InputTranscripts').prop('disabled', 'disabled');
+    //        $('#InputTranscripts').prop('checked', false);
+    //    } else {
+    //        $('#InputGeneName').prop('disabled', false);
+    //        $('#InputGeneName').attr('required', true);
+    //        if ( !$('#Organism').is(':checked')) {
+    //            $('#downloadEnsembl').prop('disabled', false);
+    //            $('#InputTranscripts').prop('disabled', false);
+    //        }
+    //    }
+    //});
 
     // genomics block
     $("input[name='type']").change(function(){

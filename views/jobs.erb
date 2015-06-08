@@ -146,9 +146,9 @@
           <% if session[:user].admin %>
             <div class="form-group">
               <label for="InputServer" class="col-md-3 control-label" >Server 
-              <a data-toggle="tooltip" data-placement="right" data-html="true" title="Select the desired server you want the job dispatched to. Leave the default value for automatic assignment."><i class="fa fa-question-circle"></i></a>
+                <a data-toggle="tooltip" data-placement="right" data-html="true" title="Select the desired server you want the job dispatched to. Leave the default value for automatic assignment."><i class="fa fa-question-circle"></i></a>
               </label>
-              <div class="col-md-9">
+              <div class="col-md-6">
                 <select class="form-control" id="InputServer"  name="InputServer">
                   <option value="">Automatic</option>
                   <% server_list.each do |server| %>
@@ -162,25 +162,22 @@
           <div class="form-group">
             <label for="InputOrganism" class="col-md-3 control-label">Organism 
             </label>
-            <div class="col-md-3 move-down-10px">
-              <input type="checkbox" name="InputOrganismUnknown" value="true" id="Organism"> Unknown
-            </div>
             <div class="col-md-6">
               <select class="form-control" id="InputOrganism"  name="InputOrganism" required>
                 <% organism_list.each do |organism| %>
                   <option value="<%= organism.id %>"><%= organism.name %></option>
                 <% end %>
+                <option value="-1">Unknown</option>
               </select>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="InputGeneName" class="col-md-3 control-label">Gene Name</label>
-            <div class="col-md-3 move-down-10px">
-              <input type="checkbox" name="InputGeneNameUnknown" value="true" id="GeneName"> Unknown
-            </div>
-            <div class="col-md-6">
-              <input type="text" class="form-control" name="InputGeneName" id="InputGeneName" placeholder="eg: caramel" required>
+            <label for="InputGeneName" class="col-md-3 control-label">Gene Name
+              <a data-toggle="tooltip" data-placement="right" data-html="true" title="If empty UNKNOWN is used"><i class="fa fa-question-circle"></i></a>
+            </label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" name="InputGeneName" id="InputGeneName" placeholder="eg: caramel">
             </div>
           </div>
 
