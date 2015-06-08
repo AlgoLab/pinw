@@ -35,6 +35,9 @@ class PinWDispatch
     prepend DebugFunctionWrapper
     class ServerConfigurationError < RuntimeError; end
     class JobDispatchError < RuntimeError; end
+    class CheckScriptTimeoutError < RuntimeError; end
+    class GenericSSHProcedureError < RuntimeError; end
+
 
     def initialize db_settings, debug: false, force: false, download_path: PROJECT_BASE_PATH + 'downloads/'
         # When the `:force` option is true the cron will   
@@ -143,19 +146,19 @@ class PinWDispatch
                     # Move to the pinw working dir:
                     if server.working_dir
                         ssh.exec!("cd #{server.working_dir}") do |ch, success|
-                            raise 'GenericSSHProcedureError' unless success
+                            raise GenericSSHProcedureError unless success
                         end
                     end
 
                     # Make sure jobs/ directory exists
                     ssh.exec!("mkdir -p jobs") do |ch, success|
-                        raise 'GenericSSHProcedureError' unless success
+                        raise GenericSSHProcedureError unless success
                     end
 
                     # Remove old report if present:
                     # (this prevents stale readings in case of wonky failures)
                     ssh.exec!("rm -f pinw_report.json") do |ch, success|
-                        raise 'GenericSSHProcedureError' unless success
+                        raise GenericSSHProcedureError unless success
                     end
 
                     # Generate a new report:
@@ -202,7 +205,7 @@ class PinWDispatch
                         # Die if hanging:
                         if Time.now - start_check > 60 # seconds
                             ch.close
-                            raise 'CheckScriptTimeoutError'
+                            raise CheckScriptTimeoutError
                         end
                     end
                     debug 'check script executed'

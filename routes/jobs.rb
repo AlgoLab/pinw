@@ -59,6 +59,7 @@ class PinW < Sinatra::Application
 	        job.gene_name = params[:InputGeneName]
 	        if job.gene_name.length == 0
 	        	job.gene_name = "Unknown"
+	        end
 
 	        # If we don't have to fetch the ensembl data, we set the `ensembl_ok` flag to true.
 	        job.ensembl_ok = !(params[:InputTranscripts] and params[:InputOrganism] and !params[:InputOrganismUnknown] and params[:InputGeneName] and !params[:InputGeneNameUnknown])
