@@ -259,10 +259,36 @@ function _createTable ( i ) {
                     "</div>" +
                     "<table class='table table-condensed table-result hidden-border'>" +
                         "<tr class='" + item.id + "_tr'>" +
+                            "<td colspan='3' >" +
+                                "<div>" +
+                                    "<ul class='progressbar'>" +
+                                        "<li class='down active' id='" + item.id +"_download'>Download</li>" +
+                                        "<li class='wait' id='" + item.id +"_waiting'>Awaiting dispatch</li>" +
+                                        "<li class='disp' id='" + item.id +"_dispatch'>Dispatch</li>" +
+                                        "<li class='proc' id='" + item.id +"_processing' >Processing</li>" +
+                                    "</ul>" +
+                                "</div>" +
+                                "<div id='" + item.id +"_error' class='alert alert-danger hidden-form nascosto'>" +
+                                    "<strong><i class='fa fa-times'></i> Error: </strong>" +
+                                    (item.processing_error ? item.processing_error : item.dispatch_error) +
+                                "</div>" +
+                            '</td>' +
+                            "<td class='centered'>" +
+                                _create_play_pause(item.paused, item.id) +
+                                "<form action='jobs/delete' method='post' >" +
+                                    "<input type='hidden' name='job_id' value='" + item.id + "' class='btn'>" +
+                                    "<button " +
+                                        "type='submit' class='btn btn-primary delete' title='delete'>" +
+                                        "<i class='fa fa-trash-o'></i>" +
+                                    "</button>" +
+                                "</form>" +
+                            '</td>' +
+                        '</tr>' +
+                        "<tr class='" + item.id + "_tr'>" +
                             '<td width="32%"class="centered hidden-bottom">Genomics</td>' +
                             '<td width="32%" class="centered hidden-bottom">Ensembl</td>' +
                             '<td width="32%" class="centered hidden-bottom">Reads (QT: ' + item.quality_threshold + ') </td>' +
-                            '<td class="centered hidden-bottom"> Actions </td>' +
+                            
                         '</tr>' +
                         "<tr class='" + item.id + "_tr'>" +
                             '<td>' +
@@ -292,32 +318,7 @@ function _createTable ( i ) {
                                               item.reads_total) +
                                 "</div>" +
                             '</td>' +
-                            "<td rowspan='2'class='centered'>" +
-                                _create_play_pause(item.paused, item.id) +
-                                "<form action='jobs/delete' method='post' >" +
-                                    "<input type='hidden' name='job_id' value='" + item.id + "' class='btn'>" +
-                                    "<button " +
-                                        "type='submit' class='btn btn-primary delete' title='delete'>" +
-                                        "<i class='fa fa-trash-o'></i>" +
-                                    "</button>" +
-                                "</form>" +
-                            '</td>' +
-                        '</tr>' +
-                        "<tr class='" + item.id + "_tr'>" +
-                            "<td colspan='3' >" +
-                                "<div>" +
-                                    "<ul class='progressbar'>" +
-                                        "<li class='down active' id='" + item.id +"_download'>Download</li>" +
-                                        "<li class='wait' id='" + item.id +"_waiting'>Awaiting dispatch</li>" +
-                                        "<li class='disp' id='" + item.id +"_dispatch'>Dispatch</li>" +
-                                        "<li class='proc' id='" + item.id +"_processing' >Processing</li>" +
-                                    "</ul>" +
-                                "</div>" +
-                                "<div id='" + item.id +"_error' class='alert alert-danger hidden-form nascosto'>" +
-                                    "<strong><i class='fa fa-times'></i> Error: </strong>" +
-                                    (item.processing_error ? item.processing_error : item.dispatch_error) +
-                                "</div>" +
-                            '</td>' +
+                            
                         '</tr>' +
                     "</table>" +
                 "</div>" +
