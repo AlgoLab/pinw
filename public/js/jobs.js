@@ -284,13 +284,13 @@ function _createTable ( i ) {
                                 "</form>" +
                             '</td>' +
                         '</tr>' +
-                        "<tr class='" + item.id + "_tr'>" +
+                        "<tr class='" + item.id + "_tr' id='" + item.id + "_tr_down_name'>" +
                             '<td width="32%"class="centered hidden-bottom">Genomics</td>' +
                             '<td width="32%" class="centered hidden-bottom">Ensembl</td>' +
                             '<td width="32%" class="centered hidden-bottom">Reads (QT: ' + item.quality_threshold + ') </td>' +
                             
                         '</tr>' +
-                        "<tr class='" + item.id + "_tr'>" +
+                        "<tr class='" + item.id + "_tr' id='" + item.id + "_tr_down_box'>" +
                             '<td>' +
                                 "<div id='" + item.id + "_genomics_status' class='minibox'>" +
                                 _create_alert(item.genomics_ok,
@@ -324,6 +324,7 @@ function _createTable ( i ) {
                 "</div>" +
                 "<br />"
             );
+            _if_download_hide_indicators(item, 0);
             _update_status(item);
             _update_error(item);
         });
@@ -364,6 +365,7 @@ function _modify_table( i ) {
                 "<strong><i class='fa fa-times'></i> Error: </strong>" +
                 (item.processing_error ? item.processing_error : item.dispatch_error)
             );
+            _if_download_hide_indicators(item, 500);
             _update_status(item);
             _update_error(item);
         });
@@ -398,6 +400,13 @@ function _update_status(item) {
     } else if (item.awaiting_dispatch) {
         $("#" + item.id + "_waiting").addClass("active");
     }
+}
+
+function _if_download_hide_indicators (item, delay) {
+    if (item.genomics_ok && item.ensembl_ok && item.all_reads_ok) {
+        $("#" + item.id + "_tr_down_name").fadeOut(delay);
+        $("#" + item.id + "_tr_down_box").fadeOut(delay);
+    }   
 }
 
 function _get_name ( organism, gene, id ) {
