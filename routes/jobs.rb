@@ -55,7 +55,7 @@ class PinW < Sinatra::Application
 	            end 
 	        end
 	        
-	        job.organism = Organism.find_by!(id: params[:InputOrganism], enabled: true) unless params[:InputOrganism].length == 0
+	        job.organism = Organism.find_by!(id: params[:InputOrganism], enabled: true) unless params[:InputOrganism] == "-1"
 	        job.gene_name = params[:InputGeneName]
 	        if job.gene_name.length == 0
 	        	job.gene_name = "Unknown"
