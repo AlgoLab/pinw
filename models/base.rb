@@ -4,6 +4,7 @@ require_relative 'processing_status'
 require_relative 'servers'
 require_relative 'settings'
 require_relative 'users'
+require_relative 'results'
 
 # Sqlite3 can't easily handle concurrent access to a DB.
 # From the official sqlite site:

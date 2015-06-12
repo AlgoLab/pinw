@@ -138,7 +138,7 @@ def check_folder(path):
 def main():
     path = os.path.dirname(os.path.abspath(__file__))
     with open(path + '/python_lock', 'w') as lock:
-        lock.write(os.getpid())
+        lock.write(str(os.getpid()))
 
     check_folder(path)
     parameters = get_parameters(path)
