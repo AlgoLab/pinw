@@ -30,7 +30,7 @@ class PinW < Sinatra::Application
     get '/jobs/?' do
         server_list = Server.all.to_a
         organism_list = Organism.where(enabled: true)
-        erb :'jobs', locals: {server_list: server_list, organism_list: organism_list, admin_view: false}
+        erb :'jobs', locals: {server_list: server_list, organism_list: organism_list, admin_view: false, latest_results: Result.last(5)}
     end
 
     post '/jobs/new' do
