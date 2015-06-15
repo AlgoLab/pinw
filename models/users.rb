@@ -8,6 +8,7 @@ class User < ActiveRecord::Base
   has_many :user_changes_to_self, :class_name => 'UserHistory', :foreign_key => 'subject_id'
 
   has_many :jobs, :class_name => 'Job', :foreign_key => 'user_id'
+  has_many :results, :class_name => 'Result', :foreign_key => 'user_id'
 
 
 end

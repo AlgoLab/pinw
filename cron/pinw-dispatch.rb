@@ -138,9 +138,6 @@ class PinWDispatch
                 Net::SSH.start(server.host, server.username, options) do |ssh|
                     debug 'connected!'
 
-                    # Open SCP session:
-                    scp = Net::SCP.new(ssh)
-
                     ## CHECK SERVER ##
 
                     # Move to the pinw working dir:
@@ -150,55 +147,33 @@ class PinWDispatch
                         end
                     end
 
+                    # Open SCP session:
+                    scp = Net::SCP.new(ssh)
+
                     # Make sure jobs/ directory exists
                     ssh.exec!("mkdir -p jobs") do |ch, success|
                         raise GenericSSHProcedureError unless success
                     end
 
+                    # Make sure results/ directory exists
+                    ssh.exec!("mkdir -p results") do |ch, success|
+                        raise GenericSSHProcedureError unless success
+                    end
+
                     # Remove old report if present:
                     # (this prevents stale readings in case of wonky failures)
-                    ssh.exec!("rm -f pinw_report.json") do |ch, success|
+                    ssh.exec!("rm -f pinw-report.json") do |ch, success|
                         raise GenericSSHProcedureError unless success
                     end
 
                     # Generate a new report:
+                    scp.upload!(PROJECT_BASE_PATH + 'cron/check_jobs.py', 'check_jobs.py')
+                    ssh.exec!("chmod +x check_jobs.py") do |ch, success|
+                        raise GenericSSHProcedureError unless success
+                    end
+
                     start_check = Time.now
-                    already_typed = false
-                    ssh.exec!("python -i") do |ch, stream, data|
-                        # TODO: proper timeout check by writing timeouts as job metadata
-                        # TODO: cd working dir
-                        unless already_typed
-                            ch.send_data(<<-END_OF_PYTHON_SCRIPT)
-                                
-                            import os, sys, itertools, time
-
-                            job_dirs = os.listdir('jobs')
-
-                            completed_jobs = []
-                            failed_jobs = []
-                            running_jobs = []
-
-                            for dir in job_dirs:
-                                if os.path.isfile(dir+'/job-result.json'):
-                                    # Completed
-                                    completed_jobs.append(int(dir.split('-')[1]))
-                                elif os.path.isfile(dir+'/python_pid') and os.path.getmtime(dir+'/python_pid') < time.time() - 60 * 5:
-                                    # Running 
-                                    running_jobs.append(int(dir.split('-')[1]))
-                                else:
-                                    # Timeout or some other kind of error
-                                    failed_jobs.append(int(dir.split('-')[1]))
-
-
-                            # Write the report:
-                            # TODO
-
-                            END_OF_PYTHON_SCRIPT
-
-                            ch.eof!
-                            already_typed = true
-                            debug 'python script "typed"'
-                        end
+                    ssh.exec!("./check_jobs.py") do |ch, stream, data|
                         # Renew lock:
                         server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
 
@@ -211,51 +186,48 @@ class PinWDispatch
                     debug 'check script executed'
 
                     # Parse results:
-                    # results = YAML.load scp.download! 'pinw_report.json'
-                    # debug "gotten report:\n #{results}"
+                    results = JSON.parse scp.download! 'pinw-report.json'
+                    debug "gotten report:\n #{results}"
 
-                    # TODO: validate results?
 
-                    active_jobs = []
-                    failed_jobs = []
-                    completed_jobs = [] # get from results
-
-                    # TODO: manage missing jobs
-                    free_slots = 3
-
-                    # TODO: maybe change style to async for better troughput? (must understand how to correctly handle errors)
+                    running_jobs = results['running']
+                    dead_jobs = results['dead']
+                    completed_jobs = results['completed'] 
 
                     ## ACK COMPLETED JOBS ##
-                    completed_jobs.each do |job|
+                    completed_jobs.each do |j|
+                        job = Job.find(j['id'])
+                        result = j['result']
+
                         # Renew lock:
                         server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
                         begin
-                            # All this code must be idempotent as
-                            # it might run twice in some circumstances!
 
                             # LOCAL SAVE DB
                             result = Result.create_with({
                                 user_id: job.user_id, 
                                 server_id: server.id, 
-                                TODO: "BANANA!"
+                                TODO: JSON.generate(result)
                             }).find_or_create_by!(job_id: job.id)
-
-                            # Delete job:
-                            job.destroy
 
                             # LOCAL DELETE FILES
                             FileUtils.rm_rf @download_path + "job-#{job.id}"
                             
                             # ACK REMOTE SERVER
-                            ssh.exec!("echo '#{job.id}|#{Time.now}' > jobs/job-#{job.id}/pinw-ack")
-                            ssh.exec!("mv -f jobs/job-#{job.id} results/result-#{result.id}")
+                            ssh.exec!("echo '#{result.id}|#{job.id}|#{Time.now}' > jobs/job-#{job.id}/pinw-ack")
+                            ssh.exec!("cp -rf jobs/job-#{job.id} results/result-#{result.id}")
+                            ssh.exec!("rm -rf jobs/job-#{job.id}")
+
+                            # Delete job:
+                            job.destroy
 
                         rescue => ex
+                            debug ex.message
                             job.update processing_failed: true, processing_last_error: "Unexpected error while ACK: #{ex.message}"
                         end
                     end
 
-                    ## SPURIOUS JOBS ##
+                    ## DEAD JOBS ##
                     # Job.where(server_id: server.id).where.not(id: active_jobs + failed_jobs + completed_jobs).each do |job|
                     #     job.update processing_failed: true, processing_last_error: "Spurious job: the server has no knowledge of this job."
                     # end

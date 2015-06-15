@@ -13,11 +13,11 @@ class PinW < Sinatra::Application
 
     get '/results/?' do
         organism_list = Organism.where(enabled: true)
-        erb :'results', locals: {organism_list: organism_list}
+        erb :'results', locals: {organism_list: organism_list, latest_results: Result.last(5)}
     end 
 
     get '/result/:result_id' do
-        result = params[:result_id]
+        result = Result.find(params[:result_id])
         erb :'result', locals: { result: result }
     end    
 end
