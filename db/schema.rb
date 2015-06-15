@@ -107,6 +107,7 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.string   "password"
     t.string   "ssh_proxy_command"
     t.string   "working_dir"
+    t.string   "pintron_path"
     t.boolean  "use_callback",       default: true
     t.string   "callback_url"
     t.boolean  "local_network",      default: true
