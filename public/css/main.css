@@ -142,3 +142,8 @@ background-color: #e9f6f5 !important;
 .date {
     float: right !important;
 }
+
+.dropdown-toggle {
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+}
