@@ -106,7 +106,12 @@ class Init < ActiveRecord::Migration
 
     ## RESULTS ##
     create_table :results do |table|
-      table.column :TODO,      :string
+      table.column :json,          :string
+      table.column :gene_name,     :string
+      table.column :organism,      :string
+      table.column :description,   :string
+      table.column :ref_sequence,  :string
+      table.column :validated,     :datetime
       table.references :user
       table.references :server
       table.references :job

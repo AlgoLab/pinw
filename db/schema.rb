@@ -88,7 +88,12 @@ ActiveRecord::Schema.define(version: 20141123081409) do
   end
 
   create_table "results", force: true do |t|
-    t.string   "TODO"
+    t.string   "json"
+    t.string   "gene_name"
+    t.string   "organism"
+    t.string   "description"
+    t.string   "ref_sequence"
+    t.datetime "validated"
     t.integer  "user_id"
     t.integer  "server_id"
     t.integer  "job_id"
@@ -100,19 +105,20 @@ ActiveRecord::Schema.define(version: 20141123081409) do
 
   create_table "servers", force: true do |t|
     t.integer  "priority"
-    t.string   "name",                                               null: false
-    t.string   "host",                                               null: false
+    t.string   "name",                                              null: false
+    t.string   "host",                                              null: false
     t.string   "port"
-    t.string   "username",                                           null: false
+    t.string   "username",                                          null: false
     t.string   "password"
     t.string   "ssh_proxy_command"
     t.string   "working_dir"
-    t.boolean  "use_callback",       default: true
+    t.string   "pintron_path"
+    t.boolean  "use_callback",      default: true
     t.string   "callback_url"
-    t.boolean  "local_network",      default: true
-    t.boolean  "enabled",            default: true
-    t.datetime "check_lock",         default: '1970-01-01 00:00:00'
-    t.datetime "check_last_at",      default: '1970-01-01 00:00:00'
+    t.boolean  "local_network",     default: true
+    t.boolean  "enabled",           default: true
+    t.datetime "check_lock",        default: '1970-01-01 00:00:00'
+    t.datetime "check_last_at",     default: '1970-01-01 00:00:00'
     t.integer  "check_pid"
     t.string   "last_check_error"
     t.datetime "created_at"

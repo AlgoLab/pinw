@@ -201,13 +201,21 @@ class PinWDispatch
 
                         # Renew lock:
                         server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
+
+                        # TODO: what should happen for failed jobs that have produced a json file? 
+
                         begin
 
                             # LOCAL SAVE DB
                             result = Result.create_with({
                                 user_id: job.user_id, 
                                 server_id: server.id, 
-                                TODO: JSON.generate(result)
+                                organism_id: job.organism_id,
+                                gene_name: job.gene_name,
+                                description: job.description,
+                                ref_sequence: "TODO",
+                                json: JSON.generate(result)
+
                             }).find_or_create_by!(job_id: job.id)
 
                             # LOCAL DELETE FILES
