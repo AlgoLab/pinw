@@ -35,6 +35,20 @@
           <button class="btn btn-primary" data-toggle="modal" data-target="#newJob">
           New job
           </button>
+          <% if session[:user] and session[:user].results %>
+            <div class="btn-group pull-right">
+              <button type="button" class="btn btn-primary">Last results</button>
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <% session[:user].results.each do |result| %>
+                  <li><a href="#"><% result.job_id %></a></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>

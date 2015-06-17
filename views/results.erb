@@ -28,15 +28,11 @@
             <div class="panel-heading">Last results</div>
             <table class="table table-condensed table-result table-result-hover hidden-border">
               <tbody>
-                <tr>
-                  <td><div class='divBox'><a href='/result/1'>HUMAN:ATP6AP1_v1</a></div></td>
-                </tr>
-                <tr>
-                  <td><div class='divBox'><a href='/result/2'>HUMAN:ATP6AP1_v2</a></div></td>
-                </tr>
-                <tr>
-                  <td><div class='divBox'><a href=''>HUMAN:TOTOTO</a></div></td>
-                </tr>
+                <% session[:user].results.each do |result| %>
+                  <tr>
+                    <td><div class='divBox'><a href='/result/1'><% result.job_id %></a></div></td>
+                  </tr>
+                <% end %>
               </tbody>
             </table>
           </div>
