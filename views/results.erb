@@ -71,13 +71,13 @@
                   <div class="form-group">
                     <label for="inputGeneName" class="col-sm-3 control-label">Gene name</label>
                     <div class="col-sm-6">
-                      <input type="text" class="form-control" id="inputGeneName" name="inputGeneName" placeholder="es: caramel">
+                      <input type="text" class="form-control" id="inputGeneName" name="inputGeneName" placeholder="es: caramel banana" pattern="([\S]+)( [\S]+)*" title="Invalid input: insert genes separated by a space">
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="inputRefSeq" class="col-sm-3 control-label">Ref Sequence</label>
                     <div class="col-sm-6">
-                      <input type="text" class="form-control" id="inputRefSeq" name="inputRefSeq" placeholder="es: NM_123456">
+                      <input type="text" class="form-control" id="inputRefSeq" name="inputRefSeq" placeholder="es: NM_123 NM_456" pattern="(NM_[\S]+)( NM_[\S]+)*" title="Invalid input: insert ref seq separated by a space">
                     </div>
                   </div>
                   <div class="form-group">
