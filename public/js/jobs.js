@@ -198,12 +198,12 @@ $(document).ready(function() {
     _get_jobs();
 
     // confirm after delete
-    $(".delete").click(function(){
-        var res = confirm('Do you really want to delete the job?');
-        if ( !res ) {
-            return false;
-        }
-    });
+    // $(".delete").click(function(){
+    //     var res = confirm('Do you really want to delete the job?');
+    //     if ( !res ) {
+    //         return false;
+    //     }
+    // });
 
 });
 
@@ -281,13 +281,13 @@ function _createTable ( i ) {
                             '</td>' +
                             "<td class='centered'>" +
                                 _create_play_pause(item.paused, item.id) +
-                                "<form action='jobs/delete' method='post' >" +
-                                    "<input type='hidden' name='job_id' value='" + item.id + "' class='btn'>" +
-                                    "<button " +
-                                        "type='submit' class='btn btn-primary delete' title='delete'>" +
-                                        "<i class='fa fa-trash-o'></i>" +
-                                    "</button>" +
-                                "</form>" +
+                                //"<form action='jobs/delete' method='post' >" +
+                                //    "<input type='hidden' name='job_id' value='" + item.id + "' class='btn'>" +
+                                //    "<button " +
+                                //        "type='submit' class='btn btn-primary delete' title='delete'>" +
+                                //        "<i class='fa fa-trash-o'></i>" +
+                                //    "</button>" +
+                                //"</form>" +
                             '</td>' +
                         '</tr>' +
                         "<tr class='" + item.id + "_tr' id='" + item.id + "_tr_down_name'>" +
