@@ -37,6 +37,10 @@ def create_json(path, success):
                 output = out.read()
             output = json.loads(output)
             data['pintron-output'] = output
+            isoforms = output.get('isoforms')
+            if isoforms:
+                for val in isoforms.values():
+                    data['ref-seqs'] += isoforms.get('RefSeqID', '') + ' '
             # rielaborare il file
         except:
             success = False
