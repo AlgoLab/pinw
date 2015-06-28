@@ -213,7 +213,7 @@ class PinWDispatch
                                 organism_id: job.organism_id,
                                 gene_name: job.gene_name,
                                 description: job.description,
-                                ref_sequence: "TODO",
+                                ref_sequence: result['ref-seqs'],
                                 json: JSON.generate(result)
 
                             }).find_or_create_by!(job_id: job.id)

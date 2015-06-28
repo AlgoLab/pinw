@@ -108,15 +108,16 @@ class Init < ActiveRecord::Migration
     create_table :results do |table|
       table.column :json,          :string
       table.column :gene_name,     :string
-      table.column :organism,      :string
       table.column :description,   :string
       table.column :ref_sequence,  :string
       table.column :validated,     :datetime
       table.references :user
       table.references :server
       table.references :job
+      table.references :organism
 
       table.index :job_id, unique: true
+      table.index [:gene_name, :organism_id], unique: true
       table.timestamps
     end
 

@@ -90,17 +90,18 @@ ActiveRecord::Schema.define(version: 20141123081409) do
   create_table "results", force: true do |t|
     t.string   "json"
     t.string   "gene_name"
-    t.string   "organism"
     t.string   "description"
     t.string   "ref_sequence"
     t.datetime "validated"
     t.integer  "user_id"
     t.integer  "server_id"
     t.integer  "job_id"
+    t.integer  "organism_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
+  add_index "results", ["gene_name", "organism_id"], name: "index_results_on_gene_name_and_organism_id", unique: true
   add_index "results", ["job_id"], name: "index_results_on_job_id", unique: true
 
   create_table "servers", force: true do |t|

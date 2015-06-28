@@ -15,3 +15,4 @@ gem 'rspec', :require => false, :group => :test
 gem 'byebug', :require => false, :group => :test
 gem 'git'
 gem 'sshkey'
+gem 'will_paginate'

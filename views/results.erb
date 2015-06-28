@@ -69,15 +69,15 @@
                     </div>
                   </div>
                   <div class="form-group">
-                    <label for="inputGeneName" class="col-sm-3 control-label">Gene name</label>
+                    <label for="InputGeneName" class="col-sm-3 control-label">Gene name</label>
                     <div class="col-sm-6">
-                      <input type="text" class="form-control" id="inputGeneName" name="inputGeneName" placeholder="es: caramel banana" pattern="([\S]+)( [\S]+)*" title="Invalid input: insert genes separated by a space">
+                      <input type="text" class="form-control" id="InputGeneName" name="InputGeneName" placeholder="es: caramel banana" pattern="([\S]+)( [\S]+)*" title="Invalid input: insert genes separated by a space">
                     </div>
                   </div>
                   <div class="form-group">
-                    <label for="inputRefSeq" class="col-sm-3 control-label">Ref Sequence</label>
+                    <label for="InputRefSeq" class="col-sm-3 control-label">Ref Sequence</label>
                     <div class="col-sm-6">
-                      <input type="text" class="form-control" id="inputRefSeq" name="inputRefSeq" placeholder="es: NM_123 NM_456" pattern="(NM_[\S]+)( NM_[\S]+)*" title="Invalid input: insert ref seq separated by a space">
+                      <input type="text" class="form-control" id="InputRefSeq" name="InputRefSeq" placeholder="es: NM_123 NM_456" pattern="(NM_[\S]+)( NM_[\S]+)*" title="Invalid input: insert ref seq separated by a space">
                     </div>
                   </div>
                   <div class="form-group">
@@ -93,9 +93,25 @@
     </div>
     <div class="row">
       <div class="col-md-12">
+
         
       </div>
+
+
     </div>
+
+      <% if results %>
+        <% results.each do |r| %>
+        <div class="row">
+          <div class="col-md-12">
+            <%= r.gene_name %> <br>
+            <%= r.organism.name if r.organism %>
+          </div>
+        </div>
+        <% end %>
+        <%= will_paginate results %>
+      <% end %>
+
 
   <%# FOOTER #%>
   <%= erb :'/includes/footer' %>
