@@ -89,28 +89,42 @@
               </div>
             </div>
           </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
 
-        
-      </div>
-
-
-    </div>
-
-      <% if results %>
-        <% results.each do |r| %>
-        <div class="row">
-          <div class="col-md-12">
-            <%= r.gene_name %> <br>
-            <%= r.organism.name if r.organism %>
+          <!-- BLOCCO RISULTATI -->
+          <div class="row">
+            <div="col-md-12">
+              <% if results %>
+                <table data-toggle="table"
+                       data-pagination="true">
+                  <thead>
+                    <tr>
+                      <th>Gene Name</th>
+                      <th>Organism Name</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  <% results.each do |r| %>
+                    <tr>
+                      <td><%= r.gene_name %> </td>
+                      <td><%= r.organism.name if r.organism %></td>
+                    </tr>
+                  <% end %>
+                  <tr>
+                    <td>asd</td>
+                    <td>asd</td>
+                  </tr>
+                  <%= will_paginate results %>
+                  </tbody>
+                </table>
+              <% end %>
+            </div>
           </div>
-        </div>
-        <% end %>
-        <%= will_paginate results %>
-      <% end %>
+          <!-- FINE BLOCCO RISULTATI -->
+      </div>
+    </div>
+
+
+      
 
 
   <%# FOOTER #%>
