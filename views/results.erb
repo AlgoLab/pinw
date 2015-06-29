@@ -94,12 +94,12 @@
           <div class="row">
             <div="col-md-12">
               <% if results %>
-                <table data-toggle="table"
-                       data-pagination="true">
+                <table>
                   <thead>
                     <tr>
                       <th>Gene Name</th>
                       <th>Organism Name</th>
+                      <th>Date</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -107,11 +107,13 @@
                     <tr>
                       <td><%= r.gene_name %> </td>
                       <td><%= r.organism.name if r.organism %></td>
+                      <td>data</td>
                     </tr>
                   <% end %>
                   <tr>
                     <td>asd</td>
                     <td>asd</td>
+                    <td>data</td>
                   </tr>
                   <%= will_paginate results %>
                   </tbody>
