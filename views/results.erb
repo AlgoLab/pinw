@@ -30,7 +30,7 @@
               <tbody>
                 <% session[:user].results.each do |result| %>
                   <tr>
-                    <td><div class='divBox'><a href='/result/1'><% result.job_id %></a></div></td>
+                    <td><div class='divBox'><a href='/result/<%= result.id %>'>asd</a></div></td>
                   </tr>
                 <% end %>
               </tbody>
