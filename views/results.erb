@@ -99,13 +99,14 @@
 
           <!-- BLOCCO RISULTATI -->
           <div class="row">
-            <div="col-md-12">
+            <div class="col-md-12">
               <% if results and results.any? %>
-                <table class="table">
+                <table class="table table-result table-result-hover">
                   <thead>
                     <tr>
                       <th>Name</th>
                       <th>Submission Date</th>
+                      <th>Description</th>
                       <th class="centered">Validated</th>
                     </tr>
                   </thead>
@@ -113,31 +114,46 @@
                   <% results.each do |r| %>
                     <tr>
                       <td>
-                        <% if r.organism %>
-                          <%= r.organism.name %>
-                        <% else %>
-                           UNKNOWN
-                        <% end %>
-                        :
-                        <% if r.gene_name %>
-                          <%= r.gene_name %>
-                        <% else %>
-                          UNKNOWN
-                        <% end %>
+                        <div class='divBox'><a href='/result/<%= r.id %>'>
+                          <% if r.organism %>
+                            <%= r.organism.name %>
+                          <% else %>
+                             UNKNOWN
+                          <% end %>
+                          :
+                          <% if r.gene_name %>
+                            <%= r.gene_name %>
+                          <% else %>
+                            UNKNOWN
+                          <% end %>
+                        </a></div>
                       </td>
-                      <td><%= r.created_at.strftime("%d/%m/%Y %H:%M") %></td>
+                      <td>
+                        <div class='divBox'><a href='/result/<%= r.id %>'>
+                          <%= r.created_at.strftime("%d/%m/%Y %H:%M") %>
+                        </a></div>
+                      </td>
+                      <td>
+                        <div class='divBox'><a href='/result/<%= r.id %>'>
+                          &nbsp;<%= r.description %>
+                        </a></div>
+                      </td>
                       <td class="centered">
-                        <% if r.validated %>
-                          <i class="fa fa-check"></i>
-                        <% else %>
-                          <i class="fa fa-remove"></i>
-                        <% end %>
+                        <div class='divBox'><a href='/result/<%= r.id %>'>
+                          <% if r.validated %>
+                            <i class="fa fa-check"></i>
+                          <% else %>
+                            <i class="fa fa-remove"></i>
+                          <% end %>
+                          </a></div>
                       </td>
                     </tr>
                   <% end %>
                   </tbody>
                 </table>
-                <%= will_paginate results %>
+                <div class="centered">
+                  <%= will_paginate results %>
+                </div>
               <% end %>
             </div>
           </div>

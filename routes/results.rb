@@ -3,7 +3,7 @@
 class PinW < Sinatra::Application
     require 'will_paginate'
     require 'will_paginate/active_record'
-    WillPaginate.per_page = 20
+    WillPaginate.per_page = 10
 	
     # Auth checks:
     before '/results/*' do
