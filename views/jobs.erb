@@ -35,7 +35,7 @@
           <button class="btn btn-primary" data-toggle="modal" data-target="#newJob">
           New job
           </button>
-          <% if session[:user] and session[:user].results %>
+          <% if session[:user] and session[:user].results and session[:user].results.any? %>
             <div class="btn-group pull-right">
               <button type="button" class="btn btn-primary">Last results</button>
               <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">

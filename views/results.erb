@@ -22,7 +22,7 @@
       </div>
     </div>
     <div class="row">
-      <% if session[:user] %>
+      <% if session[:user] and session[:user].results and session[:user].results.any? %>
         <div class="col-md-3">
           <div class="panel panel-default panel-primary result">
             <div class="panel-heading">Last results</div>
@@ -65,6 +65,7 @@
                         <% organism_list.each do |organism| %>
                           <option value="<%= organism.id %>"><%= organism.name %></option>
                         <% end %>
+                        <option value="-1">Unknown</option>
                       </select>
                     </div>
                   </div>
@@ -99,31 +100,44 @@
           <!-- BLOCCO RISULTATI -->
           <div class="row">
             <div="col-md-12">
-              <% if results %>
-                <table>
+              <% if results and results.any? %>
+                <table class="table">
                   <thead>
                     <tr>
-                      <th>Gene Name</th>
-                      <th>Organism Name</th>
-                      <th>Date</th>
+                      <th>Name</th>
+                      <th>Submission Date</th>
+                      <th class="centered">Validated</th>
                     </tr>
                   </thead>
                   <tbody>
                   <% results.each do |r| %>
                     <tr>
-                      <td><%= r.gene_name %> </td>
-                      <td><%= r.organism.name if r.organism %></td>
-                      <td>data</td>
+                      <td>
+                        <% if r.organism %>
+                          <%= r.organism.name %>
+                        <% else %>
+                           UNKNOWN
+                        <% end %>
+                        :
+                        <% if r.gene_name %>
+                          <%= r.gene_name %>
+                        <% else %>
+                          UNKNOWN
+                        <% end %>
+                      </td>
+                      <td><%= r.created_at.strftime("%d/%m/%Y %H:%M") %></td>
+                      <td class="centered">
+                        <% if r.validated %>
+                          <i class="fa fa-check"></i>
+                        <% else %>
+                          <i class="fa fa-remove"></i>
+                        <% end %>
+                      </td>
                     </tr>
                   <% end %>
-                  <tr>
-                    <td>asd</td>
-                    <td>asd</td>
-                    <td>data</td>
-                  </tr>
-                  <%= will_paginate results %>
                   </tbody>
                 </table>
+                <%= will_paginate results %>
               <% end %>
             </div>
           </div>
