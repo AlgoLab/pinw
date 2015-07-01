@@ -147,3 +147,7 @@ background-color: #e9f6f5 !important;
     padding-top: 14px !important;
     padding-bottom: 14px !important;
 }
+
+.up-10px {
+    top: 0px !important;
+}

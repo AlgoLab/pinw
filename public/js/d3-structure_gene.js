@@ -765,7 +765,7 @@ function remove_element_expande_box() {
   var t = 750;
 
   d3.select("#zoom_button_on")
-    .attr("class", "btn btn-default");
+    .attr("class", "btn btn-primary");
 
   //rimozione segnalatore click del mouse
   d3.selectAll("#cross_pos").remove();
@@ -905,7 +905,7 @@ function buttons() {
   // espansa e riattivare la struttura del gene
   d3.select("#reset_button")
     .style("position", "relative")
-    .style("top", "10px")
+    //.style("top", "10px")
     .on("click", function() {
       remove_element_expande_box();
       //riporta la struttura genica alle dimensioni originali
@@ -918,7 +918,7 @@ function buttons() {
   //pulsante per attivare la funzione di zoom
   d3.select("#zoom_button_on")
     .style("position", "relative")
-    .style("top", "10px")
+    //.style("top", "10px")
     .on("click", function() {
       //non compatibile con tutti i browser!
       svg_isoform.style("cursor", "zoom-in");
@@ -953,7 +953,7 @@ function buttons() {
         .style("opacity", "0.0");
 
       d3.select("#zoom_button_on")
-        .attr("class", "btn btn-primary");
+        .attr("class", "btn btn-primary active");
 
       flag_zoom = true;
       zoom_isoform(svg_isoform);
@@ -962,7 +962,7 @@ function buttons() {
   //pulsante per disattivare lo zoom e ripristinare la struttura
   d3.select("#zoom_button_off")
     .style("position", "relative")
-    .style("top", "10px")
+    //.style("top", "10px")
     .on("click", function(){
       //riporta la struttura genica alle dimensioni originali
       zoom_isoform.translate([0, 0]).scale(1);
@@ -997,7 +997,7 @@ function buttons() {
         .style("opacity", "1.0");
 
       d3.select("#zoom_button_on")
-        .attr("class", "btn btn-default");
+        .attr("class", "btn btn-primary");
 
       svg_isoform.style("cursor", "default");
       flag_zoom = false;
