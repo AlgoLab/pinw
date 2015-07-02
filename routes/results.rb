@@ -18,24 +18,30 @@ class PinW < Sinatra::Application
         organism_list = Organism.where(enabled: true)
 
         results = Result.all()
+        r = Result.arel_table
 
-        if params[:InputOrganism]
-            r = Result.arel_table
-            results = Result.where(organism_id: params[:InputOrganism])
-
-            # GENE MATCHES
-            if params[:InputGeneName] && params[:InputGeneName].length > 0
-                gene_query = params[:InputGeneName].split.map{|x| r[:gene_name].matches('%' + x + '%')}.reduce{|m, x| m.or(x)}
-                results = results.where(gene_query)
-            end
-
-            # REF_SEQ MATCHES
-            if params[:InputRefSeq] && params[:InputRefSeq].length > 0
-                ref_query = params[:InputRefSeq].split.map{|x| r[:ref_sequence].matches('%' + x + '%')}.reduce{|m, x| m.or(x)}
-                results = results.where(ref_query)
-            end
-
+        # ORGANISM
+        if params[:InputOrganism] and params[:InputOrganism] != '-1'
+            results = results.where(organism_id: params[:InputOrganism])
         end
+
+        # VALIDATION
+        if params[:InputValidated]
+            results = results.where(validated: (params[:InputValidated] != nil))
+        end
+
+        # GENE MATCHES
+        if params[:InputGeneName] && params[:InputGeneName].length > 0
+            gene_query = params[:InputGeneName].split.map{|x| r[:gene_name].matches('%' + x + '%')}.reduce{|m, x| m.or(x)}
+            results = results.where(gene_query)
+        end
+
+        # REF_SEQ MATCHES
+        if params[:InputRefSeq] && params[:InputRefSeq].length > 0
+            ref_query = params[:InputRefSeq].split.map{|x| r[:ref_sequence].matches('%' + x + '%')}.reduce{|m, x| m.or(x)}
+            results = results.where(ref_query)
+        end
+
         erb :'results', locals: {organism_list: organism_list, results: results.paginate(:page => params[:page]).order('id DESC')}
     end 
 
