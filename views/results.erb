@@ -62,29 +62,38 @@
                     <label for="InputOrganism" class="col-sm-3 control-label">Organism name</label>
                     <div class="col-sm-6">
                       <select class="form-control" id="InputOrganism"  name="InputOrganism" required>
+                        <option value="-1">------</option>
                         <% organism_list.each do |organism| %>
-                          <option value="<%= organism.id %>"><%= organism.name %></option>
+                          <option value="<%= organism.id %>"
+                            <% if params[:InputOrganism] == organism.id.to_s %>
+                              selected
+                            <% end %>
+                          ><%= organism.name %></option>
                         <% end %>
-                        <option value="-1">Unknown</option>
                       </select>
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="InputGeneName" class="col-sm-3 control-label">Gene name</label>
                     <div class="col-sm-6">
-                      <input type="text" class="form-control" id="InputGeneName" name="InputGeneName" placeholder="es: caramel banana" pattern="([\S]+)( [\S]+)*" title="Invalid input: insert genes separated by a space">
+                      <input type="text" class="form-control" id="InputGeneName" name="InputGeneName" placeholder="es: caramel banana" pattern="([\S]+)( [\S]+)*" title="Invalid input: insert genes separated by a space"
+                      value="<%= params[:InputGeneName] %>">
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="InputRefSeq" class="col-sm-3 control-label">Ref Sequence</label>
                     <div class="col-sm-6">
-                      <input type="text" class="form-control" id="InputRefSeq" name="InputRefSeq" placeholder="es: NM_123 NM_456" pattern="(NM_[\S]+)( NM_[\S]+)*" title="Invalid input: insert ref seq separated by a space">
+                      <input type="text" class="form-control" id="InputRefSeq" name="InputRefSeq" placeholder="es: NM_123 NM_456" pattern="(NM_[\S]+)( NM_[\S]+)*" title="Invalid input: insert ref seq separated by a space" value="<%= params[:InputRefSeq] %>">
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="InputValidated" class="col-sm-3 control-label">Validated</label>
                     <div class="col-sm-6 move-down-10px">
-                      <input type="checkbox" id="InputValidated" name="InputValidated" value='true'>
+                      <input type="checkbox" id="InputValidated" name="InputValidated" value='true' 
+                      <% if params[:InputValidated] %>
+                        checked
+                      <% end %>
+                      >
                     </div>
                   </div>
                   <div class="form-group">
