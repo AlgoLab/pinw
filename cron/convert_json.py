@@ -61,10 +61,10 @@ def convert_json(output_file):
 	rcoordinate = sorted(list(set(starts)))
 	lcoordinate = sorted(list(set(ends)))
 
-	print('##################### STARTS #####################')
+	print('##### LCOORD #####')
 	print(lcoordinate)
 
-	print('##################### ENDS #####################')
+	print('##### RCOORD #####')
 	print(rcoordinate)
 
 	starts = []
@@ -72,20 +72,15 @@ def convert_json(output_file):
 
 	# create regions
 	for start in lcoordinate:
-		print(start)
 		stops.append(start)
 		stop = [x for x in rcoordinate if x > start]
 		if (stop):
 			stop = min(stop)
-			print(stop)
 			starts.append(stop)
 
-		# region lcoordinate
-		print('---')
-
-	print('starts')
+	print('\n##### starts #####')
 	print(starts)
-	print('stops')
+	print('##### stops #####')
 	print(stops[1:])
 
 	# regions start-stop
@@ -121,28 +116,58 @@ def convert_json(output_file):
 
 
 	# introns
+
+	# foreach intron in pintron json
 	for intron in introns:
+		# prepare intron object 
 		intron = introns[intron]
 		viz_intron = {}
+
+		# retrieve left boundary
 		intron_relative_start = intron['relative_start']
-		intron_relative_end = intron['relative_end']
 		for region in viz['regions']:
 			if intron_relative_start == region['start']:
 				left_boundary = region['id']
 				break
+		viz_intron['left_boundary'] = left_boundary
 
+		# retrieve right boundary
+		intron_relative_end = intron['relative_end']
 		for region in viz['regions']:
 			if intron_relative_end == region['stop']:
 				right_boundary = region['id']
 				break
-
-		viz_intron['left_boundary'] = left_boundary
 		viz_intron['right_boundary'] = right_boundary
+
+		# retrieve prefix and suffix
 		viz_intron['prefix'] = intron['prefix']
 		viz_intron['suffix'] = intron['suffix']
 		viz['introns'].append(viz_intron)
 
 
+	# intron - exon number
+
+	# foreach region
+	for region in viz['regions']:
+		region['intron number'] = 0
+		region['exon number'] = 0
+
+		# foreach intron in pintron json
+		for intron in introns:
+			intron = introns[intron]
+			# check if intron 
+			if int(intron['relative_start'] <= int(region['start'])) and \
+				int(intron['relative_end'] >= int(region['stop'])):
+				region['intron number'] += 1
+
+		# foreach isoform in pintron json
+		for isoform in isoforms:
+			exons = isoforms[isoform]['exons']
+			# foreach exon in this isoform
+			for exon in exons:
+				if int(exon['relative_start'] <= int(region['start'])) and \
+					int(exon['relative_end'] >= int(region['stop'])):
+					region['exon number'] += 1
 
 
 
