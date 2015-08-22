@@ -24,10 +24,10 @@ Le regioni (ordinate) sulla genomica sono fornite dalla chiave "regions"
    Ogni regione è un dizionario con le seguenti chiavi:  
 * key="start"; value -> posizione 1-based di inizio sulla genomica  
 * key="end"; value -> posizione 1-based di fine sulla genomica  
-* key="sequence"; value -> sequenza nucleotidica  
+* key="sequence"; value -> sequenza nucleotidica  **dove va presa?**
 * key="type"; value -> "coding" se la regione è codificante in almeno una isoforma, “intron” se non è codificante per nessuna isoforma, "spliced" se è codificante per almeno una ma non tutte le isoforme, "unknown" se è unknown  
 * key="alternative?"; value -> true se la regione codificante e' alternativa, false se e' conservata (chiave obbligatoria solo se "type"="coding"; non ha senso per "type" diverso da "coding")  
-* key="coverage"; value -> valore di copertura  
+* key="coverage"; value -> valore di copertura  **dove va presa?**
 * key="last?"; value -> true se e' l'ultima regione nell'array "regions", altrimenti false  
 * key="id"; value -> indice di posizione della regione all'interno dell'array "regions"  
 * key="intron number"; value -> number of introns including the region
@@ -71,7 +71,7 @@ Una regione ha come “start” una lcoordinate e per “end” la rcoordinate m
 Una scansione degli introni e delle isoforme del json di pintron permette di calcolare per ogni regione, i valori di “intron number” e “exon number”, per ogni boundary il valore di “first”
 
 
-Per assegnare il valore di “type” di ogni regione, è coding se “exon number” è maggiore di zero, con “alternative?” vero se “exon number” è minore del numero di isoforme, è intron se “exon number” è zero ma “intron number” è maggiore di zero; unknown in ogni altro caso.
+Per assegnare il valore di “type” di ogni regione, è coding se “exon number” è maggiore di zero, con “alternative?” vero se “exon number” è minore del numero di isoforme  **è il totale delle isoforme presenti nel json?**, è intron se “exon number” è zero ma “intron number” è maggiore di zero; unknown in ogni altro caso.
 
 
 Gli altri campi mi sembrano immediati da calcolare.
@@ -97,7 +97,9 @@ Gli altri campi mi sembrano immediati da calcolare.
                                     dove s coincide con l'indice della regione di destra del left boundary ed e coincide con l'indice della regione  
                                     di sinistra del right boundary; tutte queste regioni non possono avere "type" diverso da "coding"  
                                     (cioe' devono essere tutte codificanti). Se una di queste regioni ha "sequence" nulla, allora  
-                                    non e' possibile fornire la sequenza dell'esone.  
+                                    non e' possibile fornire la sequenza dell'esone.
+                                    
+**quando vado a calcolare i boundaries degli esoni i confini di alcuni non coincidono con quelli di nessuna regine (la procedura per cui si prendeva il min dei margini superiori esclude qualche confine dall'insieme, così mi trovo degli esoni che non so dove finiscono (ho messo -1 nel json prodotto)**
                       
 *********************************************************************************************************************************  
 ## Introne  
@@ -137,3 +139,5 @@ Gli altri campi mi sembrano immediati da calcolare.
               
             NOTE:  
                     (1) le regioni di un'isoforma devono avere "type"="coding" (cioe' devono essere tutte codificanti)  
+                    
+**prendo direttamente tutte le isoforme dal json di pintron? non ho ben capito come è strutturato l'elemento dell'array. Oltre alla chiave type le altre chiavi come si chiamano? 'left_boundary' e 'right_boundary'**
