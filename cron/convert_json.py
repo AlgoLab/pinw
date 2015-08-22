@@ -58,8 +58,8 @@ def convert_json(output_file):
 			ends.append(int(introns[str(isoform_intron)]['relative_end']))
 
 	# now sort everythings
-	rcoordinate = sorted(list(set(starts)))
 	lcoordinate = sorted(list(set(ends)))
+	rcoordinate = sorted(list(set(starts)))
 
 	print('##### LCOORD #####')
 	print(lcoordinate)
@@ -90,8 +90,16 @@ def convert_json(output_file):
 		region['start'] = start
 		region['stop'] = stop
 		region['id'] = region_id
+		region['last'] = False
 		viz['regions'].append(region)
 		region_id += 1
+
+	# set last=True for last region
+	last_region_id = region_id - 1
+	for region in viz['regions']:
+		if region['id'] == last_region_id:
+			region['last'] = True
+
 
 	#boundaries rcoordinate-lcoordinate
 	boundary = {}
@@ -107,7 +115,7 @@ def convert_json(output_file):
 		boundary['first'] = boundary_first
 		boundary['rcoordinate'] = rcoordinate
 		boundary['lcoordinate'] = lcoordinate
-		if boundary_first == (region_id - 1):
+		if boundary_first == (last_region_id):
 			boundary['type'] = 'term'
 		elif boundary_first == 0:
 			boundary['type'] = 'init'
@@ -168,6 +176,55 @@ def convert_json(output_file):
 				if int(exon['relative_start'] <= int(region['start'])) and \
 					int(exon['relative_end'] >= int(region['stop'])):
 					region['exon number'] += 1
+
+
+	# region type
+
+	# alternative? check may be broken!!!
+
+	# foreach region
+	for region in viz['regions']:
+		if region['exon number'] > 0:
+			region['type'] = 'coding'
+			region['alternative?'] = False
+			if region['exon number'] < region['intron number']:
+				region['alternative?'] = True
+		elif region['intron number'] > 0:
+			region['type'] = 'intron'
+		else:
+			region['type'] = 'unknown'
+
+	# exons
+
+	# foreach isoform in pintron json
+	for isoform in isoforms:
+		exons = isoforms[isoform]['exons']
+		# foreach exon in this isoform
+		for exon in exons:
+			viz_exon = {}
+
+			# retrieve left boundary
+			exon_relative_start = exon['relative_start']
+			left_boundary = -1
+			for region in viz['regions']:
+				if exon_relative_start == region['start']:
+					left_boundary = region['id']
+					break
+			viz_exon['left_boundary'] = left_boundary
+			print('start: ', exon_relative_start, ' - region: ', left_boundary)
+
+			# retrieve right boundary
+			exon_relative_end = exon['relative_end']
+			right_boundary = -1
+			for region in viz['regions']:
+				if exon_relative_end == region['stop']:
+					right_boundary = region['id']
+					break
+			viz_exon['right_boundary'] = right_boundary
+			print('end: ', exon_relative_end, ' - region: ', right_boundary)
+
+			viz['exons'].append(viz_exon)
+
 
 
 
