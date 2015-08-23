@@ -127,7 +127,7 @@ def convert_json(path, output_file, genomics_file):
     boundary['first'] = -1
     boundary['lcoordinate'] = 'unknown'
     boundary['rcoordinate'] = starts[0]
-    boundary['type'] = 'init'
+    boundary['type'] = 'unknown'
     boundary['last?'] = False
     viz['boundaries'].append(boundary)
 
@@ -138,6 +138,8 @@ def convert_json(path, output_file, genomics_file):
         boundary['rcoordinate'] = rcoordinate
         boundary['lcoordinate'] = lcoordinate
         boundary['last?'] = False
+        if boundary_first == 0:
+            boundary['type'] = 'init'
         viz['boundaries'].append(boundary)
         boundary_first += 1
 
@@ -209,6 +211,8 @@ def convert_json(path, output_file, genomics_file):
 
     # alternative? check may be broken!!!
 
+    print('len isoforms', len(isoforms))
+
     # foreach region
     for region in viz['regions']:
         # coding if exon number > 0
@@ -262,14 +266,18 @@ def convert_json(path, output_file, genomics_file):
     viz["exons"] = [dict(y) for y in set(tuple(x.items()) for x in viz_exons)]
 
 
-    # check regions type
+    # check boundary type
     for boundary in viz["boundaries"][:-1]:
+        left_region_id = boundary['first']
+        right_region_id = left_region_id + 1
+
+        if left_region_id < 1:
+            continue
+        
         print(boundary)
         print('-')
-        boundary_id = boundary['first']
-
-        if boundary_id < 0:
-            continue
+        print('left', left_region_id)
+        print('right', right_region_id)
 
         boundary_type = 0
 
@@ -277,19 +285,19 @@ def convert_json(path, output_file, genomics_file):
         exon_r = False
 
         for exon in viz["exons"]:
-            if exon['left_boundary'] == boundary_id:
-                exon_l = True
-            if exon['right_boundary'] == boundary_id:
+            if exon['left_boundary'] == right_region_id:
                 exon_r = True
+            if exon['right_boundary'] == left_region_id:
+                exon_l = True
 
         intron_l = False
         intron_r = False
 
         for intron in viz["introns"]:
-            if intron['left_boundary'] == boundary_id:
-                intron_l = True
-            if intron['right_boundary'] == boundary_id:
+            if intron['left_boundary'] == right_region_id:
                 intron_r = True
+            if intron['right_boundary'] == left_region_id:
+                intron_l = True
 
         print('exon_l: ', exon_l)
         print('intron_r: ', intron_r)
@@ -297,9 +305,9 @@ def convert_json(path, output_file, genomics_file):
         print('intron_l: ', intron_l)
         print('exon_r: ', exon_r)
 
-        if exon_r and intron_l:
+        if exon_l and intron_r:
             boundary_type += 1
-        if intron_r and exon_l:
+        if intron_l and exon_r:
             boundary_type += 2
 
         if boundary_type == 3:
