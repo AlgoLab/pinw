@@ -126,22 +126,28 @@ def convert_json(path, output_file, genomics_file):
     boundary = {}
     boundary['first'] = -1
     boundary['lcoordinate'] = 'unknown'
-    boundary['rcoordinate'] = stops[0]
-    boundary['type'] = 'unknown'
+    boundary['rcoordinate'] = starts[0]
+    boundary['type'] = 'init'
+    boundary['last?'] = False
     viz['boundaries'].append(boundary)
 
     boundary_first = 0
-    for lcoordinate, rcoordinate in zip(stops, starts):
+    for lcoordinate, rcoordinate in zip(stops[1:], starts[1:]):
         boundary = {}
         boundary['first'] = boundary_first
         boundary['rcoordinate'] = rcoordinate
         boundary['lcoordinate'] = lcoordinate
-        if boundary_first == (last_region_id):
-            boundary['type'] = 'term'
-        elif boundary_first == 0:
-            boundary['type'] = 'init'
+        boundary['last?'] = False
         viz['boundaries'].append(boundary)
         boundary_first += 1
+
+    boundary = {}
+    boundary['first'] = boundary_first
+    boundary['lcoordinate'] = stops[-1]
+    boundary['rcoordinate'] = 'unknown'
+    boundary['type'] = 'term'
+    boundary['last?'] = True
+    viz['boundaries'].append(boundary)
 
 
     # introns
@@ -262,7 +268,7 @@ def convert_json(path, output_file, genomics_file):
         print('-')
         boundary_id = boundary['first']
 
-        if boundary_id < 1:
+        if boundary_id < 0:
             continue
 
         boundary_type = 0
