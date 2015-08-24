@@ -24,17 +24,17 @@ Le regioni (ordinate) sulla genomica sono fornite dalla chiave "regions"
    Ogni regione è un dizionario con le seguenti chiavi:  
 * key="start"; value -> posizione 1-based di inizio sulla genomica  
 * key="end"; value -> posizione 1-based di fine sulla genomica  
-* key="sequence"; value -> sequenza nucleotidica  **dove va presa?**
+* key="sequence"; value -> sequenza nucleotidica. E' la sottostringa di genomic.txt fra le posizioni "start" e "end", estremi inclusi
 * key="type"; value -> "coding" se la regione è codificante in almeno una isoforma, “intron” se non è codificante per nessuna isoforma, "spliced" se è codificante per almeno una ma non tutte le isoforme, "unknown" se è unknown  
 * key="alternative?"; value -> true se la regione codificante e' alternativa, false se e' conservata (chiave obbligatoria solo se "type"="coding"; non ha senso per "type" diverso da "coding")  
-* key="coverage"; value -> valore di copertura  **dove va presa?**
+* key="coverage"; value -> valore di copertura. Assumere un valore di default=0 se non è presente in input.
 * key="last?"; value -> true se e' l'ultima regione nell'array "regions", altrimenti false  
 * key="id"; value -> indice di posizione della regione all'interno dell'array "regions"  
 * key="intron number"; value -> number of introns including the region
 * key="exon number"; value -> number of exons including the region
                       
    Note
-1. nella visualizzazione, l'altezza del rettangolo che rappresenta una regione codificante dovrebbe essere proporzionale al valore di "coverage" (Attenzione: per type="spliced"|"unknown" questo valore non ha senso)  
+1. nella visualizzazione, l'altezza del rettangolo che rappresenta una regione codificante dovrebbe essere proporzionale al valore di "coverage" (solo per type="coding" e se almeno un coverage è maggiore di 0).
  
 ## Boundary
 è il confine tra due regioni consecutive sulla genomica. Le due regioni separate da un boundary sono chiamate regione di sinistra e regione di destra
