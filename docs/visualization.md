@@ -60,12 +60,18 @@ Note
 
 
 ### Procedure:
-Il primo passo è calcolare tutte le lcoordinate delle varie boundary. Per fare questo si leggono gli introni e gli esoni del json di pintron che compongono ogni isoforma. Tutte le coordinate “relative end” sono lcoordinate (mi basta prendere i valori distinti di “relative end”).
-Analogamente le rcoordinate sono tutte le coordinate “relative start” distinte.
-Si ordinano lcoordinate e rcoordinate.
+
+1. Per ogni introne o esone, siano [l,r] rispettivamente i valori di
+“relative start” e  “relative end”.
+2. Si aggiungono le lcoordinate l e r+1.
+3. Si aggiungono le rcoordinate r e l-1.
+Si ordinano lcoordinate e rcoordinate, tenendo solo i valori distinti.
 
 
-Una regione ha come “start” una lcoordinate e per “end” la rcoordinate minima fra tutte quelle maggiori di “start”.
+Una regione ha come “start” una lcoordinate e per “end” la rcoordinate
+minima fra tutte quelle maggiori di “start”.
+Se non esiste una rcoordinate con valore maggiore di "start", allora
+si scarta il valore di "start".
 
 
 Una scansione degli introni e delle isoforme del json di pintron permette di calcolare per ogni regione, i valori di “intron number” e “exon number”, per ogni boundary il valore di “first”
