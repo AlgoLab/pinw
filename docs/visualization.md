@@ -10,12 +10,20 @@
     key="isoforms"; value -> array delle isoforme  
  
 *********************************************************************************************************************************  
-## Regione 
-E’ una regione massimale che verifica una delle seguenti condizioni:  
-1. è inclusa totalmente in tutte le isoforme -->> regione codificante conservata  
-2. è inclusa totalmente in almeno un'isoforma ma non in tutte -->> regione codificante alternativa  
-3. è esclusa da tutte le isoforme -->> regione non codificante (sempre intronica quindi)  
-4. regione unknown (non si sa cosa rappresenti)  
+## Region
+
+A *region* is a maximal interval of position such that no intron/exon
+border lies in a region.
+In other words, each position is part of the coding region of the same
+set of isoforms.
+This can happen in any of the following cases:
+
+1. A region is included in all isoforms -->> conserved coding region
+2. A region is included in some, but not all, isoforms -->>
+alternatively coding region
+3. No position of a region is included in an isoform -->> noncoding
+region (always a part of some introns)  
+4. unknown region
       
 Le regioni (ordinate) sulla genomica sono fornite dalla chiave "regions"  
 * key="regions"; value -> array delle regioni
@@ -24,7 +32,7 @@ Le regioni (ordinate) sulla genomica sono fornite dalla chiave "regions"
    Ogni regione è un dizionario con le seguenti chiavi:  
 * key="start"; value -> posizione 1-based di inizio sulla genomica  
 * key="end"; value -> posizione 1-based di fine sulla genomica  
-* key="sequence"; value -> sequenza nucleotidica. E' la sottostringa di genomic.txt fra le posizioni "start" e "end", estremi inclusi
+* key="sequence"; value -> sequenza nucleotidica. E' la sottostringa di `genomic.txt` fra le posizioni "start" e "end", estremi inclusi
 * key="type"; value -> "coding" se la regione è codificante in almeno una isoforma, “intron” se non è codificante per nessuna isoforma, "spliced" se è codificante per almeno una ma non tutte le isoforme, "unknown" se è unknown  
 * key="alternative?"; value -> true se la regione codificante e' alternativa, false se e' conservata (chiave obbligatoria solo se "type"="coding"; non ha senso per "type" diverso da "coding")  
 * key="coverage"; value -> valore di copertura. Assumere un valore di default=0 se non è presente in input.
@@ -32,8 +40,8 @@ Le regioni (ordinate) sulla genomica sono fornite dalla chiave "regions"
 * key="id"; value -> indice di posizione della regione all'interno dell'array "regions"  
 * key="intron number"; value -> number of introns including the region
 * key="exon number"; value -> number of exons including the region
-                      
-   Note
+
+####Note
 1. nella visualizzazione, l'altezza del rettangolo che rappresenta una regione codificante dovrebbe essere proporzionale al valore di "coverage" (solo per type="coding" e se almeno un coverage è maggiore di 0).
  
 ## Boundary
@@ -45,10 +53,15 @@ I boundaries (ordinati) sulla genomica sono forniti dalla chiave "boundaries"
    * key=”lcoordinate”; value coordinata maggiore della regione di sinistra
    * key=”rcoordinate”; value coordinata minima della regione di destra
    * key="first"; value -> posizione della regione di sinistra all'interno dell'array "regions"  
-   *  key="type"; value -> "5" se e' un sito 5', cioe' un confine esone-introne, "3" se e' un sito 3', cioe' un confine introne-esone, "both" se e' sia 5' che 3', "init" se e' un inizio di trascrizione, "term" se e' una  
-                            fine di trascrizione, e "unknown" in tutti gli altri casi.  
-Note
-1. se una delle due regioni che definiscono il boundary e' unknown (sicuramente non entrambe), il boundary non e' sicuramente uno splice site  
+   * key="type"; value -> "5" se e' un sito 5', cioe' un confine esone-introne, "3" se e' un sito 3', cioe' un confine introne-esone, "both" se e' sia 5' che 3', "init" se e' un inizio di trascrizione, "term" se e' una fine di trascrizione, e "unknown" in tutti gli altri casi.  
+
+####Note
+0. rcoordinate = lcoordinate + 1
+1. se una delle due regioni che definiscono il boundary e' unknown
+   (sicuramente non entrambe), il boundary non e' sicuramente uno
+   splice site. Questo corrisponde al fatto che una rcoordinate non
+   trova una lcoordinate che sia minore, oppure che una lcoordinate
+   non abbia una rcoordinate che sia maggiore.
 2. "first"=-1 significa che non esiste una regione di sinistra (ovvero e' da trattare come unknown) e la regione di destra ha indice di posizione pari a 0: il boundary non e' sicuramente uno splice site  
 3. "last?"=true per la regione di indice "first" (quella di sinistra) significa che non esiste una regione di destra (ovvero e' da trattare come unknown): il boundary non e' sicuramente uno splice site  
 4. ("first"+1) fornisce l'indice di posizione (nell'array "regions") della regione di destra, solo nel caso in cui si abbia "first"=-1 OPPURE "last?"=false per la regione (di sinistra) di indice "first"                                      
@@ -61,11 +74,9 @@ Note
 
 ### Procedure:
 
-1. Per ogni introne o esone, siano [l,r] rispettivamente i valori di
+1. Per ogni introne o esone, siano [s,e] rispettivamente i valori di
 “relative start” e  “relative end”.
-2. Si aggiungono le lcoordinate l e r+1.
-3. Si aggiungono le rcoordinate r e l-1.
-Si ordinano lcoordinate e rcoordinate, tenendo solo i valori distinti.
+2. Si aggiungono i boundaries [s-1, s] e [e, e+1]
 
 
 Una regione ha come “start” una lcoordinate e per “end” la rcoordinate
@@ -83,27 +94,29 @@ Per assegnare il valore di “type” di ogni regione, è coding se “exon numb
 Gli altri campi mi sembrano immediati da calcolare.
 ## Esone  
       
-    L'insieme degli esoni e' fornito dalla chiave "exons"  
+L'insieme degli esoni e' fornito dalla chiave "exons"  
             key="exons"; value -> array di esoni  
             Ogni elemento dell'array e' un dizionario con le seguenti chiavi:  
                     key="left_boundary"; value -> indice di posizione del left boundary L dell'esone all'interno dell'array "boundaries"  
                     key="right_boundary"; value -> indice di posizione del right boundary R dell'esone all'interno dell'array "boundaries"  
                     key="annotated?"; value -> true se annotato, false altrimenti  
                       
-                    NOTE:  
-                            (1) Il left boundary L deve avere una regione di destra con "type"="coding" (cioe' deve essere  
-                                    codificante); il suo "start" coincide con lo start dell'esone  
-                            (2) Il right boundary R deve avere una regione di sinistra con "type"="coding" (cioe' deve essere  
-                                    codificante); il sup "end" coincide con l'end dell'esone  
-                            (3) Se "type" di L e' "unknown" allora l'esone sara' incompleto a sinistra (NB: se non e' "unknown, allora  
-                                    puo' essere solo "3", "both", o "init)  
-                            (4) Se "type" di R e' "unknown" allora l'esone sara' incompleto a destra (NB: se non e' "unknown, allora  
-                                    puo' essere solo "5", "both", o "term)  
-                            (5) La sequenza nucleotidica dell'esone e' ottenuta concatenando le sequenze delle regioni di indice s, s+1, ..., e  
-                                    dove s coincide con l'indice della regione di destra del left boundary ed e coincide con l'indice della regione  
-                                    di sinistra del right boundary; tutte queste regioni non possono avere "type" diverso da "coding"  
-                                    (cioe' devono essere tutte codificanti). Se una di queste regioni ha "sequence" nulla, allora  
-                                    non e' possibile fornire la sequenza dell'esone.
+####NOTE:
+1.   Il left boundary L deve avere una regione di destra con
+     "type"="coding" (cioe' deve essere codificante); il suo "start" coincide con lo start dell'esone
+2.   Il right boundary R deve avere una regione di sinistra con
+     "type"="coding" (cioe' deve essere codificante); il sup "end" coincide con l'end dell'esone
+3.   Se "type" di L e' "unknown" allora l'esone sara' incompleto a
+     sinistra (NB: se non e' "unknown, allora puo' essere solo "3", "both", o "init)
+4.   Se "type" di R e' "unknown" allora l'esone sara' incompleto a
+     destra (NB: se non e' "unknown, allora puo' essere solo "5", "both", o "term)
+5.   La sequenza nucleotidica dell'esone e' ottenuta concatenando le
+sequenze delle regioni di indice s, s+1, ..., e dove s coincide con
+l'indice della regione di destra del left boundary ed e coincide con
+l'indice della regione di sinistra del right boundary; tutte queste
+regioni non possono avere "type" diverso da "coding" (cioe' devono
+essere tutte codificanti). Se una di queste regioni ha "sequence"
+nulla, allora non e' possibile fornire la sequenza dell'esone.
                                     
 **quando vado a calcolare i boundaries degli esoni i confini di alcuni non coincidono con quelli di nessuna regine (la procedura per cui si prendeva il min dei margini superiori esclude qualche confine dall'insieme, così mi trovo degli esoni che non so dove finiscono (ho messo -1 nel json prodotto)**
                       
