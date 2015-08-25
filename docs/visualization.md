@@ -1,4 +1,4 @@
-## Dizionario top-level:  
+## Top-level Hash
       
 |Key               |Value                                                             | 
 |:------------------|:-----------------------------------------------------------------|
@@ -64,19 +64,35 @@ Each boundary is a hash with the following keys:
 
 ####Notes
 0. rcoordinate = lcoordinate + 1
+1. regions[first + 1] is the right region, ```if not regions[first][last?]```
+2. `type` = "5" if the right region has `exon number`=0 and `intron
+   number`>0, while the left
+   region has `exon number`>0, that is the boundary is an exon-intron
+   splicing site.
+3. `type` = "3" if the right region has `exon number`>0, while  the left
+   region has `exon number`=0  and `intron number`>0, that is the
+   boundary is an intron-exon splicing site.
+3. `type` = "both" if the left and right regions both have  `exon
+   number`>0 and `intron number`>0, that is the
+   boundary is a both and exon-intron and an intron-exon splicing site.
+4. `type` = "init" (not implemented)
+5. `type` = "term" if there exists an isoform such that `polyA` is
+*true* and the current region is the last region of the last exon
+6. if `first`=-1 then there exists no left region. The current
+boundary can only be *unknown* or *init*. Since *init* is not
+implemented yet, it is *init*
+7. if ```regions[first][last?]```, then there exists no right region.
+The current boundary can only be *unknown* or *term*.
+8. ```if regions[first][type] == "unknown"``` then 'type' is "unknown" or "init"
+9. ```if regions[first+1][type] == "unknown"``` then 'type' is "unknown" or "term"
+            
+
+
 1. se una delle due regioni che definiscono il boundary e' unknown
    (sicuramente non entrambe), il boundary non e' sicuramente uno
    splice site. Questo corrisponde al fatto che una rcoordinate non
    trova una lcoordinate che sia minore, oppure che una lcoordinate
    non abbia una rcoordinate che sia maggiore.
-2. "first"=-1 significa che non esiste una regione di sinistra (ovvero e' da trattare come unknown) e la regione di destra ha indice di posizione pari a 0: il boundary non e' sicuramente uno splice site  
-3. "last?"=true per la regione di indice "first" (quella di sinistra) significa che non esiste una regione di destra (ovvero e' da trattare come unknown): il boundary non e' sicuramente uno splice site  
-4. ("first"+1) fornisce l'indice di posizione (nell'array "regions") della regione di destra, solo nel caso in cui si abbia "first"=-1 OPPURE "last?"=false per la regione (di sinistra) di indice "first"                                
-5. "type"="5" significa che il boundary e' un confine esone-introne: la fine dell'esone coincide con "end" della regione di sinistra, mentre l'inizio dell'introne coincide con "start" della regione di destra
-6. "type"="3" significa che il boundary e' un confine introne-esone: la fine dell'introne coincide con "end" della regione di sinistra, mentre l'inizio dell'esone coincide con "start" della regione di destra  
-7. type="both" significa che il boundary e' sia un confine esone-introne che introne-esone.
-8. type="init" significa che lo "start" della regione di destra e' un inizio di trascrizione  
-9. type="term" significa che l'"end" della regione di sinistra e' un terminazione di trascrizione   
 
 ###Procedures:
 
