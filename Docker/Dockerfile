@@ -9,6 +9,7 @@ CMD ["/sbin/my_init"]
 #   Build system and ruby
 RUN /pd_build/utilities.sh
 RUN /pd_build/ruby2.2.sh
+RUN ruby-switch --set ruby2.2
 # Enable nginx + passenger
 RUN rm -f /etc/service/nginx/down
 
@@ -38,7 +39,7 @@ RUN whenever -w
 # Add configuration to nginx:
 USER root
 RUN rm /etc/nginx/sites-enabled/default
-RUN cp Docker/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
+ADD Docker/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
 
 
 # TODO: External location for the DB
