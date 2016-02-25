@@ -6,15 +6,9 @@ ENV HOME /root
 # Use baseimage-docker's init process.
 CMD ["/sbin/my_init"]
 
-#   Build system and git.
-RUN /build/utilities.sh
-#   Ruby support.
-RUN /build/ruby2.0.sh
-#   Python support.
-#RUN /build/python.sh
-
-# ...put your own build instructions here...
-
+#   Build system and ruby
+RUN /pd_build/utilities.sh
+RUN /pd_build/ruby2.2.sh
 # Enable nginx + passenger
 RUN rm -f /etc/service/nginx/down
 
