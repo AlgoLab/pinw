@@ -1,4 +1,4 @@
-FROM phusion/passenger-ruby20:0.9.14
+FROM phusion/passenger-ruby20:0.9.18
 
 # Set correct environment variables.
 ENV HOME /root
@@ -23,6 +23,7 @@ RUN rm -f /etc/service/nginx/down
 USER app
 WORKDIR /home/app
 RUN git clone https://github.com/AlgoLab/pinw
+RUN mkdir data
 WORKDIR /home/app/pinw
 ENV RACK_ENV production
 
