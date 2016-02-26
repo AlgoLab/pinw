@@ -6,10 +6,6 @@ ENV HOME /root
 # Use baseimage-docker's init process.
 CMD ["/sbin/my_init"]
 
-#   Build system and ruby
-# RUN /pd_build/utilities.sh
-# RUN /pd_build/ruby2.2.sh
-# RUN ruby-switch --set ruby2.2
 # Enable nginx + passenger
 RUN rm -f /etc/service/nginx/down
 
@@ -39,11 +35,9 @@ RUN whenever -w
 # Add configuration to nginx:
 USER root
 RUN rm /etc/nginx/sites-enabled/default
-ADD Docker/nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
+COPY nginx-pinw.conf /etc/nginx/sites-enabled/pinw.conf
 
 
-# TODO: External location for the DB
-# Clean up APT when done.
 RUN apt-get clean
 COPY init-ssh.sh /etc/my_init.d/init-ssh.sh
 

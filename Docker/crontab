@@ -1,5 +1,6 @@
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=none
 
 # m h dom mon dow user  command
 17 *    * * *   root    cd / && run-parts --report /etc/cron.hourly
@@ -10,3 +11,5 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # Update all packages
 00 */2  * * *   root     dpkg --configure -a && apt-get -qq -f install && apt-get -qq update && apt-get -y -qq upgrade && apt-get -qq clean
+# Update pinw
+30 *  * * *   app  cd ~/pinw && git pull --all
