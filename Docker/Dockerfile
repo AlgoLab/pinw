@@ -7,9 +7,9 @@ ENV HOME /root
 CMD ["/sbin/my_init"]
 
 #   Build system and ruby
-RUN /pd_build/utilities.sh
-RUN /pd_build/ruby2.2.sh
-RUN ruby-switch --set ruby2.2
+# RUN /pd_build/utilities.sh
+# RUN /pd_build/ruby2.2.sh
+# RUN ruby-switch --set ruby2.2
 # Enable nginx + passenger
 RUN rm -f /etc/service/nginx/down
 
