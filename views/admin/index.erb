@@ -3,6 +3,7 @@
 
   <%# JS & CSS #%>
   <%= erb :'/includes/header' %>
+
   <script type="text/javascript" src="/js/admin.js"></script>
 </head>
 <body>
@@ -19,6 +20,63 @@
         <div class="page-header">
           <h1><i class="fa fa-dashboard"></i> Dashboard <small></small></h1>
         </div>
+       
+        <div class="col-md-4">
+          <h1> Admin Toolbar </h1>
+              <ul class="list-group">
+                <li  class="list-group-item"><a href="/admin/users"><i class="fa fa-group"></i> Users</a></li>
+                <li  class="list-group-item"><a href="/admin/jobs"><i class="fa fa-cubes"></i> Active Jobs</a></li>
+                <li class="list-group-item"><a href="/admin/servers"><i class="fa fa-sitemap"></i> Servers</a></li>
+                <li class="list-group-item"><a href="/admin/organisms"><i class="fa fa-paw"></i> Organisms</a></li>
+                <li class="list-group-item"><a href="/admin/settings"><i class="fa fa-gears"></i> Settings</a></li>
+              </ul>
+        </div>
+        <div class="col-md-4">
+          <h1> Latest Results </h1>
+          <% if latest_results.any? %>
+              <ul class="list-group">
+              <% latest_results.each do |result| %>
+                    <li class="list-group-item">
+                      <a class="text-succes" href='/result/<%= result.id %>'>
+                          <% if result.organism %>
+                            <%= result.organism.name %>
+                          <% else %>
+                             UNKNOWN
+                          <% end %>
+                          :
+                          <% if result.gene_name %>
+                            <%= result.gene_name %>
+                          <% else %>
+                            UNKNOWN
+                          <% end %></a>
+                    </li>      
+              <% end %>
+              </ul>
+          <% end %>
+        </div>
+
+        <div class="col-md-4">
+          <h1> Latest Jobs </h1>
+          <% if latest_jobs.any? %>
+              <% latest_jobs.each do |job| %>
+                  <div class='panel panel-default panel-primary result'>
+                    <div class="panel-heading">
+                        Job #<%=job.id%>
+                        <span class="date"> Started at <%= job.created_at.strftime("%d/%m/%Y %H:%M") %>  </span>    
+                    </div>
+                    <div class="panel-body">
+                      Current Status: 
+                      <% if job.paused %>                Paused 
+                      <% elsif job.awaiting_download %> Awaiting Download
+                      <% elsif job.awaiting_dispatch %>  Awaiting Dispatch
+                      <% end %>
+                      
+                    </div>
+                  </div>
+              <% end %>
+          <% end %>
+        </div>
+
       </div>
     </div>
   </div>

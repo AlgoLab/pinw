@@ -18,7 +18,10 @@ class PinW < Sinatra::Application
     end
 
     get '/admin/?' do
-        erb :'admin/index', locals: {pending_update: true, pending_update_action: nil, pending_update_date: nil }
+       latest_jobs = Job.last(5)
+       latest_results = Result.last(5)
+       # erb :'admin/index', locals: {pending_update: true, pending_update_action: nil, pending_update_date: nil }
+       erb :'admin/index', locals: { latest_jobs: latest_jobs, latest_results: latest_results }
     end
     
     get '/admin/archive/?' do
