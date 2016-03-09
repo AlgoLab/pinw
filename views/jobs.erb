@@ -32,19 +32,17 @@
     <div class="row">
       <div class="col-md-12">
         <div class="">
-          <button class="btn btn-primary" data-toggle="modal" data-target="#newJob">
+          <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newJob">
           New job
           </button>
           <% if session[:user] and session[:user].results and session[:user].results.any? %>
-            <div class="btn-group pull-right">
-              <button type="button" class="btn btn-primary">Last results</button>
-              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                <span class="caret"></span>
-                <span class="sr-only">Toggle Dropdown</span>
+            <div class="btn-group btn-xs pull-right">
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Last User results<span class="caret"></span>
               </button>
-              <ul class="dropdown-menu" role="menu">
+              <ul class="dropdown-menu">
                 <% session[:user].results.each do |result| %>
-                  <li><a href="#"><% result.job_id %></a></li>
+                  <li><a href="result/<%= result.id %>"><%=result.gene_name %></a></li>
                 <% end %>
               </ul>
             </div>
@@ -137,6 +135,7 @@
       </div>
     </div>
 
+</div>
   <%# FOOTER #%>
   <%= erb :'/includes/footer' %>
 </body>

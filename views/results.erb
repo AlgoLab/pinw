@@ -25,12 +25,22 @@
       <% if session[:user] and session[:user].results and session[:user].results.any? %>
         <div class="col-md-3">
           <div class="panel panel-default panel-primary result">
-            <div class="panel-heading">Last results</div>
+            <div class="panel-heading">Last user results</div>
             <table class="table table-condensed table-result table-result-hover hidden-border">
               <tbody>
                 <% session[:user].results.each do |result| %>
                   <tr>
-                    <td><div class='divBox'><a href='/result/<%= result.id %>'>asd</a></div></td>
+                    <td><div class='divBox'>
+                    <a href='/result/<%= result.id %>'>
+                      <% if result.organism %> <%= result.organism.name %>
+                      <% else %>                UNKNOWN
+                      <% end %>
+                      :
+                      <% if result.gene_name %> <%= result.gene_name %>
+                      <% else %> UNKNOWN
+                      <% end %>
+                    </a></div>
+                    </td>
                   </tr>
                 <% end %>
               </tbody>
@@ -171,7 +181,7 @@
       </div>
     </div>
 
-
+</div>
       
 
 
