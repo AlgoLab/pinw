@@ -1,0 +1,14 @@
+development:
+  adapter: sqlite3
+  database:  <%= File.expand_path("..", Dir.pwd) %> + 'db/dev.db'
+  timeout: 30000
+
+test:
+  adapter: sqlite3
+  database:  <%= File.expand_path("..", Dir.pwd) %>+ 'db/test.db'
+  timeout: 30000
+
+production:
+  adapter: sqlite3
+  database:  <%= File.expand_path("..", Dir.pwd) %> +  'db/pinw.db'
+  timeout: 30000
