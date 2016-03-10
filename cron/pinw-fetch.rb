@@ -694,8 +694,6 @@ if __FILE__ == $0
     force = ARGV.include?('-f') or ARGV.include? '--force'
     debug = ARGV.include?('-d') or ARGV.include? '--debug'
 
-
-    puts  "IMPORTANTE -> ENV  " + env
     PinWFetch.new({
         adapter:  settings[env]['adapter'],
         database: PROJECT_DATA_PATH + settings[env]['database'],

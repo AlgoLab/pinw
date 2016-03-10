@@ -20,6 +20,7 @@
 # Learn more: http://github.com/javan/whenever
 
 PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
+PROJECT_DATA_PATH ||= File.expand_path("..", Dir.pwd) + '/data/'
 
 set :output, PROJECT_DATA_PATH + 'pinw.log'
 
