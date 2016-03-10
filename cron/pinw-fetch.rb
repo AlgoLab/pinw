@@ -4,6 +4,7 @@ require 'sys/filesystem'
 require 'fileutils'
 require 'open-uri'
 
+
 PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
 
 PROJECT_DATA_PATH ||= File.expand_path("..", PROJECT_BASE_PATH) + '/data/'
@@ -11,6 +12,8 @@ PROJECT_DATA_PATH ||= File.expand_path("..", PROJECT_BASE_PATH) + '/data/'
 
 # Models:
 require PROJECT_BASE_PATH + '/models/base'
+# Require main for env function
+require PROJECT_BASE_PATH + '/main'
 
 # TODO: db indexes
 # TODO: optimize writes
@@ -686,14 +689,16 @@ end
 
 
 if __FILE__ == $0
-  #  settings = YAML.load File.read PROJECT_BASE_PATH + 'config/database.yml'
+    settings = YAML.load File.read PROJECT_BASE_PATH + 'config/_database.yml'
 
     force = ARGV.include?('-f') or ARGV.include? '--force'
     debug = ARGV.include?('-d') or ARGV.include? '--debug'
 
+
+    puts  "IMPORTANTE -> ENV  " + env
     PinWFetch.new({
-        adapter:  'sqlite3',   #TMP hardcoded
-        database: PROJECT_DATA_PATH + 'db/dev.db', #TMP hardcoded
+        adapter:  settings[env]['adapter'],
+        database: PROJECT_DATA_PATH + settings[env]['database'],
         timeout: 30000,
     }, debug: debug, force: force).run_main_loop
 end

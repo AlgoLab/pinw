@@ -20,12 +20,13 @@
 # Learn more: http://github.com/javan/whenever
 
 PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
-PROJECT_DATA_PATH ||=  File.expand_path("..", Dir.pwd) + '/data/'
-
 
 set :output, PROJECT_DATA_PATH + 'pinw.log'
 
+
+debug =  if Sinatra::Base.production? then '' else ' --debug'  end
+
 every 1.minutes do
-    command "ruby " + PROJECT_BASE_PATH + '/cron/pinw-fetch.rb'
-    command "sleep 25s && ruby " + PROJECT_BASE_PATH + '/cron/pinw-dispatch.rb'
+    command "ruby " + PROJECT_BASE_PATH + "/cron/pinw-fetch.rb #{debug}"
+    command "sleep 25s && ruby " + PROJECT_BASE_PATH + "/cron/pinw-dispatch.rb #{debug}"
 end

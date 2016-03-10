@@ -18,9 +18,9 @@ class PinW < Sinatra::Application
   register Sinatra::ActiveRecordExtension
 
   set :root, File.dirname(__FILE__)
-  
-  # We could use database.yml is in config/ but if we use it, we can't specify Parent Directory
-   #set :database_file, "path/to/database.yml"
+
+  # We could use database.yml in config/ dir but if we use it, we can't specify Parent Directory
+  # We will use it in fetch and dispatch script
 
    if env == "production"
       db_name = "db/pinw.db"
