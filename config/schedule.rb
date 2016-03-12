@@ -25,10 +25,9 @@ PROJECT_DATA_PATH ||= File.expand_path("..", PROJECT_BASE_PATH) + '/data/'
 
 set :output, PROJECT_DATA_PATH + 'pinw.log'
 
-
-debug =  if Sinatra::Application.production? then '' else ' --debug'  end
+params = if Sinatra::Application.development? then ' --debug' else '--production' end
 
 every 1.minutes do
-    command "ruby " + PROJECT_BASE_PATH + "cron/pinw-fetch.rb #{debug}"
-    command "sleep 25s && ruby " + PROJECT_BASE_PATH + "cron/pinw-dispatch.rb #{debug}"
+    command "ruby " + PROJECT_BASE_PATH + "cron/pinw-fetch.rb #{params}"
+    command "sleep 25s && ruby " + PROJECT_BASE_PATH + "cron/pinw-dispatch.rb #{params}"
 end

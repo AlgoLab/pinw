@@ -8,10 +8,6 @@ require 'fileutils'
 PROJECT_BASE_PATH ||= File.expand_path('../', __FILE__) + '/'
 PROJECT_DATA_PATH ||= File.expand_path("..", Dir.pwd) + '/data/'  # Parent Directory
 
-#Return current rack environment
-def env
-  ENV["RACK_ENV"]
-end
 
 ########################
 ### SINATRA SETTINGS ###
@@ -22,23 +18,13 @@ class PinW < Sinatra::Application
 
   set :root, File.dirname(__FILE__)
 
-  # We could use database.yml in config/ dir but if we use it, we can't specify Parent Directory
-  # We will use it in fetch and dispatch script
-
-   if Sinatra::Application.production?
-      db_name = "db/pinw.db"
-   elsif Sinatra::Application.development?
-       db_name = "db/dev.db"
-   elsif Sinatra::Application.test?
-      db_name = "db/test.db"
-   end
-   set :database, {adapter: "sqlite3", database: PROJECT_DATA_PATH + db_name }
+  # Database config ...
+  # database.yml is in config/ so is loaded automatically
 
   # TODO: env variable
   set :session_secret, 'ACTTGTGATAGTACGTGT'
 
-
-  set :download_path,  PROJECT_DATA_PATH + 'downloads/' 
+  set :download_path,  PROJECT_DATA_PATH + 'downloads/'
   set :max_reads_uploads, 5
   set :max_reads_urls, 5
 

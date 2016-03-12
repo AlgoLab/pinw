@@ -12,8 +12,7 @@ PROJECT_DATA_PATH ||= File.expand_path("..", PROJECT_BASE_PATH) + '/data/'
 
 # Models:
 require PROJECT_BASE_PATH + '/models/base'
-# Require main for env function
-require PROJECT_BASE_PATH + '/main'
+ 
 
 # TODO: db indexes
 # TODO: optimize writes
@@ -689,10 +688,13 @@ end
 
 
 if __FILE__ == $0
-    settings = YAML.load File.read PROJECT_BASE_PATH + 'config/_database.yml'
+    settings = YAML.load File.read PROJECT_BASE_PATH + 'config/database.yml'
 
     force = ARGV.include?('-f') or ARGV.include? '--force'
     debug = ARGV.include?('-d') or ARGV.include? '--debug'
+    production = ARGV.include?('-p') or ARGV.include? '--production'
+
+    env =  if production then 'production' else 'development' end
 
     PinWFetch.new({
         adapter:  settings[env]['adapter'],
