@@ -427,7 +427,7 @@ if __FILE__ == $0
         adapter:  settings[env]['adapter'],
         database: PROJECT_DATA_PATH + settings[env]['database'],
         timeout: 30000,
-    }, debug: true, force: true)
+    }, debug: debug, force: true)
 
 
     j = Job.find(1)
