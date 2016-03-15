@@ -4,32 +4,37 @@ require 'sys/filesystem'
 require 'fileutils'
 require 'open-uri'
 
+
 PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
+
+PROJECT_DATA_PATH ||= File.expand_path("..", PROJECT_BASE_PATH) + '/data/'
+
 
 # Models:
 require PROJECT_BASE_PATH + '/models/base'
+ 
 
 # TODO: db indexes
 # TODO: optimize writes
 
-# The cron script is defined as a class 
+# The cron script is defined as a class
 # having the following structure:
 #
 # class PinWFetch
 #   def init
 #
-#   def run_main_loop 
-      # loops over jobs and launches `genomics`, 
+#   def run_main_loop
+      # loops over jobs and launches `genomics`,
       # `ensembl` and `reads` for each.
       # intended use is (cron/separated-process)-only
 #
 #   def genomics
-      # either downloads the genomics file from 
+      # either downloads the genomics file from
       # (ensembl of an user-specified URL) or checks
       # the user-uploaded genomic datafile.
-#      
+#
 #   def ensembl
-      # downloads annotated transcripts 
+      # downloads annotated transcripts
       # relative to the job's gene
 #
 #   def reads
@@ -39,10 +44,10 @@ require PROJECT_BASE_PATH + '/models/base'
 
 
 
-module DebugFunctionWrapper 
+module DebugFunctionWrapper
     # This module is used to wrap method calls:
     # all it does is add a tag into the deug_prefix list and
-    # remove it after the method returns. 
+    # remove it after the method returns.
     # This way we have less debug-related pollution inside the code.
     # Basically it's a poor man's function decorator.
 
@@ -76,12 +81,12 @@ end
 class PinWFetch
     prepend DebugFunctionWrapper
     class DiskFullError < RuntimeError; end
-    class BadFASTAHeaderError < RuntimeError; end    
+    class BadFASTAHeaderError < RuntimeError; end
     class UserFilesizeLimitError < RuntimeError; end
     class InvalidJobStateError < RuntimeError; end
 
-    def initialize db_settings, debug: false, force: false, download_path: PROJECT_BASE_PATH + 'downloads/'
-        # When the `:force` option is true the cron will   
+    def initialize db_settings, debug: false, force: false, download_path: PROJECT_DATA_PATH + 'downloads/'
+        # When the `:force` option is true the cron will
         # forcefully terminate the fetch_cron_lock owner.
 
         @db_settings = db_settings
@@ -136,21 +141,21 @@ class PinWFetch
             # debug 'DONE ENSEMBL' unless no_gene_name_soon
             #     # To get the metadata from Ensembl we need a gene name.
             #     # We might either already have it or not.
-            #     # The second case happens when the user provides his own 
-            #     # FASTA file via URL download (ergo by not uploading it 
+            #     # The second case happens when the user provides his own
+            #     # FASTA file via URL download (ergo by not uploading it
             #     # directly).
             #     # If the genomics process encountered problems we might
             #     # not have a gene name soon (retry timeouts, full disk, ...).
-            #     # If this is not the case, the ensembl process will even try 
-            #     # to wait a little more (sleep 5) before giving up, in case 
-            #     # the FASTA file is being downloaded at the same time (the 
-            #     # genomics process will try to extract the gene name from 
-            #     # the file while it's downloading by checking the first 
+            #     # If this is not the case, the ensembl process will even try
+            #     # to wait a little more (sleep 5) before giving up, in case
+            #     # the FASTA file is being downloaded at the same time (the
+            #     # genomics process will try to extract the gene name from
+            #     # the file while it's downloading by checking the first
             #     # frame of the HTTP response's body (also useful to prevent
-            #     # unecessary downloads)). 
+            #     # unecessary downloads)).
 
-            ensembl job 
-            debug 'DONE ENSEMBL' 
+            ensembl job
+            debug 'DONE ENSEMBL'
 
             reads job
             debug 'DONE READS AND DONE PROCESSING JOB'
@@ -164,8 +169,8 @@ class PinWFetch
 
     def genomics job, async: true
         # Returns a hint for the ensembl function:
-        # true if problems have been encountered that 
-        # will prevent the process from getting a gene 
+        # true if problems have been encountered that
+        # will prevent the process from getting a gene
         # name soon, false otherwise.
         debug 'genomics started'
 
@@ -191,7 +196,7 @@ class PinWFetch
                 # Grab the lock:
                 job.update({
                     genomics_lock: Time.now,
-                    genomics_retries: job.genomics_retries + 1, # <- safe 
+                    genomics_retries: job.genomics_retries + 1, # <- safe
                     genomics_last_retry: Time.now,
                     genomics_pid: Process.pid
                 })
@@ -213,29 +218,29 @@ class PinWFetch
                 # We must download the genomic data from an URL -> download and check header
                 elsif job.genomics_url
                     debug "CASE: Fetch genomics from URL"
-                    
+
                     # Don't even try if there is no disk space:
                     raise_if_not_enough_space
 
-                   
+
                     # Make sure the path exists:
                     FileUtils.mkpath @download_path + "job-#{job.id}"
                     debug "created path: #{genomics_filepath}"
 
                     # Test that the URL is valid and that is either http/ftp
-                    # especially because it seems that open() can also take 
+                    # especially because it seems that open() can also take
                     # interal path references, which is a security violation.
                     unless job.genomics_url.start_with?('http', 'https', 'ftp') and job.genomics_url =~ /\A#{URI::regexp}\z/
-                        raise URI::InvalidURIError 
+                        raise URI::InvalidURIError
                     end
 
 
                     # TODO: encoding, compression, url safety checks
-                    open(job.genomics_url, 
+                    open(job.genomics_url,
                     :content_length_proc => lambda {|bytes|
                         debug "called content length proc with value #{bytes} (bytes)"
                         return unless bytes
-                        filesize = bytes / 1024.0 / 1024.0 # MegaBytes 
+                        filesize = bytes / 1024.0 / 1024.0 # MegaBytes
 
                         # Check disk and user limits:
                         raise_if_not_enough_space filesize: filesize, user: job.user
@@ -261,21 +266,21 @@ class PinWFetch
 
                         raise BadFASTAHeaderError unless header =~ job.header_regex
                         debug 'header is ok'
-                        
+
                         debug 'writing file'
-                        File.open(genomics_filepath, 'w') do |f| 
+                        File.open(genomics_filepath, 'w') do |f|
                             f.write header
-                            f.write transfer.read 
+                            f.write transfer.read
                         end
                         debug 'file written'
                     end
 
                 # A FASTA file was provided by the user and we need to check its headers:
-                else 
+                else
                     debug 'CASE: We have a genomics file and need to check it'
 
                     begin
-                        header = File.open(genomics_filepath, 'r').readline 
+                        header = File.open(genomics_filepath, 'r').readline
                     rescue => ex
                         debug "error: #{ex.message} #{ex.inspect}"
                         raise InvalidJobStateError
@@ -284,30 +289,30 @@ class PinWFetch
 
                     raise BadFASTAHeaderError unless header =~ job.header_regex
                     debug 'header ok'
-                end 
+                end
 
                 job.update genomics_ok: true
                 debug '### OK! ###'
 
-                # Check if job is ready to be dispatched 
+                # Check if job is ready to be dispatched
                 # and/or taken out of the download queue:
 
                 job = Job.find(job.id)
 
 
                 if job.all_reads_ok
-                    to_update = {awaiting_dispatch: true} 
+                    to_update = {awaiting_dispatch: true}
                     # all updates must be "toggle-only"! (no rewrite to confirm)
                     debug '#### PUSHING THE JOB TO THE DISPATCH QUEUE #####'
 
                     if job.ensembl_ok
-                        to_update[:awaiting_download] = false 
+                        to_update[:awaiting_download] = false
                         to_update[:downloads_completed_at] = Time.now
                         debug '#### REMOVING THE JOB FROM DOWNLOAD QUEUE #####'
-                    end 
+                    end
 
                     job.update **to_update
-                end 
+                end
 
             rescue InvalidJobStateError
                 debug "the job is missing the necessary genomic data info"
@@ -320,7 +325,7 @@ class PinWFetch
             rescue BadFASTAHeaderError
                 debug 'the genomics file has a bad header!'
                 job.update genomics_failed: true, genomics_last_error: "Genomics file doesn't have the required header format."
-            
+
             rescue DiskFullError
                 debug 'disk full!'
                 job.update genomics_retries: 3, genomics_last_error: "Disk full!"
@@ -352,7 +357,7 @@ class PinWFetch
 
 
     def ensembl job, async: true
-        # Returns false when the ensembl fetch has already 
+        # Returns false when the ensembl fetch has already
         # either failed or succeeded, returns true otherwise.
         debug 'ensembl started'
 
@@ -369,12 +374,12 @@ class PinWFetch
             # # The following block is commented as that is a feature currently
             # # not implemented. Consult the related comment in PinWFetch.run_main_loop
             # # for more information.
-            #     # If we don't have a gene_name we wait a little 
+            #     # If we don't have a gene_name we wait a little
             #     # and then exit if the situation hasn't changed.
             #     sleep(5) unless job.gene_name
-           
-        
-        
+
+
+
         # Clear lock if needed:
         if job.ensembl_pid
             kill 9, job.ensembl_pid
@@ -384,7 +389,7 @@ class PinWFetch
         # The function that does the actual work:
         # (it will be either executed in a different process
         # or executed sequentially if `async` is set to false)
-        launch lambda { 
+        launch lambda {
             begin
                 debug '###### ENSEMBL MAIN WORK PROCESS ######'
 
@@ -400,7 +405,7 @@ class PinWFetch
 
                 # Fetch the data:
 
-                # TODO: ENSEMBL API     
+                # TODO: ENSEMBL API
 
                 job.update ensembl_ok: true, ensembl: "Banana!"
                 debug '### OK ###'
@@ -446,12 +451,12 @@ class PinWFetch
         reads_list = JobRead.where(job_id: job.id, ok: false, failed: false)
 
         # Exit if there are no reads to download
-        return false unless reads_list 
+        return false unless reads_list
 
         debug 'past main return walls'
 
         reads_list.each do |reads|
-            begin 
+            begin
                 @debug_prefixes << "R:#{reads.id}"
                 debug 'begin read management'
 
@@ -466,7 +471,7 @@ class PinWFetch
                 # Skip to the next loop if we still need to wait before attempting again the download:
                 next unless waited_enough reads.last_retry, reads.retries
                 debug 'we do not have to wait, proceeding'
-                
+
                 # Clear lock if needed:
                 if reads.pid
                     kill 9, reads.pid
@@ -501,23 +506,23 @@ class PinWFetch
                         debug "created reads download path: #{reads_path}"
 
 
-                        # TODO: compression 
+                        # TODO: compression
 
                         # Test that the URL is valid and that is either http/ftp
-                        # especially because it seems that open() can also take 
+                        # especially because it seems that open() can also take
                         # interal path references, which is a security violation.
                         unless reads.url.start_with?('http', 'https', 'ftp') and reads.url =~ /\A#{URI::regexp}\z/
-                            raise URI::InvalidURIError 
+                            raise URI::InvalidURIError
                         end
 
 
                         # Fetch the data:
-                        open(reads.url, 
+                        open(reads.url,
                         :content_length_proc => lambda {|bytes|
                             debug "called content_length_proc with value: #{bytes}"
 
                             return unless bytes
-                            filesize = bytes / 1024.0 / 1024.0 # MegaBytes 
+                            filesize = bytes / 1024.0 / 1024.0 # MegaBytes
 
                             # Check disk and user limits:
                             raise_if_not_enough_space filesize: filesize, user: job.user
@@ -527,27 +532,27 @@ class PinWFetch
                             debug "called progress_proc with value: #{bytes}"
 
                             transferred = bytes / 1024.0 / 1024.0 # MegaBytes
-                            
+
                             # TODO: update some counter?
                             # TODO: fix counting problems?
 
                             # Check disk and user limits:
                             raise_if_not_enough_space filesize: transferred, user: job.user
                             debug 'pased space limit test'
-                           
+
                             # Keepalive:
                             reads.update lock: Time.now if Time.now > reads.lock + 20 # Seconds
                         },
-                        :read_timeout=>10) do |transfer| 
+                        :read_timeout=>10) do |transfer|
                             #first_char = transfer.getc
 
                             # TODO: validation?
-                            
-                            File.open(reads_path + "reads-url-#{reads.id}", 'w') do |f| 
+
+                            File.open(reads_path + "reads-url-#{reads.id}", 'w') do |f|
                                 #f.write first_char
-                                f.write transfer.read 
+                                f.write transfer.read
                             end
-                        end   
+                        end
 
                         reads.update ok: true
                         debug '### OK ###'
@@ -609,10 +614,10 @@ class PinWFetch
     def launch(processing_block, async: true)
         if async
             debug 'async was true, disconnecting db and forking'
-            
+
             # Close the DB connection (required when forking):
             ActiveRecord::Base.connection_pool.disconnect!
-            Process.detach(Process.fork do 
+            Process.detach(Process.fork do
                 # Connect to the database:
                 ActiveRecord::Base.establish_connection @db_settings
                 processing_block.call
@@ -622,7 +627,7 @@ class PinWFetch
             ActiveRecord::Base.establish_connection @db_settings
         else
             debug 'async was false, proceeding sequentially'
-            
+
             processing_block.call
             debug 'done processing!'
         end
@@ -634,7 +639,7 @@ class PinWFetch
 
         # Check if another pinw-fetch is running (or is dead/hanging):
         debug " Cron lock value: #{cron_lock.value}"
-        if cron_lock.value # nil => last cron completed successfully 
+        if cron_lock.value # nil => last cron completed successfully
             if (not @force) and Time.now < cron_lock.updated_at + @lock_timeout # 60s
                 # The other process is still alive
                 debug "Warning: older cron insance still running, aborting current execution."
@@ -687,11 +692,13 @@ if __FILE__ == $0
 
     force = ARGV.include?('-f') or ARGV.include? '--force'
     debug = ARGV.include?('-d') or ARGV.include? '--debug'
+    production = ARGV.include?('-p') or ARGV.include? '--production'
+
+    env =  if production then 'production' else 'development' end
 
     PinWFetch.new({
-        adapter: settings['test']['adapter'],
-        database: PROJECT_BASE_PATH + settings['production']['database'],
+        adapter:  settings[env]['adapter'],
+        database: PROJECT_DATA_PATH + settings[env]['database'],
         timeout: 30000,
     }, debug: debug, force: force).run_main_loop
 end
-

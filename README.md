@@ -12,7 +12,7 @@ REQUIREMENTS
 gem 'sqlite3'
 gem 'sinatra', '1.4.5'
 gem 'sinatra- activerecord'
-gem 'net-ssh', '~> 2.9.1' 
+gem 'net-ssh', '~> 2.9.1'
 
 ```
 
@@ -20,7 +20,7 @@ USAGE
 -----
 
 Installation:
-
+`$ rake db:migrate`
 `$ rake db:setup`
 
 

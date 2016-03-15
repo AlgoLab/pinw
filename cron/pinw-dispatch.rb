@@ -5,7 +5,12 @@ require 'yaml'
 require 'json'
 require 'fileutils'
 
+
+
 PROJECT_BASE_PATH ||= File.expand_path('../../', __FILE__) + '/'
+
+PROJECT_DATA_PATH ||= File.expand_path("..", PROJECT_BASE_PATH) + '/data/'
+
 
 # Models:
 require PROJECT_BASE_PATH + 'models/base'
@@ -14,10 +19,10 @@ require PROJECT_BASE_PATH + 'models/base'
 # TODO: --super-force option
 
 
-module DebugFunctionWrapper 
+module DebugFunctionWrapper
     # This module is used to wrap method calls:
     # all it does is add a tag into the deug_prefix list and
-    # remove it after the method returns. 
+    # remove it after the method returns.
     # This way we have less debug-related pollution inside the code.
     # Basically it's a poor man's function decorator.
 
@@ -39,8 +44,8 @@ class PinWDispatch
     class GenericSSHProcedureError < RuntimeError; end
 
 
-    def initialize db_settings, debug: false, force: false, download_path: PROJECT_BASE_PATH + 'downloads/'
-        # When the `:force` option is true the cron will   
+    def initialize db_settings, debug: false, force: false, download_path: PROJECT_DATA_PATH + 'downloads/'
+        # When the `:force` option is true the cron will
         # forcefully terminate the fetch_cron_lock owner.
 
         @db_settings = db_settings
@@ -68,7 +73,7 @@ class PinWDispatch
         # Process all servers:
         Server.order(:priority).each do |server|
             @debug_prefixes << "S:#{server.id}" if @debug
-            
+
             check_server server
             debug 'DONE CHECKING SERVER'
 
@@ -77,12 +82,12 @@ class PinWDispatch
 
             @debug_prefixes.pop if @debug
         end
-        # (ordering by priority ensures servers with higher priority 
+        # (ordering by priority ensures servers with higher priority
         #  are selected first to dispatch enqueued jobs)
 
         # Free the cron lock:
         cron_lock.update value: nil
-    
+
     end
 
     def check_server server, async: true
@@ -98,7 +103,7 @@ class PinWDispatch
         # (if callbacks are enabled the server might have aknowledged a finished job a moment ago
         #  and routine checks are really not necessary)
 
-        # Clear lock if needed:        
+        # Clear lock if needed:
         kill 9, server.check_pid if server.check_pid
         debug 'killed old check process' if server.check_pid
 
@@ -192,7 +197,7 @@ class PinWDispatch
 
                     running_jobs = results['running']
                     dead_jobs = results['dead']
-                    completed_jobs = results['completed'] 
+                    completed_jobs = results['completed']
 
                     ## ACK COMPLETED JOBS ##
                     completed_jobs.each do |j|
@@ -202,14 +207,14 @@ class PinWDispatch
                         # Renew lock:
                         server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
 
-                        # TODO: what should happen for failed jobs that have produced a json file? 
+                        # TODO: what should happen for failed jobs that have produced a json file?
 
                         begin
 
                             # LOCAL SAVE DB
                             result = Result.create_with({
-                                user_id: job.user_id, 
-                                server_id: server.id, 
+                                user_id: job.user_id,
+                                server_id: server.id,
                                 organism_id: job.organism_id,
                                 gene_name: job.gene_name,
                                 description: job.description,
@@ -220,7 +225,7 @@ class PinWDispatch
 
                             # LOCAL DELETE FILES
                             FileUtils.rm_rf @download_path + "job-#{job.id}"
-                            
+
                             # ACK REMOTE SERVER
                             ssh.exec!("echo '#{result.id}|#{job.id}|#{Time.now}' > jobs/job-#{job.id}/pinw-ack")
                             ssh.exec!("cp -rf jobs/job-#{job.id} results/result-#{result.id}")
@@ -240,7 +245,7 @@ class PinWDispatch
                     #     job.update processing_failed: true, processing_last_error: "Spurious job: the server has no knowledge of this job."
                     # end
 
-                    
+
                     ## DISPATCH NEW JOBS ##
                     while free_slots > 0 and (server.local_network or ProcessingState.get_active_remote_transfers < @max_remote_transfers)
                         # Renew lock:
@@ -250,9 +255,9 @@ class PinWDispatch
                             dispatch_job = nil # TODO: scope!
                             old_pid = nil
                             Job.transaction do
-                                dispatch_job = Job.order(:server_id).find_by(Job.arel_table[:processing_dispatch_lock].lt(Time.now - 5 * 60), 
+                                dispatch_job = Job.order(:server_id).find_by(Job.arel_table[:processing_dispatch_lock].lt(Time.now - 5 * 60),
                                                   awaiting_dispatch: true, paused: false, server_id: [server.id, nil])
-                                
+
                                 # Exit if there are no more jobs to dispatch:
                                 debug "uhmmm"
                                 break unless dispatch_job
@@ -263,10 +268,10 @@ class PinWDispatch
 
                                 # Lock job:
                                 dispatch_job.update({
-                                    server_id: server.id, 
-                                    processing_dispatch_lock: Time.now, 
+                                    server_id: server.id,
+                                    processing_dispatch_lock: Time.now,
                                     processing_dispatch_pid: Process.pid
-                                })    
+                                })
                             end
 
                             # Kill eventual stale pid:
@@ -285,9 +290,9 @@ class PinWDispatch
                                 # Shortest read length considered by pintron:
                                 min_read_length: @min_read_length,
                                 # Job processing timeout:
-                                timeout: @max_job_runtime, 
+                                timeout: @max_job_runtime,
                                 # Job params:
-                                gene_name: dispatch_job.gene_name, 
+                                gene_name: dispatch_job.gene_name,
                                 organism: dispatch_job.organism.name,
                                 use_callback: server.use_callback,
                                 callback_url: server.callback_url
@@ -322,7 +327,7 @@ class PinWDispatch
                             ProcessingState.remove_remote_transfer rescue nil
                             dispatch_job.update(processing_dispatch_pid: nil) rescue nil
 
-                            # If channels took more time to complete than dispatch 
+                            # If channels took more time to complete than dispatch
                             # (or there was no dispatch), wait for them all to complete:
                         end
                     end
@@ -353,10 +358,10 @@ class PinWDispatch
     def launch(processing_block, async: true)
         if async
             debug 'async was true, disconnecting db and forking'
-            
+
             # Close the DB connection (required when forking):
             ActiveRecord::Base.connection_pool.disconnect!
-            Process.detach(Process.fork do 
+            Process.detach(Process.fork do
                 # Connect to the database:
                 ActiveRecord::Base.establish_connection @db_settings
                 processing_block.call
@@ -366,7 +371,7 @@ class PinWDispatch
             ActiveRecord::Base.establish_connection @db_settings
         else
             debug 'async was false, proceeding sequentially'
-            
+
             processing_block.call
             debug 'done processing!'
         end
@@ -377,7 +382,7 @@ class PinWDispatch
 
         # Check if another pinw-dispatch is running (or is dead/hanging):
         puts " Cron lock value: #{cron_lock.value}" if @debug
-        if cron_lock.value # nil => last cron completed successfully 
+        if cron_lock.value # nil => last cron completed successfully
             if (not @force) and Time.now < cron_lock.updated_at + 5 * 60 # 5 minutes
                 # The other process is still alive
                 puts "Warning: older cron insance still running, aborting current execution."
@@ -414,14 +419,15 @@ if __FILE__ == $0
 
     force = ARGV.include?('-f') or ARGV.include? '--force'
     debug = ARGV.include?('-d') or ARGV.include? '--debug'
+    production = ARGV.include?('-p') or ARGV.include? '--production'
 
-    # Testing:
+    env =  if production then 'production' else 'development' end
 
     x = PinWDispatch.new({
-        adapter: settings['test']['adapter'],
-        database: PROJECT_BASE_PATH + settings['production']['database'],
+        adapter:  settings[env]['adapter'],
+        database: PROJECT_DATA_PATH + settings[env]['database'],
         timeout: 30000,
-    }, debug: true, force: true)
+    }, debug: debug, force: true)
 
 
     j = Job.find(1)
@@ -429,15 +435,15 @@ if __FILE__ == $0
     j.processing_dispatch_lock = Time.at(0)
     j.paused = false
     j.server_id = 1
-    j.save   
+    j.save
 
     Job.all.each {|job|
         puts "job: #{job.id}, #{job.awaiting_dispatch}, #{job.paused}, #{job.server_id}, #{job.processing_dispatch_lock}"
-    } 
+    }
 
     s = Server.find(1)
     s.check_pid = nil
-    s.save 
+    s.save
 
     x.check_server(Server.find(1), async: false)
 end
