@@ -21,16 +21,61 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md-12">
+
+    <div class="col-md-4">
+        <a class="btn btn-primary" role="button" data-toggle="collapse" href="#collapseImport" aria-expanded="false" aria-controls="collapseImport">
+        Import
+        </a>
+        <a data-toggle="tooltip" data-placement="right" data-html="true" title="Allows to import the previously exported settings "><i class="fa fa-question-circle"></i></a>
+        <div class="collapse" id="collapseImport"><br />
+          <div class="well">
+
+            <form action="/admin/settings/import" method="post" class="form-inline" enctype="multipart/form-data" >
+              <div class="form-group" >
+
+               <input type="file" name="ImportInput" required="required">
+               <p class="help-block">Load the settings file (yaml format)</p>
+             </div>
+             <button type="submit" class="btn btn-primary">Import</button>
+           </form>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-md-4">
+        <form action="/admin/settings/export" method="post"  class="form-inline">
+         <button type="submit" class="btn btn-primary">Export</button>
+         <a data-toggle="tooltip" data-placement="right" data-html="true" title="Allow to download current settings in yaml format"><i class="fa fa-question-circle"></i></a>
+       </form>
+      </div>
+
+      <div class="col-md-4">
         <a href="/admin" class="btn btn-primary pull-right" role="button">Back to admin panel</a>
       </div>
     </div>
+
+
+
     <div class="row">
       <div class="col-md-12">
+
+
         <hr />
         <% if params[:ok] == '1' %>
           <div class="alert alert-success">
-            <p><strong><i class="fa fa-save"></i> Success!</strong> Description here.
+            <p><strong><i class="fa fa-save"></i> Success!</strong> Settings edited.
+          </div>
+        <% end %>
+
+        <% if params[:ok] == '2' %>
+          <div class="alert alert-success">
+            <p><strong><i class="fa fa-save"></i> Success!</strong> Settings imported.
+          </div>
+        <% end %>
+
+        <% if params[:ok] == '3' %>
+          <div class="alert alert-success">
+            <p><strong><i class="fa fa-save"></i> Success!</strong> Settings exported.
           </div>
         <% end %>
 
@@ -39,7 +84,17 @@
             <p><strong><i class="fa fa-warning"></i> Error!</strong> Description here.
           </div>
         <% end %>
-        
+
+        <% if params[:err] == '2' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Error!</strong> Failed to load the settings file
+          </div>
+        <% end %>
+        <% if params[:err] == '3' %>
+          <div class="alert alert-danger">
+            <p><strong><i class="fa fa-warning"></i> Error!</strong> Failed to export the settings file
+          </div>
+        <% end %>
       </div>
     </div>
     <div class="row">
@@ -65,12 +120,12 @@
                   </textarea>
               <% else %>
                   <input type="<%= setting[:html_field_type] %>" name="<%= setting[:key] %>"
-                  <% if setting[:html_field_type] == "checkbox" 
+                  <% if setting[:html_field_type] == "checkbox"
                     if setting[:value] %>
                       checked
                     <% end %>
                   <% else %>
-                    value="<%= setting[:value] %>" 
+                    value="<%= setting[:value] %>"
                     class="form-control"
                   <% end %>
                   />
@@ -87,12 +142,13 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <button class="btn btn-primary" type="submit">
+        <button class="btn btn-primary pull-right" type="submit">
           Save
         </button>
       </div>
     </div>
     </form>
+
   </div>
 
 
