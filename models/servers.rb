@@ -18,6 +18,7 @@ class Server < ActiveRecord::Base
     options[:port] = self.port
     options[:password] = self.password if self.password
     options[:key_data] = [k[:private_key]]
+    options[:verbose] = :debug
     # Proxy Command support:
     if self.ssh_proxy_command.length > 0
         debug "instantiating proxy command"
