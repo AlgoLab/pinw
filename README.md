@@ -20,7 +20,6 @@ USAGE
 -----
 
 Installation:
-`$ rake db:migrate`
 `$ rake db:setup`
 
 

@@ -417,9 +417,9 @@ end
 if __FILE__ == $0
     settings = YAML.load File.read PROJECT_BASE_PATH + 'config/database.yml'
 
-    force = ARGV.include?('-f') or ARGV.include? '--force'
-    debug = ARGV.include?('-d') or ARGV.include? '--debug'
-    production = ARGV.include?('-p') or ARGV.include? '--production'
+    force = ARGV.include? '--force'
+    debug = ARGV.include? '--debug'
+    production = ARGV.include? '--production'
 
     env =  if production then 'production' else 'development' end
 
@@ -430,20 +430,20 @@ if __FILE__ == $0
     }, debug: debug, force: true)
 
 
-    j = Job.find(1)
-    j.awaiting_dispatch = true
-    j.processing_dispatch_lock = Time.at(0)
-    j.paused = false
-    j.server_id = 1
-    j.save
+    # j = Job.find(1)
+    # j.awaiting_dispatch = true
+    # j.processing_dispatch_lock = Time.at(0)
+    # j.paused = false
+    # j.server_id = 1
+    # j.save
 
-    Job.all.each {|job|
-        puts "job: #{job.id}, #{job.awaiting_dispatch}, #{job.paused}, #{job.server_id}, #{job.processing_dispatch_lock}"
-    }
+    #Job.all.each {|job|
+    #    puts "job: #{job.id}, #{job.awaiting_dispatch}, #{job.paused}, #{job.server_id}, #{job.processing_dispatch_lock}"
+    #}
 
-    s = Server.find(1)
-    s.check_pid = nil
-    s.save
+    # s = Server.find(1)
+    # s.check_pid = nil
+    # s.save
 
-    x.check_server(Server.find(1), async: false)
+    # x.check_server(Server.find(1), async: false)
 end

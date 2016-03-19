@@ -12,7 +12,7 @@ PROJECT_DATA_PATH ||= File.expand_path("..", PROJECT_BASE_PATH) + '/data/'
 
 # Models:
 require PROJECT_BASE_PATH + '/models/base'
- 
+
 
 # TODO: db indexes
 # TODO: optimize writes
@@ -690,9 +690,9 @@ end
 if __FILE__ == $0
     settings = YAML.load File.read PROJECT_BASE_PATH + 'config/database.yml'
 
-    force = ARGV.include?('-f') or ARGV.include? '--force'
-    debug = ARGV.include?('-d') or ARGV.include? '--debug'
-    production = ARGV.include?('-p') or ARGV.include? '--production'
+    force = ARGV.include? '--force'
+    debug = ARGV.include? '--debug'
+    production = ARGV.include? '--production'
 
     env =  if production then 'production' else 'development' end
 
@@ -701,4 +701,5 @@ if __FILE__ == $0
         database: PROJECT_DATA_PATH + settings[env]['database'],
         timeout: 30000,
     }, debug: debug, force: force).run_main_loop
+
 end
