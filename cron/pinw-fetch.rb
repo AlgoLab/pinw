@@ -12,7 +12,7 @@ PROJECT_DATA_PATH ||= File.expand_path("..", PROJECT_BASE_PATH) + '/data/'
 
 # Models:
 require PROJECT_BASE_PATH + '/models/base'
-
+require_relative 'ensembl-api'
 
 # TODO: db indexes
 # TODO: optimize writes
@@ -84,6 +84,7 @@ class PinWFetch
     class BadFASTAHeaderError < RuntimeError; end
     class UserFilesizeLimitError < RuntimeError; end
     class InvalidJobStateError < RuntimeError; end
+    class InvalidResponseError < RuntimeError; end
 
     def initialize db_settings, debug: false, force: false, download_path: PROJECT_DATA_PATH + 'downloads/'
         # When the `:force` option is true the cron will
@@ -212,8 +213,27 @@ class PinWFetch
                 if job.genomics_ensembl
                     debug "CASE: Fetch genomics from ensembl"
 
-                    debug "TODO: perform the actual genomics download from ensembl"
-                    raise NotImplementedError
+                    # Make sure the path exists:
+                    FileUtils.mkpath @download_path + "job-#{job.id}"
+                    debug "created path: #{genomics_filepath}"
+
+                    # The following methods raise an exception (InvalidResponseError) if it encounters an error
+                    begin
+                      # Return Ensembl id given species(organism) and gene name
+                      ensembl_id =  EnsemblApi.get_ensembl_id(job.organism.name,job.gene_name)
+                      debug "Ensembl ID: #{ensembl_id}"
+
+                      # Save fasta file in genomics_filepath given species (organism) and ensembl id
+                      EnsemblApi.get_and_save_fasta_file(job.organism.name,ensembl_id,genomics_filepath)
+                    rescue
+                      raise InvalidResponseError
+                    end
+                    debug 'file from Ensembl Api written'
+
+                    # TODO check fasta header (ensembl has a different header format?)
+                    # header = File.open(genomics_filepath, 'r').readline
+                    # raise BadFASTAHeaderError unless header =~ job.header_regex
+
 
                 # We must download the genomic data from an URL -> download and check header
                 elsif job.genomics_url
@@ -313,6 +333,11 @@ class PinWFetch
 
                     job.update **to_update
                 end
+
+
+            rescue InvalidResponseError
+                  debug "Impossible to retrieve data from Ensembl API"
+                  job.update genomics_failed: true, genomics_last_error: "Impossible to retrieve data from Ensembl API"
 
             rescue InvalidJobStateError
                 debug "the job is missing the necessary genomic data info"
