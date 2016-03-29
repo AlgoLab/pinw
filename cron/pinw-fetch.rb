@@ -282,10 +282,8 @@ class PinWFetch
 
                     :read_timeout=>10) do |transfer|
                         header = transfer.readline
-                        # TODO?: extract gene_name asap
 
                         raise BadFASTAHeaderError unless header =~ job.header_regex
-                        debug 'header is ok'
 
                         debug 'writing file'
                         File.open(genomics_filepath, 'w') do |f|
@@ -293,7 +291,21 @@ class PinWFetch
                             f.write transfer.read
                         end
                         debug 'file written'
+                    end #transfer
+
+                    if job.gene_name == 'Unknown'
+                      debug 'Begin get gene name from ensembl api'
+                      header = File.open(genomics_filepath, 'r').readline
+                      begin
+                          region = header.sub(">","").sub("\n","").to_s # Get only chromosome and region
+                          gene_name = EnsemblApi.get_gene_name(region)
+                      rescue
+                          raise InvalidResponseError
+                      end
+                      job.update gene_name: gene_name
+                      debug 'obtained gene name from ensembl api'
                     end
+
 
                 # A FASTA file was provided by the user and we need to check its headers:
                 else
@@ -309,6 +321,18 @@ class PinWFetch
 
                     raise BadFASTAHeaderError unless header =~ job.header_regex
                     debug 'header ok'
+
+                    if  job.gene_name == 'Unknown'
+                      debug 'Begin get gene name from ensembl api'
+                      begin
+                         region = header.sub(">","").sub("\n","").to_s # Get only chromosome and region
+                         gene_name = EnsemblApi.get_gene_name(region)
+                      rescue
+                         raise InvalidResponseError
+                      end
+                      job.update gene_name: gene_name
+                      debug 'obtained gene name from ensembl api'
+                    end
                 end
 
                 job.update genomics_ok: true
@@ -431,6 +455,7 @@ class PinWFetch
                 # Fetch the data:
 
                 # TODO: ENSEMBL API
+                raise NotImplementedError
 
                 job.update ensembl_ok: true, ensembl: "Banana!"
                 debug '### OK ###'

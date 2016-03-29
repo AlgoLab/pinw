@@ -33,8 +33,8 @@ class EnsemblApi
 
   # Return fasta file given species (organism) and ensembl id
   # For more information visit: http://rest.ensembl.org/documentation/info/sequence_id
-  def self.get_and_save_fasta_file(species,ensembl_id,genomics_filepath)
-    path_for_fasta = "/sequence/id/#{ensembl_id}?type=genomic;species=#{species}"
+  def self.get_and_save_fasta_file(species,ensembl_id,genomics_filepath,type='gene')
+    path_for_fasta = "/sequence/id/#{ensembl_id}?object_type=#{type};species=#{species}"
 
     begin
     	request = Net::HTTP::Get.new(path_for_fasta, {'Content-Type' => 'text/x-fasta'})
@@ -46,6 +46,26 @@ class EnsemblApi
           f.write(response.body)
       end
     end
+  end
+
+  # Get gene name given chromosome and region
+  # http://rest.ensembl.org/documentation/info/overlap_region
+  # e.g. http://rest.ensembl.org/overlap/region/human/17:7570000:7600000?feature=gene;content-type=application/json;
+  def self.get_gene_name(species='human',chr_region)
+    path_for_gene = "overlap/region/#{species}/#{chr_region}?feature=gene;"
+    begin
+  		request = Net::HTTP::Get.new(path_for_gene, {'Content-Type' => 'application/json'})
+  		response = @http.request(request)
+      puts response.code
+      # If response is not 200 we encountered an error
+      raise InvalidResponseError if response.code != "200"
+
+  		result = JSON.parse(response.body)
+  		# The id is in first position
+  		gene_name = result[0]["external_name"]
+      puts gene_name
+  	end
+    gene_name.to_s
   end
 
 end
