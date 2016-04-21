@@ -15,7 +15,7 @@ class PinW < Sinatra::Application
 	class NoReadsError < RuntimeError; end
 	class TooManyReads < RuntimeError; end
 	class InvalidServerId < RuntimeError; end
-	
+
     # Auth checks:
     before '/jobs/*' do
         halt "must be logged in to access the job panel" unless session[:user]
@@ -34,7 +34,7 @@ class PinW < Sinatra::Application
     end
 
     post '/jobs/new' do
-    	begin 
+    	begin
     		all_went_ok = false
 	        job = Job.new awaiting_download: true
 
@@ -52,9 +52,9 @@ class PinW < Sinatra::Application
 	            	Server.find(params[:InputServer])
 	            rescue ActiveRecord::RecordNotFound
 	            	raise InvalidServerId
-	            end 
+	            end
 	        end
-	        
+
 	        job.organism = Organism.find_by!(id: params[:InputOrganism], enabled: true) unless params[:InputOrganism] == "-1"
 	        job.gene_name = params[:InputGeneName]
 	        if job.gene_name.length == 0
@@ -76,7 +76,7 @@ class PinW < Sinatra::Application
 	            job.genomics_url = params[:InputGeneURL]
 	        when '3'
 	            # File will be saved once the job is created
-	        else 
+	        else
 	        	raise GeneSourceTypeError
 	        end
 
@@ -122,7 +122,7 @@ class PinW < Sinatra::Application
 
 	        # SAVE FOR REAL #
 	        Job.transaction do
-	            if reads_urls.length == 0 
+	            if reads_urls.length == 0
 	            	job.all_reads_ok = true
 	            end
 	            job.save
@@ -131,55 +131,64 @@ class PinW < Sinatra::Application
 	            	reads.save
 	            end
 
-
-
     	        # Pepare the folder structure
-                FileUtils.mkpath settings.download_path + "job-#{job.id}/reads/"
+              FileUtils.mkpath settings.download_path + "job-#{job.id}/reads/"
 
             	# SAVE FILES #
             	if params[:type] == '3'
                     File.open(settings.download_path + "job-#{job.id}/genomics.fasta", 'w') {|f| f.write params[:InputGeneFile][:tempfile].read}
-                end
+              end
 
-                if params[:InputFiles]
-                	params[:InputFiles].each_with_index do |read_file, index|
-        	            File.open(settings.download_path + "job-#{job.id}/reads/reads-upload-#{index}", 'w') {|f| f.write read_file[:tempfile].read}
-                	end
-                end
-	        end
+              if params[:InputFiles]
+                  	params[:InputFiles].each_with_index do |read_file, index|
+        	             File.open(settings.download_path + "job-#{job.id}/reads/reads-upload-#{index}", 'w') {|f| f.write read_file[:tempfile].read}
+											 if Kernel.system("ruby #{settings.root}/cron/quality_check.rb -q #{params[:InputQuality]} \
+ 													-f #{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}  	\
+ 													-o #{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}-qc")
+ 												# quality_check script creates an FILENAME-qc so we have to replace the original
+ 												FileUtils.mv "#{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}-qc",  "#{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}"
+
+ 											else
+ 												   redirect to "/jobs?err=11"
+ 													 # raise MinQualityError
+ 											end
+									 end
+              end
+
+	        end # /end transaction
 
 	        all_went_ok = true
 	        redirect to "/jobs#job_#{ job.id }"
 
-	    rescue TooManyJobsError 
+	    rescue TooManyJobsError
 	    	puts "Too many jobs!"
 	    	redirect to '/jobs?err=1'
 
-	    rescue GenomicsCombinationError 
+	    rescue GenomicsCombinationError
 	    	puts "Genomics combination error!"
 	    	redirect to '/jobs?err=2'
 
-	    rescue GeneSourceTypeError 
+	    rescue GeneSourceTypeError
 	    	puts "Genetics source type error!"
 	    	redirect to '/jobs?err=3'
 
-	    rescue JobValidationError 
+	    rescue JobValidationError
 	    	puts "Job failed to validate"
 	    	redirect to '/jobs?err=4'
 
-	    rescue ReadURLError 
+	    rescue ReadURLError
 	    	puts "A read has an invalid URL!"
 	    	redirect to '/jobs?err=5'
 
-	    rescue DiskFullError 
+	    rescue DiskFullError
 	    	puts "Disk Full!"
 	    	redirect to '/jobs?err=6'
 
-	    rescue DiskUserLimitError 
+	    rescue DiskUserLimitError
 	    	puts "Filesize bigger than user limits!"
 	    	redirect to '/jobs?err=7'
 
-	    rescue NoReadsError 
+	    rescue NoReadsError
 	    	puts "There are no reads!"
 	    	redirect to '/jobs?err=8'
 
@@ -189,7 +198,7 @@ class PinW < Sinatra::Application
 
 	    rescue InvalidServerId
 	    	puts "Invalid Server"
-	    	redirect to '/jobs?err=10'	    	
+	    	redirect to '/jobs?err=10'
 
 	    rescue => ex
 	    	puts "Generic error! #{ex.message} #{ex.inspect} {{#{job.inspect}}} <<#{job.errors.messages}>>"

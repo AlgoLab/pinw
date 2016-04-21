@@ -604,7 +604,17 @@ class PinWFetch
                             end
                         end
 
-                        reads.update ok: true
+                        if Kernel.system("ruby #{PROJECT_BASE_PATH}cron/quality_check.rb -q #{job.quality_threshold} " \
+                                         "-f #{reads_path}reads-url-#{reads.id} -o #{reads_path}reads-url-#{reads.id}-qc")
+
+                          # quality_check script creates a FILENAME-qc so we have to replace the original
+                          FileUtils.mv "#{reads_path}reads-url-#{reads.id}-qc",  "#{reads_path}reads-url-#{reads.id}"
+                          reads.update ok: true
+                          debug '### Success run quality_check script  ###'
+                        else
+                           debug '### FAIL run quality_check script ###'
+                        end
+
                         debug '### OK ###'
 
                         # Check if all downloads are done and update the job:
