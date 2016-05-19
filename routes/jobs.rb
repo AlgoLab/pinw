@@ -142,20 +142,20 @@ class PinW < Sinatra::Application
               if params[:InputFiles]
                   	params[:InputFiles].each_with_index do |read_file, index|
         	             File.open(settings.download_path + "job-#{job.id}/reads/reads-upload-#{index}", 'w') {|f| f.write read_file[:tempfile].read}
-											 if Kernel.system("ruby #{settings.root}/cron/quality_check.rb -q #{params[:InputQuality]} \
- 													-f #{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}  	\
- 													-o #{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}-qc")
+											# if Kernel.system("ruby #{settings.root}/cron/quality_check.rb -q #{params[:InputQuality]} \
+ 											#		-f #{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}  	\
+ 											#		-o #{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}-qc")
  												# quality_check script creates an FILENAME-qc so we have to replace the original
- 												FileUtils.mv "#{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}-qc",  "#{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}"
+ 											#	FileUtils.mv "#{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}-qc",  "#{settings.download_path}job-#{job.id}/reads/reads-upload-#{index}"
 
- 											else
- 												   redirect to "/jobs?err=11"
+ 											#else
+ 												#   redirect to "/jobs?err=11"
  													 # raise MinQualityError
- 											end
+ 										#	end
 									 end
               end
 
-	        end # /end transaction
+	        end # /transaction
 
 	        all_went_ok = true
 	        redirect to "/jobs#job_#{ job.id }"

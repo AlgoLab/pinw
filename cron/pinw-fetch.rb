@@ -603,7 +603,7 @@ class PinWFetch
                                 f.write transfer.read
                             end
                         end
-
+=begin
                         if Kernel.system("ruby #{PROJECT_BASE_PATH}cron/quality_check.rb -q #{job.quality_threshold} " \
                                          "-f #{reads_path}reads-url-#{reads.id} -o #{reads_path}reads-url-#{reads.id}-qc")
 
@@ -614,8 +614,8 @@ class PinWFetch
                         else
                            debug '### FAIL run quality_check script ###'
                         end
+=end
 
-                        debug '### OK ###'
 
                         # Check if all downloads are done and update the job:
                         remaining_reads = JobRead.where.not(ok: true).find_by(job_id: job.id)
@@ -756,10 +756,12 @@ if __FILE__ == $0
 
     env =  if production then 'production' else 'development' end
 
-    PinWFetch.new({
+    x = PinWFetch.new({
         adapter:  settings[env]['adapter'],
         database: PROJECT_DATA_PATH + settings[env]['database'],
         timeout: 30000,
-    }, debug: debug, force: force).run_main_loop
+    }, debug: debug, force: force)
 
+
+    x.run_main_loop
 end

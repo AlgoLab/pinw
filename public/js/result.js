@@ -17,18 +17,21 @@ $(document).ready(function() {
   s_w = width;
   s_h = 300;
 
-  //flag per segnalare l'attivazione della struttura, dello zoom e 
+  //flag per segnalare l'attivazione della struttura, dello zoom e
   //della presenza della sequenza nucleotidica
   flag_structure = false;
   flag_zoom = false;
   flag_sequence = false;
   flag_exon = true;
 
+ 
   //stringa per il nome del gene da visualizzare
-  string_gene = "ATP6AP1";
+  string_gene =  $("#result_gene").data("gene"); //"ATP6AP1";
   //stringa per il pathname del file json
-  default_structure = "ATP6AP1example2.json";
+  default_structure = $("#result_json").data("json");  //"ATP6AP1example2.json";
 
-  setup_interface();
+
+
+   setup_interface();
 
 });

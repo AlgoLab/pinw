@@ -24,6 +24,8 @@
       <div class="col-md-12">
         <div class="page-header">
           <h1><i class="fa fa-flag-checkered"></i> Result <small></small></h1>
+          <div style="display:none" id="result_gene" data-gene="<%= result.gene_name %> "><%= result.gene_name %> </div>
+          <div style="display:none" id="result_json" data-json="<%=result.json %> "><%= result.json %> </div>
         </div>
       </div>
     </div>
@@ -31,10 +33,10 @@
       <div class="col-md-12">
         <button id="zoom_button_on" type="button" class="btn btn-primary up-10px">
           Zoom On
-        </button> 
+        </button>
         <button id="zoom_button_off" type="button" class="btn btn-primary up-10px">
           Zoom Off
-        </button> 
+        </button>
         <button id="reset_button" type="button" class="btn btn-primary up-10px">
           Reset
         </button>
@@ -48,17 +50,20 @@
         <p id="home_gene"></p>
         <p id="info_gene"></p>
       </div>
+
       <div class="col-md-4">
+        <!--
         <div class="btn-group">
           <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
             Select Gene <span class="caret"></span>
           </button>
           <ul id="select_gene" class="dropdown-menu" role="menu"></ul>
         </div>
+      -->
       </div>
       <div class="col-md-4">
 
-        
+
 
       </div>
 
@@ -81,10 +86,10 @@
 
     <div class="row">
 
-      
+
       <div class="col-md-12" id='viz-block'>
 
-        
+
         <br/>
         <!-- INIZIO BLOCCO EXPANDE -->
         <div id="expande-container"></div>
@@ -114,7 +119,7 @@
         </div>
         <!-- FINE MODALE -->
 
-      </div>    
+      </div>
     </div>
 
     <!-- modello del pattern degli esoni alternativo -->

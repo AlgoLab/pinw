@@ -101,7 +101,7 @@ ActiveRecord::Schema.define(version: 20141123081409) do
     t.datetime "updated_at"
   end
 
-  add_index "results", ["gene_name", "organism_id"], name: "index_results_on_gene_name_and_organism_id", unique: true
+  add_index "results", ["gene_name", "organism_id"], name: "index_results_on_gene_name_and_organism_id", unique:false #unique: true
   add_index "results", ["job_id"], name: "index_results_on_job_id", unique: true
 
   create_table "servers", force: true do |t|

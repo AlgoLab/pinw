@@ -15,23 +15,23 @@ import os, subprocess, time, json
 
 # pintron crea il json -> lo wrappiamo e ci mettiamo le informazioni aggiunte dal python
 
-# /home/pintron/bin/pintron                               
-#        --bin-dir=/home/pintron/bin  ****                    
+# /home/pintron/bin/pintron
+#        --bin-dir=/home/pintron/bin  ****
 #        --genomic=/home/pintron/doc/example/genomic.txt  ****
-#        --EST=/home/pintron/doc/example/ests.txt     ****    
-#        --organism=human   ****                                 
-#        --gene=TP53        ****                               
-#        --output=pintron-full-output.json                
-#        --gtf=pintron-cds-annotated-isoforms.gtf         
-#        --extended-gtf=pintron-all-isoforms.gtf          
-#        --logfile=pintron-pipeline-log.txt               
+#        --EST=/home/pintron/doc/example/ests.txt     ****
+#        --organism=human   ****
+#        --gene=TP53        ****
+#        --output=pintron-full-output.json
+#        --gtf=pintron-cds-annotated-isoforms.gtf
+#        --extended-gtf=pintron-all-isoforms.gtf
+#        --logfile=pintron-pipeline-log.txt
 #        --general-logfile=pintron-log.txt
 #        --ngs (se est e fastq metto ngs)
 
 def create_json(path, success):
     '''create json output'''
     data = {}
-    if success: 
+    if success:
         try:
             with open(path + '/output.txt') as out:
                 output = out.read()
@@ -44,7 +44,7 @@ def create_json(path, success):
             # rielaborare il file
         except:
             success = False
-            
+
     data['success'] = success
     with open('job-result.json', 'w') as outfile:
         json.dump(data, outfile, sort_keys=True, indent=4)
@@ -65,19 +65,18 @@ def prepare_result(path, output):
 
 def run_pintron(path, parameters):
     '''run pintron'''
-    pintron_path = parameters['pintron_path'] + "pintron"
+    pintron_path = parameters['pintron_path'] + "/pintron"
     bin_dir = "--bin-dir=" + parameters['pintron_path']
     genomic = "--genomic=" + path + "/genomics.fasta"
-    #est = "--EST=" + path + "/" + parameters['est']
-    # test version work only with one file
     # PIntron NGS option not yet implemented
+    # test version work only with one file
+    #est = "--EST=" + path + "/" + parameters['est']
     est = "--EST=" + path + "/" + "reads/reads-upload-0"
     organism = "--organism=" + (parameters['organism'] or "unknown")
     gene = "--gene=" + (parameters['gene_name'] or "unknown")
     output = "--output=" + path + "/output.txt"
     min_read_length = "--min-read-length=" + str(parameters['min_read_length'])
 
-    
 
     timeout = int(parameters['timeout'])
 
@@ -93,9 +92,9 @@ def run_pintron(path, parameters):
     print("\nSelected timeout: " + str(timeout))
     print()
 
-    pintron_process = subprocess.Popen([pintron_path, 
-                                          bin_dir, 
-                                          genomic, 
+    pintron_process = subprocess.Popen([pintron_path,
+                                          bin_dir,
+                                          genomic,
                                           est,
                                           organism,
                                           gene,

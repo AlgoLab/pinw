@@ -199,10 +199,14 @@ class PinWDispatch
                     dead_jobs = results['dead']
                     completed_jobs = results['completed']
 
+                    free_slots = 3
+
                     ## ACK COMPLETED JOBS ##
                     completed_jobs.each do |j|
                         job = Job.find(j['id'])
                         result = j['result']
+
+                        debug "SONO DENTRO A completed_jobs.each, la variabile result vale: #{result}"
 
                         # Renew lock:
                         server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
@@ -210,6 +214,8 @@ class PinWDispatch
                         # TODO: what should happen for failed jobs that have produced a json file?
 
                         begin
+                          ### TODO: AGGIUNTA DA VERIFICARE ###
+                          scp.download!("jobs/job-#{job.id}/output.txt", PROJECT_DATA_PATH+"job-#{job.id}-result.json")
 
                             # LOCAL SAVE DB
                             result = Result.create_with({
@@ -218,10 +224,11 @@ class PinWDispatch
                                 organism_id: job.organism_id,
                                 gene_name: job.gene_name,
                                 description: job.description,
-                                ref_sequence: result['ref-seqs'],
-                                json: JSON.generate(result)
+                                ref_sequence: "",#result['ref-seqs'],
+                                json: "job-#{job.id}-result.json" #JSON.generate(result)
 
                             }).find_or_create_by!(job_id: job.id)
+
 
                             # LOCAL DELETE FILES
                             FileUtils.rm_rf @download_path + "job-#{job.id}"
@@ -236,7 +243,7 @@ class PinWDispatch
 
                         rescue => ex
                             debug ex.message
-                            job.update processing_failed: true, processing_last_error: "Unexpected error while ACK: #{ex.message}"
+                            job.update processing_error: "Unexpected error while ACK: #{ex.message}" # , processing_failed: true
                         end
                     end
 
@@ -250,6 +257,7 @@ class PinWDispatch
                     while free_slots > 0 and (server.local_network or ProcessingState.get_active_remote_transfers < @max_remote_transfers)
                         # Renew lock:
                         server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
+
                         begin
                             # TODO: remove transaction by using a conditional UPDATE ... LIMIT 1 ?
                             dispatch_job = nil # TODO: scope!
@@ -258,8 +266,9 @@ class PinWDispatch
                                 dispatch_job = Job.order(:server_id).find_by(Job.arel_table[:processing_dispatch_lock].lt(Time.now - 5 * 60),
                                                   awaiting_dispatch: true, paused: false, server_id: [server.id, nil])
 
+                                debug "dispatch jobs IMP: #{dispatch_job.to_yaml}"
                                 # Exit if there are no more jobs to dispatch:
-                                debug "uhmmm"
+                                debug "No more job to dispatch" unless dispatch_job
                                 break unless dispatch_job
                                 debug "dispatching a job!"
 
@@ -272,13 +281,18 @@ class PinWDispatch
                                     processing_dispatch_lock: Time.now,
                                     processing_dispatch_pid: Process.pid
                                 })
-                            end
+                            end #transaction
 
                             # Kill eventual stale pid:
                             if old_pid
                                 kill 9, old_pid
                                 debug "killed old dispatch for dispatch job: #{dispatch_job.id}"
+                                #debug "killed old dispatch for dispatch job: #{dispatch_job.id}"
                             end
+
+                            ########  TODO: AGGIUNTA DA VERIFICARE #######
+                            break unless dispatch_job
+                            #######################################
 
                             # Clear remote dir
                             ssh.exec!("rm -rf jobs/job-#{dispatch_job.id}")
@@ -286,16 +300,17 @@ class PinWDispatch
                             # Write the config snippet (rewritten every dispatch in case of job restart)
 
                             File.write(@download_path + "job-#{dispatch_job.id}/job-params.json", JSON.generate({
-                                pintron_path: server.pintron_path,
+                                pintron_path: "/media/hd1/pintron/pintron/dist/pintron-latest/bin", #server.pintron_path,  TODO:TEMP PATH
+                                organism: dispatch_job.organism.name,
+                                gene_name: dispatch_job.gene_name,
+                                output: "job-#{dispatch_job.id}-output.json",
                                 # Shortest read length considered by pintron:
                                 min_read_length: @min_read_length,
                                 # Job processing timeout:
                                 timeout: @max_job_runtime,
-                                # Job params:
-                                gene_name: dispatch_job.gene_name,
-                                organism: dispatch_job.organism.name,
-                                use_callback: server.use_callback,
-                                callback_url: server.callback_url
+                                use_callback: true, #server.use_callback,
+                                callback_url: "localhost" #server.callback_url
+
                             }))
 
                             # Write the execution script:
@@ -329,8 +344,8 @@ class PinWDispatch
 
                             # If channels took more time to complete than dispatch
                             # (or there was no dispatch), wait for them all to complete:
-                        end
-                    end
+                        end #begin
+                    end #while
                 end
 
             rescue ServerConfigurationError
@@ -441,9 +456,9 @@ if __FILE__ == $0
     #    puts "job: #{job.id}, #{job.awaiting_dispatch}, #{job.paused}, #{job.server_id}, #{job.processing_dispatch_lock}"
     #}
 
-    # s = Server.find(1)
-    # s.check_pid = nil
-    # s.save
+     #s = Server.find(1)
+     #s.check_pid = nil
+     #s.save
 
-    # x.check_server(Server.find(1), async: false)
+     #x.check_server(Server.find(1), async: false)
 end
