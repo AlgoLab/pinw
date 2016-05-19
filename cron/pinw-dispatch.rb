@@ -300,7 +300,7 @@ class PinWDispatch
                             # Write the config snippet (rewritten every dispatch in case of job restart)
 
                             File.write(@download_path + "job-#{dispatch_job.id}/job-params.json", JSON.generate({
-                                pintron_path: "/media/hd1/pintron/pintron/dist/pintron-latest/bin", #server.pintron_path,  TODO:TEMP PATH
+                                pintron_path: server.pintron_path,  
                                 organism: dispatch_job.organism.name,
                                 gene_name: dispatch_job.gene_name,
                                 output: "job-#{dispatch_job.id}-output.json",

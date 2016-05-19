@@ -52,7 +52,7 @@
 
         <% if params[:err] == '1' %>
           <div class="alert alert-danger">
-            <p><strong><i class="fa fa-warning"></i> Error!</strong> A field hasn't been validated correctly, if not 
+            <p><strong><i class="fa fa-warning"></i> Error!</strong> A field hasn't been validated correctly, if not
             enabled please try to enable javascript or use a different browser.
           </div>
         <% end %>
@@ -72,7 +72,7 @@
           </div>
         <% end %>
 
-        
+
       </div>
     </div>
     <div class="row">
@@ -129,7 +129,7 @@
                       <i class="fa fa-arrow-down"></i>
                     </button>
                   </form>
-                <% end %>  
+                <% end %>
               </td>
               <td>
                 <% if server.enabled %>
@@ -156,12 +156,12 @@
                 </div>
                 <form action="/admin/servers/delete" method="post" class="btn-group inline">
                   <input type="hidden" name="server_id" value="<%= server.id %>" class="btn">
-                  <button 
+                  <button
                     id="delete_server"
                     type="submit" class="btn btn-primary" title="delete">
                     <i class="fa fa-trash-o"></i>
                   </button>
-                </form>  
+                </form>
               </td>
             </tr>
             <% end %>
@@ -220,18 +220,20 @@
           <div class="form-group">
             <label for="InputPort" class="col-md-3 control-label" >Port</label>
             <div class="col-md-4">
-              <input type="number" class="form-control" id="InputPort" 
+              <input type="number" class="form-control" id="InputPort"
                name="InputPort" min="1" max="65535" step="1" value="22" >
             </div>
           </div>
 
           <div class="form-group">
             <label for="InputAuth" class="col-md-3 control-label" >Auth
-            </label>
+              <a data-toggle="tooltip" data-placement="right" data-html="true" title="Authenticate with private/public key or with password">
+              <i class="fa fa-question-circle"></i></a>
+              </label>
             <div class="col-md-4">
               <label class="radio">
                 <input type="radio" name="type" value="1" checked="true" />
-                  Login  
+                  Login
               </label>
             </div>
             <div class="col-md-4">
@@ -271,7 +273,7 @@
           #     <input type="password" class="form-control" id="InputPassphrase" name="InputPassphrase" >
           #   </div>
           # </div>
-           
+
           # <div class="form-group" id="rowInputHostCertificate">
           #   <label for="InputHostCertificate" class="col-md-3 control-label" >Host Certificate</label>
           #   <div class="col-md-9">
@@ -280,6 +282,17 @@
           #   </div>
           # </div>
           %>
+
+          <div class="form-group" id="rowInputPintronPath">
+            <label for="InputPintronPath" class="col-md-3 control-label" >Pintron Path
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title="Pintron bin executable folder">
+            <i class="fa fa-question-circle"></i></a>
+            </label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="InputPintronPath"
+               placeholder="eg: /home/user/pintron/bin" name="InputPintronPath" >
+            </div>
+          </div>
 
           <div class="form-group" id="rowLocalNetwork">
             <label for="InputLocalNetwork" class="col-md-3 control-label" >Local Network
@@ -304,7 +317,7 @@
               <i class="fa fa-question-circle"></i></a>
             </label>
             <div class="col-md-9">
-              <input type="text" class="form-control" id="InputWorkingDir" 
+              <input type="text" class="form-control" id="InputWorkingDir"
                placeholder="eg: /foo/bar" name="InputWorkingDir" >
             </div>
           </div>
@@ -315,7 +328,7 @@
               <i class="fa fa-question-circle"></i></a>
             </label>
             <div class="col-md-9">
-              <input type="text" class="form-control" id="InputProxyCommand" 
+              <input type="text" class="form-control" id="InputProxyCommand"
                placeholder="" name="InputProxyCommand" >
             </div>
           </div>
@@ -336,21 +349,11 @@
             <i class="fa fa-question-circle"></i></a>
             </label>
             <div class="col-md-9">
-              <input type="text" class="form-control" id="InputCallbackURL" 
+              <input type="text" class="form-control" id="InputCallbackURL"
                placeholder="default" name="InputCallbackURL" >
             </div>
           </div>
 
-          <div class="form-group nascosto" id="rowInputPintronPath">
-            <label for="InputPintronPath" class="col-md-3 control-label" >Pintron Path
-            <a data-toggle="tooltip" data-placement="right" data-html="true" title="Pintron executable folder">
-            <i class="fa fa-question-circle"></i></a>
-            </label>
-            <div class="col-md-9">
-              <input type="text" class="form-control" id="InputPintronPath" 
-               placeholder="eg: /foo/bar" name="InputPintronPath" >
-            </div>
-          </div>
         </div>
         <div class="modal-footer">
           <button data-tipo="test" type="server" id="submitTest" class="btn btn-default" >Test</button>

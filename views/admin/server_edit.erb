@@ -73,20 +73,20 @@
           <div class="form-group">
             <label for="InputPort" class="col-md-4 control-label" >Port</label>
             <div class="col-md-4">
-              <input type="number" class="form-control" id="InputPort" 
+              <input type="number" class="form-control" id="InputPort"
                name="InputPort" min="1" max="65535" step="1" value="<%= server.port %>" >
             </div>
           </div>
 
           <div class="form-group">
             <label for="InputAuth" class="col-md-4 control-label" >Auth
-            <a data-toggle="tooltip" data-placement="right" data-html="true" title="merda qui, grazie.">
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title="Authenticate with private/public key or with password">
             <i class="fa fa-question-circle"></i></a>
             </label>
             <div class="col-md-4">
               <label class="radio">
                 <input type="radio" name="type" value="1" <% if server.password and server.password.length > 0 %> checked="true" <% end %> />
-                  Login  
+                  Login
               </label>
             </div>
             <div class="col-md-4">
@@ -100,25 +100,36 @@
           <div class="form-group" id="rowInputUsername">
             <label for="InputUsername" class="col-md-4 control-label" >Username</label>
             <div class="col-md-8">
-              <input type="text" class="form-control" id="InputUsername" name="InputUsername" 
+              <input type="text" class="form-control" id="InputUsername" name="InputUsername"
                value="<%= server.username %>">
             </div>
           </div>
 
-          <div class="form-group <% if !server.password %> hide <% end %>" id="rowInputPassword">
+          <div class="form-group <% if !server.password or server.password.length == 0 %> hide <% end %>" id="rowInputPassword">
             <label for="InputPassword" class="col-md-4 control-label" >Password</label>
             <div class="col-md-8">
-              <input type="password" class="form-control" id="InputPassword" name="InputPassword" 
+              <input type="password" class="form-control" id="InputPassword" name="InputPassword"
                value="<%= server.password %>">
             </div>
           </div>
 
-          <div class="form-group <% if server.password %> hide <% end %>" id="rowInputPublicKey">
+          <div class="form-group <% if server.password and server.password.length > 0  %> hide <% end %>" id="rowInputPublicKey">
             <label for="InputPublicKey" class="col-md-4 control-label" >Public key</label>
             <div class="col-md-8">
               <textarea class="form-control" id="InputPublicKey" name="InputPublicKey" rows="10" readonly>
               <%= pinw_public_key %>
               </textarea>
+            </div>
+          </div>
+
+          <div class="form-group" id="rowInputPintronPath">
+            <label for="InputPintronPath" class="col-md-4 control-label" >Pintron Path
+            <a data-toggle="tooltip" data-placement="right" data-html="true" title="Pintron bin executable folder">
+            <i class="fa fa-question-circle"></i></a>
+            </label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="InputPintronPath"
+               placeholder="eg: /home/user/pintron/bin" name="InputPintronPath" name="InputPintronPath" value="<%= server.pintron_path %>">
             </div>
           </div>
 
@@ -137,50 +148,56 @@
 
 
           <div class="form-group nascosto" id="rowInputWorkingDir">
-            <label for="InputWorkingDir" class="col-md-4 control-label" >Working dir</label>
+            <label for="InputWorkingDir" class="col-md-4 control-label" >Working dir
+              <a data-toggle="tooltip" data-placement="right" data-html="true" title=" The dispatch script will first `cd` into this directory before doing anything. The result is that all generated files will be contained in there.">
+                <i class="fa fa-question-circle"></i></a>
+            </label>
             <div class="col-md-8">
-              <input type="text" class="form-control" id="InputWorkingDir" 
+              <input type="text" class="form-control" id="InputWorkingDir"
                placeholder="eg: /foo/bar" name="InputWorkingDir" >
             </div>
           </div>
 
           <div class="form-group nascosto" id="rowInputProxyCommand">
-            <label for="InputProxyCommand" class="col-md-4 control-label" >Proxy Command</label>
+            <label for="InputProxyCommand" class="col-md-4 control-label" >Proxy Command
+              <a data-toggle="tooltip" data-placement="right" data-html="true" title="Multi-hop SSH">
+                <i class="fa fa-question-circle"></i></a>
+            </label>
             <div class="col-md-8">
-              <input type="text" class="form-control" id="InputProxyCommand" 
+              <input type="text" class="form-control" id="InputProxyCommand"
                placeholder="" name="InputProxyCommand" value="<%= server.ssh_proxy_command %>">
             </div>
           </div>
 
           <div class="form-group nascosto" id="rowInputCallback">
-            <label for="InputCallback" class="col-md-4 control-label" >Use Callback</label>
+            <label for="InputCallback" class="col-md-4 control-label" >Use Callback
+              <a data-toggle="tooltip" data-placement="right" data-html="true" title="If enabled, allows the work server to notify completed jobs to the server ASAP, without waiting for the scheduled polling check.">
+                <i class="fa fa-question-circle"></i></a>
+            </label>
             <div class="col-md-1">
               <input type="checkbox"  id="InputCallback" checked="<%= server.use_callback %>" value="1" name="InputCallback" class="flag">
             </div>
           </div>
 
           <div class="form-group nascosto" id="rowInputCallbackURL">
-            <label for="InputCallbackURL" class="col-md-4 control-label" >Callback url</label>
+            <label for="InputCallbackURL" class="col-md-4 control-label" >Callback url
+               <a data-toggle="tooltip" data-placement="right" data-html="true" title=" In case of a particular HTTP configuration, if your work server can only access the web server via an address different than the public-facing hostname, you can specify it here.">
+              <i class="fa fa-question-circle"></i></a>
+           </label>
             <div class="col-md-8">
-              <input type="text" class="form-control" id="InputCallbackURL" 
+              <input type="text" class="form-control" id="InputCallbackURL"
                placeholder="default" name="InputCallbackURL" value="<%= server.callback_url %>">
             </div>
           </div>
 
-          <div class="form-group nascosto" id="rowInputPintronPath">
-            <label for="InputPintronPath" class="col-md-4 control-label" >Pintron path</label>
-            <div class="col-md-8">
-              <input type="text" class="form-control" id="InputPintronPath" 
-               placeholder="" name="InputPintronPath" value="<%= server.pintron_path %>">
-            </div>
-          </div>       
+
 
           <div class="modal-footer">
             <button data-tipo="test" type="server" id="submitTest" class="btn btn-default" >Test</button>
             <button data-tipo="exec" type="server" id="submitReal" class="btn btn-primary">Save</button>
           </div>
         </form>
-          
+
       </div>
 
       <%# jobs block %>
