@@ -444,21 +444,5 @@ if __FILE__ == $0
         timeout: 30000,
     }, debug: debug, force: true)
 
-
-    # j = Job.find(1)
-    # j.awaiting_dispatch = true
-    # j.processing_dispatch_lock = Time.at(0)
-    # j.paused = false
-    # j.server_id = 1
-    # j.save
-
-    #Job.all.each {|job|
-    #    puts "job: #{job.id}, #{job.awaiting_dispatch}, #{job.paused}, #{job.server_id}, #{job.processing_dispatch_lock}"
-    #}
-
-     #s = Server.find(1)
-     #s.check_pid = nil
-     #s.save
-
-     #x.check_server(Server.find(1), async: false)
+    x.check_server(Server.find(1), async: false)
 end

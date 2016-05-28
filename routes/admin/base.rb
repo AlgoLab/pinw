@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+require 'git'
 
 class PinW < Sinatra::Application
 
@@ -20,8 +20,12 @@ class PinW < Sinatra::Application
     get '/admin/?' do
        latest_jobs = Job.last(5)
        latest_results = Result.last(5)
+       git = Git.open(PROJECT_BASE_PATH)
+       pinw_hash_commit = git.log.first
+       pinw_date_commit = git.log.first.date
        # erb :'admin/index', locals: {pending_update: true, pending_update_action: nil, pending_update_date: nil }
-       erb :'admin/index', locals: { latest_jobs: latest_jobs, latest_results: latest_results }
+       erb :'admin/index', locals: { latest_jobs: latest_jobs, latest_results: latest_results, 
+                                     pinw_date_commit: pinw_date_commit, pinw_hash_commit: pinw_hash_commit }
     end
     
     get '/admin/archive/?' do
