@@ -80,8 +80,20 @@ class PinW < Sinatra::Application
 	        	raise GeneSourceTypeError
 	        end
 
-	   		# Validated by the model:
-	        job.quality_threshold = params[:InputQuality]
+
+					# 1 -> FASTQ sequence
+	        # 2 -> ESTS sequence
+					case params[:sequence_type]
+	        when '1'
+	        	 job.quality_threshold = params[:InputQuality]
+	        when '2'
+						  # EST does not have the quality threshold , so the quality is set to nil
+	            job.quality_threshold = nil
+					else
+	        	raise GeneSourceTypeError
+	        end
+
+
 	        job.description = params[:InputDescription]
 
 	        # Die unless the job is valid:

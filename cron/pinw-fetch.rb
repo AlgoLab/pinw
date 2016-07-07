@@ -616,7 +616,7 @@ class PinWFetch
                         end
 =end
 
-
+                        reads.update ok: true
                         # Check if all downloads are done and update the job:
                         remaining_reads = JobRead.where.not(ok: true).find_by(job_id: job.id)
                         job.update(all_reads_ok: true) if not remaining_reads

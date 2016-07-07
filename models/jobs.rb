@@ -1,7 +1,7 @@
 require 'open-uri'
 
 class Job < ActiveRecord::Base
-  validates :quality_threshold, numericality: { only_integer: true, greater_than: 33 - 1, less_than: 126 + 1 }
+  validates :quality_threshold, numericality: { only_integer: true, greater_than: 33 - 1, less_than: 126 + 1 },  allow_nil: true 
   validates :description, length: {maximum: 100000}, allow_nil: true # 100kB
   validate :validateGenomicsURL
   belongs_to :user, :class_name => 'User'
@@ -38,4 +38,3 @@ class JobRead < ActiveRecord::Base
     end
   end
 end
-

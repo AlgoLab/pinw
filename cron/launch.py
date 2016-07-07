@@ -68,23 +68,25 @@ def run_pintron(path, parameters):
     pintron_path = parameters['pintron_path'] + "/pintron"
     bin_dir = "--bin-dir=" + parameters['pintron_path']
     genomic = "--genomic=" + path + "/genomics.fasta"
-    # PIntron NGS option not yet implemented
-    # test version work only with one file
-    #est = "--EST=" + path + "/" + parameters['est']
-    est = "--EST=" + path + "/" + "reads/reads-upload-0"
+
     organism = "--organism=" + (parameters['organism'] or "unknown")
     gene = "--gene=" + (parameters['gene_name'] or "unknown")
     output = "--output=" + path + "/output.txt"
     min_read_length = "--min-read-length=" + str(parameters['min_read_length'])
-
-
     timeout = int(parameters['timeout'])
+
+    if parameters['quality_threshold'] :
+        # PIntron FASTQ option not yet implemented
+        sequence = "--FASTQ="  + path + "/" + "reads/reads-concat"
+        quality_threshold = "--quality_threshold="+ parameters['quality_threshold']
+    else :
+        sequence = "--EST=" + path + "/" + "reads/reads-concat"
 
     print("Calling pintron with the following parameters:\n")
     print(pintron_path)
     print("\t" + bin_dir)
     print("\t" + genomic)
-    print("\t" + est)
+    print("\t" + sequence)
     print("\t" + organism)
     print("\t" + gene)
     print("\t" + min_read_length)
@@ -92,10 +94,12 @@ def run_pintron(path, parameters):
     print("\nSelected timeout: " + str(timeout))
     print()
 
+
+    #Invoke Pintron with the following parameters
     pintron_process = subprocess.Popen([pintron_path,
                                           bin_dir,
                                           genomic,
-                                          est,
+                                          sequence,
                                           organism,
                                           gene,
                                           output])

@@ -300,12 +300,14 @@ class PinWDispatch
                             # Write the config snippet (rewritten every dispatch in case of job restart)
 
                             File.write(@download_path + "job-#{dispatch_job.id}/job-params.json", JSON.generate({
-                                pintron_path: server.pintron_path,  
+                                pintron_path: server.pintron_path,
                                 organism: dispatch_job.organism.name,
                                 gene_name: dispatch_job.gene_name,
                                 output: "job-#{dispatch_job.id}-output.json",
                                 # Shortest read length considered by pintron:
                                 min_read_length: @min_read_length,
+                                # if the quality threshold is present the format is FASTQ  else the format is EST
+                                quality_threshold: if dispatch_job.quality_threshold then dispatch_job.quality_threshold else nil end,
                                 # Job processing timeout:
                                 timeout: @max_job_runtime,
                                 use_callback: true, #server.use_callback,
@@ -315,6 +317,9 @@ class PinWDispatch
 
                             # Write the execution script:
                             FileUtils.cp(PROJECT_BASE_PATH + "cron/launch.py", @download_path + "job-#{dispatch_job.id}/")
+
+                            # Concatenate all sequence files into one file
+                            system("cat #{@download_path}job-#{dispatch_job.id}/reads/* > #{@download_path}job-#{dispatch_job.id}/reads/reads-concat")
 
                             ProcessingState.add_remote_transfer "Server: #{server.id} | Job: #{dispatch_job.id}"
                             scp.upload!(@download_path + "job-#{dispatch_job.id}/", "jobs/job-#{dispatch_job.id}/", recursive: true) do |ch, name, sent, total|

@@ -12,7 +12,6 @@ $(document).ready(function() {
     }
 
     $('#newJob')
-
         // Add button click handler (URL)
         .on('click', '.addButtonURL', function() {
             var $template = $('#InputURLTemplate'),
@@ -183,7 +182,25 @@ $(document).ready(function() {
             $('#rowInputGeneFile').removeClass('hide');
         }
     });
- 
+
+
+    // sequence type block
+    // # 1 -> FASTQ
+    // # 2 -> ESTS
+    $("input[name='sequence_type']").change(function(){
+        if ($(this).val() === '1') {
+            $('#quality_ts').removeClass('hide');
+
+            $('#sequence_type_upload').text('Upload a FASTQ file');
+            $('#sequence_type_download').text('Download a FASTQ file from a URL ');
+        } else if ($(this).val() === '2') { 
+            $('#quality_ts').addClass('hide');
+
+            $('#sequence_type_upload').text('Upload a EST file');
+            $('#sequence_type_download').text('Download a ESTS file from a URL ');
+        }
+    });
+
 
     // reads block
     $("#firstReadFile").change(function(){
@@ -294,7 +311,7 @@ function _createTable ( i ) {
                             '<td width="32%"class="centered hidden-bottom">Genomics</td>' +
                             '<td width="32%" class="centered hidden-bottom">Ensembl</td>' +
                             '<td width="32%" class="centered hidden-bottom">Reads (QT: ' + item.quality_threshold + ') </td>' +
-                            
+
                         '</tr>' +
                         "<tr class='" + item.id + "_tr' id='" + item.id + "_tr_down_box'>" +
                             '<td>' +
@@ -324,7 +341,7 @@ function _createTable ( i ) {
                                               item.reads_total) +
                                 "</div>" +
                             '</td>' +
-                            
+
                         '</tr>' +
                     "</table>" +
                 "</div>" +
