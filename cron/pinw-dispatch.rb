@@ -449,5 +449,6 @@ if __FILE__ == $0
         timeout: 30000,
     }, debug: debug, force: true)
 
-    x.check_server(Server.find(1), async: false)
+    #x.check_server(Server.find(1), async: false)
+    x.run_main_loop
 end
