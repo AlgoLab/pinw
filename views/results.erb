@@ -96,6 +96,7 @@
                       <input type="text" class="form-control" id="InputRefSeq" name="InputRefSeq" placeholder="es: NM_123 NM_456" pattern="(NM_[\S]+)( NM_[\S]+)*" title="Invalid input: insert ref seq separated by a space" value="<%= params[:InputRefSeq] %>">
                     </div>
                   </div>
+                  <!--
                   <div class="form-group">
                     <label for="InputValidated" class="col-sm-3 control-label">Validated</label>
                     <div class="col-sm-6 move-down-10px">
@@ -106,10 +107,12 @@
                       >
                     </div>
                   </div>
+                 -->
+                 <br />
                   <div class="form-group">
                     <div class="col-sm-offset-3 col-sm-6">
-                      <button type="submit" class="btn btn-default btn-primary">Search</button>
-                      <a href="\results" class="btn btn-default btn-primary">Reset</a>
+                      <button type="submit" class="btn btn-default btn-primary pull-right">Search</button>
+                      <!-- <a href="\results" class="btn btn-default btn-primary">Reset</a> -->
                     </div>
                   </div>
                 </form>
@@ -127,7 +130,8 @@
                       <th>Name</th>
                       <th>Submission Date</th>
                       <th>Description</th>
-                      <th class="centered">Validated</th>
+                      <!-- <th class="centered">Validated</th> -->
+                      <th class="centered">Ref Sequence</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -158,12 +162,23 @@
                           &nbsp;<%= r.description %>
                         </a></div>
                       </td>
+                      <!--
                       <td class="centered">
                         <div class='divBox'><a href='/result/<%= r.id %>'>
                           <% if r.validated %>
                             <i class="fa fa-check"></i>
                           <% else %>
                             <i class="fa fa-remove"></i>
+                          <% end %>
+                          </a></div>
+                      </td>
+                      -->
+                      <td class="centered">
+                        <div class='divBox'><a href='/result/<%= r.id %>'>
+                          <% if r.ref_sequence %>
+                            <%= r.ref_sequence %>
+                          <% else %>
+                            UNKNOWN
                           <% end %>
                           </a></div>
                       </td>

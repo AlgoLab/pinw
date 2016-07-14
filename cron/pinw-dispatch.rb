@@ -224,8 +224,8 @@ class PinWDispatch
                                 organism_id: job.organism_id,
                                 gene_name: job.gene_name,
                                 description: job.description,
-                                ref_sequence: "",#result['ref-seqs'],
-                                json: "job-#{job.id}-result.json" #JSON.generate(result)
+                                ref_sequence: result['ref-seqs'],
+                                json: "job-#{job.id}-result.json" 
 
                             }).find_or_create_by!(job_id: job.id)
 

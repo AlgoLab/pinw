@@ -11,10 +11,6 @@ import os, subprocess, time, json
 #   - timeout
 # parametri di pitron:
 #   - vedi sotto
-# mettere da qualche parte il pid dello script e quello di pintron cos da killarli se serve
-
-# pintron crea il json -> lo wrappiamo e ci mettiamo le informazioni aggiunte dal python
-
 # /home/pintron/bin/pintron
 #        --bin-dir=/home/pintron/bin  ****
 #        --genomic=/home/pintron/doc/example/genomic.txt  ****
@@ -33,21 +29,21 @@ def create_json(path, success):
     data = {}
     if success:
         try:
-            with open(path + '/output.txt') as out:
-                output = out.read()
-            output = json.loads(output)
-            data['pintron-output'] = output
-            isoforms = output.get('isoforms')
-            if isoforms:
-                for val in isoforms.values():
-                    data['ref-seqs'] += isoforms.get('RefSeqID', '') + ' '
-            # rielaborare il file
-        except:
-            success = False
+            with open(path + '/output.txt','r') as out:
+                output = json.load(out)
 
+            isoforms = output['isoforms']
+            if isoforms:
+                for isoform in isoforms.values():
+                    data['ref-seqs'] = isoform['RefSeqID']
+        except:
+            data['ref-seqs'] = None
+
+    data['pintron-output'] = path + "/output.txt"
     data['success'] = success
     with open('job-result.json', 'w') as outfile:
         json.dump(data, outfile, sort_keys=True, indent=4)
+
 
 def notify(parameters):
     '''send notification to pinw'''
@@ -128,7 +124,7 @@ def run_pintron(path, parameters):
     return exit_code
 
 def get_parameters(path):
-    '''get parameters from json configurazion file'''
+    ''' Get parameters from json configurazion file '''
     parameters = None
     with open(path + '/job-params.json') as p:
         parameters = p.read()
