@@ -27,6 +27,7 @@ import os, subprocess, time, json
 def create_json(path, success):
     '''create json output'''
     data = {}
+    data['ref-seqs'] = ''
     if success:
         try:
             with open(path + '/output.txt','r') as out:
@@ -35,7 +36,8 @@ def create_json(path, success):
             isoforms = output['isoforms']
             if isoforms:
                 for isoform in isoforms.values():
-                    data['ref-seqs'] = isoform['RefSeqID']
+                    if isoform['from_RefSeq?'] == True :
+                        data['ref-seqs'] += isoform['RefSeqID'] + ' '
         except:
             data['ref-seqs'] = None
 
