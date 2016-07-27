@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import json
 import collections
 
@@ -137,10 +138,10 @@ def convert_json(path, output_file, genomics_file):
     # Create Boundaries
     # Utilizziamo OrderDict per mantenere l'ordine delle chiave secondo l'ordine della dichiarazione
     boundary = collections.OrderedDict()
-    boundary['lcoordinate'] = 'unknown'
+    boundary['lcoordinate'] = 'unknow'
     boundary['rcoordinate'] = starts[0]
     boundary['first'] = -1
-    boundary['type'] = 'unknown'
+    boundary['type'] = 'unknow'
     viz['boundaries'].append(boundary)
 
     boundary_first = 0
@@ -162,7 +163,7 @@ def convert_json(path, output_file, genomics_file):
     print viz['boundaries'][-1]['rcoordinate']
     boundary = collections.OrderedDict()
     boundary['lcoordinate'] = viz['boundaries'][-1]['rcoordinate']
-    boundary['rcoordinate'] = 'unknown'
+    boundary['rcoordinate'] = 'unknow'
     boundary['first'] = boundary_first
     boundary['type'] = 'term'
 
@@ -195,7 +196,6 @@ def convert_json(path, output_file, genomics_file):
 
     #######################################################################
     # Calcolo del tipo di regione
-    # TODO: alternative? check may be broken!!!
     for region in viz['regions']:
 
         if region['exon number'] > 0:
@@ -310,7 +310,7 @@ def convert_json(path, output_file, genomics_file):
             if intron_relative_start == boundary['rcoordinate'] :
                 index_boundary = boundary['first'] +1
 
-                if viz['regions'][index_boundary]['type'] != 'unknown' :
+                if viz['regions'][index_boundary]['type'] != 'unknow' :
                   #if viz['regions'][index_boundary]['type'] == "codifying" and \
                     # viz['regions'][index_boundary]['alternative'] == True :
                         viz_intron['left_boundary'] = index
@@ -321,7 +321,7 @@ def convert_json(path, output_file, genomics_file):
         for index, boundary in enumerate(viz['boundaries']) :
             if intron_relative_end == boundary['lcoordinate'] :
                 index_boundary = boundary['first']
-                if viz['regions'][index_boundary]['type'] != 'unknown' :
+                if viz['regions'][index_boundary]['type'] != 'unknow' :
                   #if viz['regions'][index_boundary]['type'] == "codifying" and \
                      #viz['regions'][index_boundary]['alternative'] == True :
                             viz_intron['right_boundary'] = index
@@ -355,15 +355,19 @@ def convert_json(path, output_file, genomics_file):
 
     viz = [viz]
 
-    with open('job-result-viz.json', 'w') as outfile:
+    with open(path+'job-result-viz.json', 'w') as outfile:
         json.dump(viz, outfile, sort_keys=False, indent=4)
 
     return output
 
 
 def main():
-    path = os.path.dirname(os.path.abspath(__file__))
-    return convert_json(path, '/output.txt', '/genomics.fasta')
+    #path = os.path.dirname(os.path.abspath(__file__))
+    path           = sys.argv[1]
+    pintron_output ='output.txt'
+    genomics       = 'genomics.fasta'
+    return convert_json(path, pintron_output, genomics)
+    #return convert_json(path, '/output.txt', '/genomics.fasta')
 
 if __name__ == '__main__':
     main()

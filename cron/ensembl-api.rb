@@ -33,6 +33,7 @@ class EnsemblApi
 
   # Return fasta file given species (organism) and ensembl id
   # For more information visit: http://rest.ensembl.org/documentation/info/sequence_id
+  # e.g. http://rest.ensembl.org/sequence/id/ENSG00000161956?object_type=gene;species=human;content-type=text/x-fasta;
   def self.get_and_save_fasta_file(species,ensembl_id,genomics_filepath,type='gene')
     path_for_fasta = "/sequence/id/#{ensembl_id}?object_type=#{type};species=#{species}"
 
@@ -49,8 +50,8 @@ class EnsemblApi
   end
 
   # Get gene name given chromosome and region
-  # http://rest.ensembl.org/documentation/info/overlap_region
-  # e.g. http://rest.ensembl.org/overlap/region/human/17:7570000:7600000?feature=gene;content-type=application/json;
+  # For more information visit: http://rest.ensembl.org/documentation/info/overlap_region
+  # e.g. http://rest.ensembl.org/sequence/id/ENSG00000161956?object_type=gene;species=human;content-type=text/x-fasta;
   def self.get_gene_name(species='human',chr_region)
     path_for_gene = "overlap/region/#{species}/#{chr_region}?feature=gene;"
     begin

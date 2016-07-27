@@ -109,6 +109,7 @@ class PinWDispatch
 
         launch lambda {
             begin
+
                 # Update the db
                 server.update({
                     check_lock: Time.now,
@@ -206,7 +207,7 @@ class PinWDispatch
                         job = Job.find(j['id'])
                         result = j['result']
 
-                        debug "SONO DENTRO A completed_jobs.each, la variabile result vale: #{result}"
+                        debug "Dentro completed_jobs.each, la variabile result vale: #{result}"
 
                         # Renew lock:
                         server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
@@ -214,8 +215,14 @@ class PinWDispatch
                         # TODO: what should happen for failed jobs that have produced a json file?
 
                         begin
-                          ### TODO: AGGIUNTA DA VERIFICARE ###
-                          scp.download!("jobs/job-#{job.id}/output.txt", PROJECT_DATA_PATH+"job-#{job.id}-result.json")
+                          # Scarico il risultato di Pintron (output.txt) e lo salvo temporanemnte nella cartella del job
+                          scp.download!("jobs/job-#{job.id}/output.txt", "#{PROJECT_DATA_PATH}downloads/job-#{job.id}/output.txt")
+                          # Lancio lo script in python che converte il json prodotto da Pintron (outpout)
+                          # in un altro json nel formato conforme per  per lo script di visualizzazione in javascript
+                          result_convert = `python convert_json.py #{PROJECT_DATA_PATH}downloads/job-#{job.id}/`
+
+                          # Sposto il json creato dallo script nella cartella public
+                          FileUtils.cp("#{PROJECT_DATA_PATH}downloads/job-#{job.id}/job-result-viz.json", "#{PROJECT_BASE_PATH}public/results/job-#{job.id}-result.json")
 
                             # LOCAL SAVE DB
                             result = Result.create_with({
@@ -225,7 +232,7 @@ class PinWDispatch
                                 gene_name: job.gene_name,
                                 description: job.description,
                                 ref_sequence: result['ref-seqs'],
-                                json: "job-#{job.id}-result.json" 
+                                json: "job-#{job.id}-result.json"
 
                             }).find_or_create_by!(job_id: job.id)
 
@@ -238,7 +245,7 @@ class PinWDispatch
                             ssh.exec!("cp -rf jobs/job-#{job.id} results/result-#{result.id}")
                             ssh.exec!("rm -rf jobs/job-#{job.id}")
 
-                            # Delete job:
+                            # Delete job from db:
                             job.destroy
 
                         rescue => ex
@@ -260,7 +267,7 @@ class PinWDispatch
 
                         begin
                             # TODO: remove transaction by using a conditional UPDATE ... LIMIT 1 ?
-                            dispatch_job = nil # TODO: scope!
+                            dispatch_job = nil
                             old_pid = nil
                             Job.transaction do
                                 dispatch_job = Job.order(:server_id).find_by(Job.arel_table[:processing_dispatch_lock].lt(Time.now - 5 * 60),
@@ -290,9 +297,9 @@ class PinWDispatch
                                 #debug "killed old dispatch for dispatch job: #{dispatch_job.id}"
                             end
 
-                            ########  TODO: AGGIUNTA DA VERIFICARE #######
+
                             break unless dispatch_job
-                            #######################################
+
 
                             # Clear remote dir
                             ssh.exec!("rm -rf jobs/job-#{dispatch_job.id}")
@@ -422,7 +429,7 @@ class PinWDispatch
     end
 
     def debug string
-        prefixes = ["P:#{Process.pid}"] + @debug_prefixes
+        prefixes = ["DISPATCH"] + ["P:#{Process.pid}"] + @debug_prefixes
         puts "[#{prefixes.join('|')}] #{string}" if @debug
     end
 
@@ -449,6 +456,6 @@ if __FILE__ == $0
         timeout: 30000,
     }, debug: debug, force: true)
 
-    #x.check_server(Server.find(1), async: false)
+
     x.run_main_loop
 end
