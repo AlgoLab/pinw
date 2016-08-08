@@ -5,10 +5,11 @@ class PinW < Sinatra::Application
     post '/login/?' do
         redirect to '/home' if session[:user]
 
-        db_user = User.find_by_nickname params[:InputUser]
-        redirect to '/?err=1' unless db_user and (db_user.password == params[:InputPassword])
-        redirect to '/?err=2' unless db_user.enabled
-        session[:user] = db_user
+        user = User.find_by_nickname params[:InputUser]
+        # Authenticate provide by has_secure_password
+        redirect to '/?err=1' unless user &&  user.authenticate(params[:InputPassword])
+        redirect to '/?err=2' unless user.enabled
+        session[:user] = user
         redirect to '/home'
     end
 

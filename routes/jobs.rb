@@ -17,8 +17,9 @@ class PinW < Sinatra::Application
 	class InvalidServerId < RuntimeError; end
 
     # Auth checks:
-    before '/jobs/*' do
-        halt "must be logged in to access the job panel" unless session[:user]
+    before '/jobs*' do
+		    #	If user is not logged we redirect to homepage
+        halt redirect to '/?err=4' unless session[:user]
         current_user = User.find(session[:user].id) # blargh
         unless current_user.enabled
             session[:user] = nil

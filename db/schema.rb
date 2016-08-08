@@ -149,7 +149,7 @@ ActiveRecord::Schema.define(version: 20141123081409) do
 
   create_table "users", force: true do |t|
     t.string   "nickname"
-    t.string   "password"
+    t.string   "password_digest"
     t.string   "email"
     t.boolean  "admin",      default: false
     t.boolean  "enabled",    default: true

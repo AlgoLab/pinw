@@ -57,7 +57,7 @@
           </div>
         <% end %>
 
-        
+
       </div>
     </div>
     <div class="row">
@@ -120,12 +120,12 @@
               <% if false %>
               <form action="/admin/users/delete" method="post" class="btn-group inline">
                 <input type="hidden" name="user_id" value="<%= user.id %>" class="btn">
-                <button 
+                <button
                   onClick="return confirm('Would you like to delete <%= user.nickname %>?');"
                   type="submit" class="btn btn-primary" title="delete">
                   <i class="fa fa-trash-o"></i>
                 </button>
-              </form>  
+              </form>
               <% end %>
             </td>
           </tr>
@@ -165,7 +165,7 @@
           <div class="form-group">
             <label for="InputPassword" class="col-md-4 control-label" >Password</label>
             <div class="col-md-8">
-              <input type="text" class="form-control" id="InputPassword" placeholder="Password" name="InputPassword" required pattern=".{5,50}">
+              <input type="password" class="form-control" id="InputPassword" placeholder="Password" name="InputPassword" required pattern=".{5,50}">
             </div>
           </div>
 

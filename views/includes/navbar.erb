@@ -16,7 +16,7 @@
       <ul class="nav navbar-nav navbar-right">
         <%  if session[:user] and session[:user].admin %>
           <li class="dropdown">
-            <a href="/admin" class="dropdown-toggle" data-toggle="dropdown">Admin<span class="caret"></span></a>
+            <a href="/admin" class="dropdown-toggle" data-toggle="dropdown">  <%=  session[:user].nickname %>  <span class="caret">  </span></a>
               <ul class="dropdown-menu" role="menu">
                 <li><a href="/admin"><i class="fa fa-dashboard"></i> Dashboard</a></li>
                 <li><a href="/admin/users"><i class="fa fa-group"></i> Users</a></li>
@@ -65,7 +65,13 @@
           <div class="alert alert-danger">
             <strong><i class="fa fa-warning"></i> Error:</strong> No guest account enabled, please login.
           </div>
+
+        <% elsif params[:err] == '4' %>
+          <div class="alert alert-danger">
+            <strong><i class="fa fa-warning"></i> Error:</strong> You must be logged in to view that page.
+          </div>
         <% end %>
+
         <form role="form" class="form-horizontal" method="post" action="/login">
           <div class="form-group">
             <label for="InputUser" class="col-md-4 control-label" >Nickname</label>
@@ -81,7 +87,7 @@
             </div>
           </div>
 
-          
+
 
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
