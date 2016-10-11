@@ -3,8 +3,6 @@
 
   <%# JS & CSS #%>
   <%= erb :'/includes/header' %>
-
-  <script type="text/javascript" src="/js/admin.js"></script>
 </head>
 <body>
 
@@ -21,7 +19,7 @@
           <h1><i class="fa fa-dashboard"></i> Dashboard <small></small></h1>
           <h5><b>This version of Pinw is based on the commit: </b>  <a href="https://github.com/AlgoLab/pinw/commit/<%= pinw_hash_commit%>"><%= pinw_hash_commit %></a> on <b><%= pinw_date_commit.strftime("%d/%m/%Y %H:%M") %></b></h5>
         </div>
-       
+
         <div class="col-md-4">
           <h1> Admin Toolbar </h1>
               <ul class="list-group">
@@ -50,7 +48,7 @@
                           <% else %>
                             UNKNOWN
                           <% end %></a>
-                    </li>      
+                    </li>
               <% end %>
               </ul>
           <% end %>
@@ -63,15 +61,15 @@
                   <div class='panel panel-default panel-primary result'>
                     <div class="panel-heading">
                         Job #<%=job.id%>
-                        <span class="date"> Started at <%= job.created_at.strftime("%d/%m/%Y %H:%M") %>  </span>    
+                        <span class="date"> Started at <%= job.created_at.strftime("%d/%m/%Y %H:%M") %>  </span>
                     </div>
                     <div class="panel-body">
-                      Current Status: 
-                      <% if job.paused %>                Paused 
+                      Current Status:
+                      <% if job.paused %>                Paused
                       <% elsif job.awaiting_download %> Awaiting Download
                       <% elsif job.awaiting_dispatch %>  Awaiting Dispatch
                       <% end %>
-                      
+
                     </div>
                   </div>
               <% end %>
