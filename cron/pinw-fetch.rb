@@ -231,12 +231,16 @@ class PinWFetch
                     debug 'file from Ensembl Api written'
 
                     # Check fasta header for Pintron
-                    header = File.open(genomics_filepath, 'r').readline
                     # Ensembl has a different header format
                     # So we remove everything there before chromosome (the ID)
-                    # and change chromosome:GRCh38 into chr  everything else is fine
-                    header = header.gsub!(/.*?(?=chromosome)/im, "").sub("chromosome:GRCh38:", "chr:")
-                    raise BadFASTAHeaderError unless header =~ job.header_regex
+                    # and change chromosome:GRCh38 into chr everything else is fine
+                    File.open(genomics_filepath, 'r+')  do  |source_file|
+                    	header = source_file.readline
+                    	header = header.gsub!(/.*?(?=chromosome)/im, "").sub("chromosome:GRCh38:", "chr")
+                      raise BadFASTAHeaderError unless ">#{header}" =~ job.header_regex
+                    	file = source_file.read
+                    	File.open(genomics_filepath, "w+") { |f| f.write(">#{header}#{file}") }
+                    end
 
 
                 # We must download the genomic data from an URL -> download and check header
