@@ -57,6 +57,13 @@ var options = {
                         message: 'The URL is not valid'
                     }
                 }
+            },
+            InputPintronPath: {
+              validators: {
+                  notEmpty: {
+                      message: 'Pintron Path is required'
+                  }
+              }
             }
         }
     };

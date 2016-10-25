@@ -57,6 +57,13 @@ var options = {
                         message: 'The URL is not valid'
                     }
                 }
+            },
+            InputPintronPath: {
+              validators: {
+                  notEmpty: {
+                      message: 'Pintron Path is required'
+                  }
+              }
             }
         }
     };
@@ -100,7 +107,7 @@ $(document).ready(function() {
     });
 
 
-        
+
 
     $("#newServerForm").bootstrapValidator(options);
     var submit = false;
@@ -119,7 +126,7 @@ $(document).ready(function() {
                 $("#alertValidating").fadeIn();
                 submit = true;
                 e.preventDefault();    //Prevent Default action.
-                e.stopPropagation();   //and don't propagate! 
+                e.stopPropagation();   //and don't propagate!
                 var formObj = $(this);
                 var formURL = formObj.attr("action");
                 var formData = new FormData(this);
