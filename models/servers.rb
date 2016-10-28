@@ -1,3 +1,5 @@
+require "securerandom"
+
 class Server < ActiveRecord::Base
   validates_uniqueness_of :name, :priority
   validates :name, length: { in: 3..40 }
@@ -10,6 +12,13 @@ class Server < ActiveRecord::Base
   # validates_each :name, :surname do |record, attr, value|
 
   # end
+
+  # Create a unique id for this istance of pinw
+  # so that to avoid conflicts between instances running on the same server
+  def create_pinw_instance_id
+    unique_id = SecureRandom.urlsafe_base64(8)
+    "pinw_#{unique_id}"
+  end
 
   def test_configuration
     require 'net/ssh'
@@ -24,7 +33,7 @@ class Server < ActiveRecord::Base
         debug "instantiating proxy command"
         options[:proxy] = Net::SSH::Proxy::Command.new(self.ssh_proxy_command)
     end
-    begin 
+    begin
       Net::SSH.start(self.host, self.username, options) do |ssh|
           return {:success => true, :msg => ssh.exec!('uname -a')}
       end

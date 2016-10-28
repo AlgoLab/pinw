@@ -148,7 +148,7 @@ class PinWDispatch
 
                     # Move to the pinw working dir:
                     if server.working_dir
-                        ssh.exec!("cd #{server.working_dir}") do |ch, success|
+                        ssh.exec!("mkdir -p #{server.working_dir}") do |ch, success|
                             raise GenericSSHProcedureError unless success
                         end
                     end
@@ -157,29 +157,29 @@ class PinWDispatch
                     scp = Net::SCP.new(ssh)
 
                     # Make sure jobs/ directory exists
-                    ssh.exec!("mkdir -p jobs") do |ch, success|
+                    ssh.exec!("mkdir -p #{server.working_dir}/jobs") do |ch, success|
                         raise GenericSSHProcedureError unless success
                     end
 
                     # Make sure results/ directory exists
-                    ssh.exec!("mkdir -p results") do |ch, success|
+                    ssh.exec!("mkdir -p #{server.working_dir}/results") do |ch, success|
                         raise GenericSSHProcedureError unless success
                     end
 
                     # Remove old report if present:
                     # (this prevents stale readings in case of wonky failures)
-                    ssh.exec!("rm -f pinw-report.json") do |ch, success|
+                    ssh.exec!("rm -f #{server.working_dir}/pinw-report.json") do |ch, success|
                         raise GenericSSHProcedureError unless success
                     end
 
                     # Generate a new report:
-                    scp.upload!(PROJECT_BASE_PATH + 'cron/check_jobs.py', 'check_jobs.py')
-                    ssh.exec!("chmod +x check_jobs.py") do |ch, success|
+                    scp.upload!(PROJECT_BASE_PATH + 'cron/check_jobs.py', "#{server.working_dir}/check_jobs.py")
+                    ssh.exec!("chmod +x #{server.working_dir}/check_jobs.py") do |ch, success|
                         raise GenericSSHProcedureError unless success
                     end
 
                     start_check = Time.now
-                    ssh.exec!("./check_jobs.py") do |ch, stream, data|
+                    ssh.exec!("cd #{server.working_dir} && ./check_jobs.py") do |ch, stream, data|
                         # Renew lock:
                         server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
 
@@ -192,7 +192,7 @@ class PinWDispatch
                     debug 'check script executed'
 
                     # Parse results:
-                    results = JSON.parse scp.download! 'pinw-report.json'
+                    results = JSON.parse scp.download! "#{server.working_dir}/pinw-report.json"
                     debug "gotten report:\n #{results}"
 
 
@@ -216,13 +216,14 @@ class PinWDispatch
 
                         begin
                           # Scarico il risultato di Pintron (output.txt) e lo salvo temporanemnte nella cartella del job
-                          scp.download!("jobs/job-#{job.id}/output.txt", "#{PROJECT_DATA_PATH}downloads/job-#{job.id}/output.txt")
+                          scp.download!("#{server.working_dir}/jobs/job-#{job.id}/output.txt", "#{@download_path}job-#{job.id}/output.txt")
+                          debug "Pintron output downloaded into job-#{job.id} directory"
                           # Lancio lo script in python che converte il json prodotto da Pintron (outpout)
                           # in un altro json nel formato conforme per  per lo script di visualizzazione in javascript
-                          result_convert = `python convert_json.py #{PROJECT_DATA_PATH}downloads/job-#{job.id}/`
-
+                          result_convert = `python #{PROJECT_BASE_PATH}cron/convert_json.py #{@download_path}job-#{job.id}/`
                           # Sposto il json creato dallo script nella cartella public
-                          FileUtils.cp("#{PROJECT_DATA_PATH}downloads/job-#{job.id}/job-result-viz.json", "#{PROJECT_BASE_PATH}public/results/job-#{job.id}-result.json")
+                          FileUtils.cp("#{@download_path}job-#{job.id}/job-result-viz.json", "#{PROJECT_BASE_PATH}public/results/job-#{job.id}-result.json")
+
 
                             # LOCAL SAVE DB
                             result = Result.create_with({
@@ -241,16 +242,16 @@ class PinWDispatch
                             FileUtils.rm_rf @download_path + "job-#{job.id}"
 
                             # ACK REMOTE SERVER
-                            ssh.exec!("echo '#{result.id}|#{job.id}|#{Time.now}' > jobs/job-#{job.id}/pinw-ack")
-                            ssh.exec!("cp -rf jobs/job-#{job.id} results/result-#{result.id}")
-                            ssh.exec!("rm -rf jobs/job-#{job.id}")
+                            ssh.exec!("echo '#{result.id}|#{job.id}|#{Time.now}' > #{server.working_dir}/jobs/job-#{job.id}/pinw-ack")
+                            ssh.exec!("cp -rf #{server.working_dir}/jobs/job-#{job.id} #{server.working_dir}/results/result-#{result.id}")
+                            ssh.exec!("rm -rf #{server.working_dir}/jobs/job-#{job.id}")
 
                             # Delete job from db:
                             job.destroy
 
                         rescue => ex
                             debug ex.message
-                            job.update processing_error: "Unexpected error while ACK: #{ex.message}" # , processing_failed: true
+                            job.update processing_error: "Unexpected error: #{ex.message}" # , processing_failed: true
                         end
                     end
 
@@ -302,7 +303,7 @@ class PinWDispatch
 
 
                             # Clear remote dir
-                            ssh.exec!("rm -rf jobs/job-#{dispatch_job.id}")
+                            ssh.exec!("rm -rf #{server.working_dir}/jobs/job-#{dispatch_job.id}")
 
                             # Write the config snippet (rewritten every dispatch in case of job restart)
 
@@ -329,7 +330,7 @@ class PinWDispatch
                             system("cat #{@download_path}job-#{dispatch_job.id}/reads/* > #{@download_path}job-#{dispatch_job.id}/reads/reads-concat")
 
                             ProcessingState.add_remote_transfer "Server: #{server.id} | Job: #{dispatch_job.id}"
-                            scp.upload!(@download_path + "job-#{dispatch_job.id}/", "jobs/job-#{dispatch_job.id}/", recursive: true) do |ch, name, sent, total|
+                            scp.upload!(@download_path + "job-#{dispatch_job.id}/", "#{server.working_dir}/jobs/job-#{dispatch_job.id}/", recursive: true) do |ch, name, sent, total|
                                 # Renew server lock:
                                 server.update check_lock: Time.now if Time.now - server.check_lock > 20 # seconds
 
@@ -339,8 +340,8 @@ class PinWDispatch
                             debug 'done uploading files!'
 
                             # Start the processing script
-                            ssh.exec!("chmod +x jobs/job-#{dispatch_job.id}/launch.py")
-                            ssh.exec!("cd jobs/job-#{dispatch_job.id} && ./launch.py &")
+                            ssh.exec!("chmod +x #{server.working_dir}/jobs/job-#{dispatch_job.id}/launch.py")
+                            ssh.exec!("cd #{server.working_dir}/jobs/job-#{dispatch_job.id} && ./launch.py &")
                             ssh.exec!('disown')
 
                             # Mark job as dispatched!

@@ -6,6 +6,7 @@ class PinW < Sinatra::Application
     get '/admin/servers/?' do
         k = Settings.get_ssh_keys
         server_list = Server.order(priority: :asc)
+
         erb :'admin/servers', locals: {server_list: server_list, pinw_public_key: k[:public_key]}
     end
 
@@ -29,18 +30,18 @@ class PinW < Sinatra::Application
         # end
 
         # PROXY COMMAND
-        server.ssh_proxy_command = params[:InputProxyCommand] 
+        server.ssh_proxy_command = params[:InputProxyCommand]
 
 
         # ENV SETTINGS
         server.pintron_path = params[:InputPintronPath]
-        server.working_dir = params[:InputWorkingDir]
+        server.working_dir =  server.create_pinw_instance_id #params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]
-        
+
         server.local_network = params[:InputLocalNetwork]
         server.enabled = true
-        
+
         redirect to '/admin/servers?err=2' unless server.valid?
 
         server.save
@@ -67,7 +68,7 @@ class PinW < Sinatra::Application
 
         # ENV SETTINGS
         server.pintron_path = params[:InputPintronPath]
-        server.working_dir = params[:InputWorkingDir]
+        server.working_dir = server.create_pinw_instance_id  #params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]
         return json server.test_configuration
@@ -105,12 +106,12 @@ class PinW < Sinatra::Application
 
         # ENV SETTINGS
         server.pintron_path = params[:InputPintronPath]
-        server.working_dir = params[:InputWorkingDir]
+        server.working_dir = server.create_pinw_instance_id  #params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]
-        
+
         server.local_network = params[:InputLocalNetwork]
-        
+
         redirect to '/admin/servers?err=2' unless server.valid?
 
         server.save
@@ -119,13 +120,13 @@ class PinW < Sinatra::Application
     end
 
 
-    post '/admin/servers/enable' do 
+    post '/admin/servers/enable' do
          Server.update params[:server_id], :enabled => true
         redirect to '/admin/servers'
     end
 
 
-    post '/admin/servers/disable' do 
+    post '/admin/servers/disable' do
          Server.update params[:server_id], :enabled => false
         redirect to '/admin/servers'
     end
@@ -140,7 +141,7 @@ class PinW < Sinatra::Application
             newPriority = oldPriority - 1
             tempServer = Server.find_by priority: newPriority
             server.update priority: 0
-            tempServer.update priority: oldPriority 
+            tempServer.update priority: oldPriority
             server.update priority: newPriority
         end
         redirect to '/admin/servers'
@@ -156,7 +157,7 @@ class PinW < Sinatra::Application
             newPriority = oldPriority + 1
             tempServer = Server.find_by priority: newPriority
             server.update priority: 0
-            tempServer.update priority: oldPriority 
+            tempServer.update priority: oldPriority
             server.update priority: newPriority
         end
         redirect to '/admin/servers'
