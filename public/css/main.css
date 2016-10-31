@@ -1,5 +1,38 @@
-.enorme {
-    font-size: 66px !important;
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 100px;
+  font-family: "Lato", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.72222;
+  color: #34495e;
+}
+/* Sticky footer styles */
+.footer {
+  margin-top: 60px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #ECEFF1;
+  border-top: 1px solid #B0BEC5;
+}
+
+
+.navbar-inverse {
+  background-color: #34495e;
+}
+.navbar-inverse .navbar-brand {
+  color: #ffffff;
+}
+.navbar-inverse .navbar-brand:hover,
+.navbar-inverse .navbar-brand:focus {
+  color: #1abc9c;
+  background-color: transparent;
 }
 
 form.btn-group + form.btn-group {
@@ -112,9 +145,9 @@ background-color: #e9f6f5 !important;
 }
 
 .anchor {
-    display: block; 
-    position: relative; 
-    top: -70px; 
+    display: block;
+    position: relative;
+    top: -70px;
     visibility: hidden;
 }
 
@@ -127,8 +160,8 @@ background-color: #e9f6f5 !important;
 }
 
 .quality-ts {
-    position: relative !important; 
-    top: 5px !important; 
+    position: relative !important;
+    top: 5px !important;
 }
 
 .input-file-first-row {

@@ -1,33 +1,61 @@
-<head>
-  <title>PinW | A Pintronic Pintronator</title>
 
-  <%# JS & CSS #%>
-  <%= erb :'includes/header'%>
-  <script type="text/javascript" src="/js/index.js"></script>
+<!DOCTYPE html>
+<html class="full">
+<%= erb :'includes/header'%>
+<head>
+
+    <title>Pinw | A Web Interface for Pintron</title>
+
+    <style>
+    body {
+    	margin-top: 50px;
+    	background: none;
+    }
+
+    .full {
+      background: url(img/owpq53W.jpg) no-repeat center center fixed;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+    }
+    .jumbotron {
+      background-color: transparent;
+      color: #FFF;
+    }
+    </style>
+
 </head>
+
 <body>
 
+   <%= erb :'includes/navbar'%>
+
+   <br />   <br />
+   <div class="container">
+     <div class="jumbotron">
+       <h1>Pinw  A Web Interface for Pintron </h1>
+       <p> </p>
+     </div>
+
+     <div class="row">
+       <div class="col-md-4"></div>
+       <div class="col-md-4 text-center">
+                  <a href="/quick_new_job" class="btn btn-primary btn-lg">
+              <i class="fa fa-cube"></i> Create a new job!
+         </a>
+       </div>
+       <div class="col-md-4"></div>
+
+     </div>
+   </div>
 
 
 
-  <%# PAGE CODE HERE #%>
-
-  <%= erb :'includes/navbar'%>
-
-
-  <div id="mycarousel" class="carousel slide" data-ride="carousel">
-    <div class="carousel-inner">
-      <div class="item active">
-        <img src="img/owpq53W.jpg" alt="" class="img-responsive">
-        <div class="carousel-caption">
-        <p class="enorme">Pintron, a pintronic pintronator!</p>
-        <a href="/quick_new_job" class="btn btn-primary btn-lg">
-          <i class="fa fa-cube"></i> Create a new job!
-        </a>
-        </div>
-      </div>
-    </div>
-  </div>
+    <%= erb :'includes/footer'%>
+    <script type="text/javascript" src="/js/index.js"></script>
 
 
 </body>
+
+</html>

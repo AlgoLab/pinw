@@ -50,12 +50,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="loginLabel">Enter nickname and password to login</h4>
+        <h4 class="modal-title" id="loginLabel">Enter Username and password to login</h4>
       </div>
       <div class="modal-body">
         <% if params[:err] == '1' %>
           <div class="alert alert-danger">
-            <strong><i class="fa fa-warning"></i> Error:</strong> Wrong nickname or password, please try again.
+            <strong><i class="fa fa-warning"></i> Error:</strong> Wrong Username or password, please try again.
           </div>
         <% elsif params[:err] == '2' %>
           <div class="alert alert-danger">
@@ -74,7 +74,7 @@
 
         <form role="form" class="form-horizontal" method="post" action="/login">
           <div class="form-group">
-            <label for="InputUser" class="col-md-4 control-label" >Nickname</label>
+            <label for="InputUser" class="col-md-4 control-label" >Username</label>
             <div class="col-md-8">
               <input type="text" class="form-control" id="InputUser" placeholder="Enter nickname" name="InputUser" required autofocus="autofocus">
             </div>
