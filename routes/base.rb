@@ -18,15 +18,17 @@ class PinW < Sinatra::Application
 
     get '/' do
         redirect to '/home' if session[:user] and session[:user].enabled
-        
-        erb :index
+
+        git = Git.open(PROJECT_BASE_PATH)
+        pinw_date_commit = git.log.first.date
+        erb :'index', locals: { pinw_date_commit: pinw_date_commit }
     end
 
     get '/home/?' do
         redirect to '/jobs'
     end
 
-    get '/job_notification_callback' do 
+    get '/job_notification_callback' do
         job = Job.find params[:job_id]
         # Test if the token is correct:
         return 500 unless job.callback_token == params[:token]

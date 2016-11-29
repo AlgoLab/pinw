@@ -13,7 +13,7 @@ gem 'net-scp'
 gem 'simplecov', :require => false, :group => :test
 gem 'rspec', :require => false, :group => :test
 gem 'byebug', :require => false, :group => :test
-gem 'git'
+gem 'git', '~> 1.3'
 gem 'sshkey'
 gem 'will_paginate'
 gem 'bcrypt', '~> 3.1.7'
