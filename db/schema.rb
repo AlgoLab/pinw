@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161016160939) do
+ActiveRecord::Schema.define(version: 20161213134901) do
 
   create_table "jobs", force: true do |t|
     t.string   "gene_name"
@@ -101,7 +101,7 @@ ActiveRecord::Schema.define(version: 20161016160939) do
     t.datetime "updated_at"
   end
 
-  add_index "results", ["gene_name", "organism_id"], name: "index_results_on_gene_name_and_organism_id", unique: true
+  add_index "results", ["gene_name", "organism_id"], name: "index_results_on_gene_name_and_organism_id"
   add_index "results", ["job_id"], name: "index_results_on_job_id", unique: true
 
   create_table "servers", force: true do |t|
