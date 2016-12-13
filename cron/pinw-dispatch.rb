@@ -220,7 +220,7 @@ class PinWDispatch
                           debug "Pintron output downloaded into job-#{job.id} directory"
                           # Lancio lo script in python che converte il json prodotto da Pintron (outpout)
                           # in un altro json nel formato conforme per  per lo script di visualizzazione in javascript
-                          result_convert = `python #{PROJECT_BASE_PATH}cron/convert_json.py #{@download_path}job-#{job.id}/`
+                          result_convert = `/usr/bin/python #{PROJECT_BASE_PATH}cron/convert_json.py #{@download_path}job-#{job.id}/`
                           # Sposto il json creato dallo script nella cartella public
                           FileUtils.cp("#{@download_path}job-#{job.id}/job-result-viz.json", "#{PROJECT_BASE_PATH}public/results/job-#{job.id}-result.json")
 

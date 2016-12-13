@@ -159,8 +159,8 @@ def convert_json(path, output_file, genomics_file):
         boundary_first += 1
 
 
-    print "IMPORTANTE"
-    print viz['boundaries'][-1]['rcoordinate']
+
+    #print(viz['boundaries'][-1]['rcoordinate'])
     boundary = collections.OrderedDict()
     boundary['lcoordinate'] = viz['boundaries'][-1]['rcoordinate']
     boundary['rcoordinate'] = 'unknow'
