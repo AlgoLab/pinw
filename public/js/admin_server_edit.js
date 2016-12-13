@@ -1,3 +1,4 @@
+$(window).on('load', function() {
 var options = {
         feedbackIcons: {
             required: 'fa fa-asterisk',
@@ -181,3 +182,6 @@ $(document).ready(function() {
 
 
 });
+
+
+}); 
