@@ -462,10 +462,7 @@ class PinWFetch
 
                 # Fetch the data:
 
-                # TODO: ENSEMBL API
-                raise NotImplementedError
-
-                job.update ensembl_ok: true, ensembl: "Banana!"
+                job.update ensembl_ok: true, ensembl: ""
                 debug '### OK ###'
 
                 job = Job.find(job.id)
