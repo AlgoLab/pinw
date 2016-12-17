@@ -1,4 +1,3 @@
-require "securerandom"
 
 class Server < ActiveRecord::Base
   validates_uniqueness_of :name, :priority
@@ -13,12 +12,6 @@ class Server < ActiveRecord::Base
 
   # end
 
-  # Create a unique id for this istance of pinw
-  # so that to avoid conflicts between instances running on the same server
-  def create_pinw_instance_id
-    unique_id = SecureRandom.urlsafe_base64(8)
-    "pinw_#{unique_id}"
-  end
 
   def test_configuration
     require 'net/ssh'

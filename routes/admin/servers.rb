@@ -35,7 +35,7 @@ class PinW < Sinatra::Application
 
         # ENV SETTINGS
         server.pintron_path = params[:InputPintronPath]
-        server.working_dir =  server.create_pinw_instance_id #params[:InputWorkingDir]
+        server.working_dir =  Settings.get_pinw_instance_id #params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]
 
@@ -68,7 +68,6 @@ class PinW < Sinatra::Application
 
         # ENV SETTINGS
         server.pintron_path = params[:InputPintronPath]
-        server.working_dir = server.create_pinw_instance_id  #params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]
         return json server.test_configuration
@@ -86,7 +85,6 @@ class PinW < Sinatra::Application
         server = Server.find(params[:server_id])
         redirect to '/admin/servers?err=2' unless server
 
-        server.priority = (Server.maximum(:priority) or 0) + 1
         server.name = params[:InputName]
         server.host = params[:InputHost]
         server.port =  params[:InputPort]
@@ -106,7 +104,6 @@ class PinW < Sinatra::Application
 
         # ENV SETTINGS
         server.pintron_path = params[:InputPintronPath]
-        server.working_dir = server.create_pinw_instance_id  #params[:InputWorkingDir]
         server.use_callback = params[:InputUseCallback]
         server.callback_url = params[:InputCallbackURL]
 

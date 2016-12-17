@@ -1,3 +1,5 @@
+require "securerandom"
+
 class Settings < ActiveRecord::Base
     self.table_name = "settings"
     self.primary_key = 'key'
@@ -79,12 +81,28 @@ class Settings < ActiveRecord::Base
             ssh_key.html_field_type = 'textarea'
             ssh_key.description = "To be placed on remote hosts using public key authentication."
             ssh_key.value = k.ssh_public_key
-        end 
-        return {private_key: private_key.value, public_key: public_key.value}       
+        end
+        return {private_key: private_key.value, public_key: public_key.value}
     end
 
     def Settings.get_ssh_keys
         return Settings._get_or_create_ssh_keys
+    end
+
+    # Create a unique id for this istance of pinw
+    # so that to avoid conflicts between instances running on the same server
+    def Settings._get_or_create_pinw_instance_id
+      Settings.find_or_create_by!(key: 'PINW_INSTANCE_ID') do |pinw_id|
+          unique_id = SecureRandom.urlsafe_base64(8)
+          pinw_id.value = "pinw_#{unique_id}"
+          pinw_id.html_field_type = 'hidden'
+          pinw_id.name = ""
+          pinw_id.description = ""
+      end
+    end
+
+    def Settings.get_pinw_instance_id
+      return Settings._get_or_create_pinw_instance_id.value
     end
 
 
