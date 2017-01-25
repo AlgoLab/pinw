@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Jobs &mdash; PinW 1 documentazione</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="PinW 1 documentazione" href="index.html" />
+    <link rel="next" title="Risultati" href="results.html" />
+    <link rel="prev" title="Installazione" href="installation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="jobs">
+<h1>Jobs<a class="headerlink" href="#jobs" title="Link a questa intestazione">¶</a></h1>
+<ul class="simple">
+<li>Organism</li>
+<li>Gene</li>
+<li>Genomics<ul>
+<li>Download from ENSEMBL</li>
+<li>Download a FASTA file from a URL</li>
+<li>Upload a FASTA file</li>
+</ul>
+</li>
+<li>Sequence<ul>
+<li>FASTA</li>
+<li>ESTs</li>
+</ul>
+</li>
+<li>Job Description</li>
+</ul>
+<div class="section" id="organism">
+<h2>Organism<a class="headerlink" href="#organism" title="Link a questa intestazione">¶</a></h2>
+<p>Selezionare il tipo di organismo del gene dal menu a tendina, nel caso non si conoscesse si può inserire &#8220;Unknown&#8221;, l&#8217;admin può inserire nuovi organismi tramite la pagina apposita nel pannello di amministrazione</p>
+</div>
+<div class="section" id="gene-name">
+<h2>Gene Name<a class="headerlink" href="#gene-name" title="Link a questa intestazione">¶</a></h2>
+<p>Inserire il nome del gene, nel caso non si conoscesse si può lasciare il campo vuoto, l’applicazione tenterà di ricavare il nome tramite
+l’header presente nel file fasta utilizzando le API messe a disposizione da Ensembl.</p>
+</div>
+<div class="section" id="genomics">
+<h2>Genomics<a class="headerlink" href="#genomics" title="Link a questa intestazione">¶</a></h2>
+<p>La sequenza genomica può essere scaricata automaticamente tramite le API di Ensembl se si è inserito l&#8217;organismo e il nome del gene,
+oppure inserendo l&#8217;indirizzo web dove è presente il file o in alternativa caricare il file presente sul proprio PC.</p>
+</div>
+<div class="section" id="sequences">
+<h2>Sequences<a class="headerlink" href="#sequences" title="Link a questa intestazione">¶</a></h2>
+<p>La sequenza può essere di due tipi ESTs o FASTQ (non ancora supportata da Pintron)
+Anche in questo caso è possibile inserire l’indirizzo web dove è
+presente il file da scaricare oppure caricare il file presente sul proprio PC, è possibile
+inserire più sequenze utilizzando l’apposito pulsante avente l’icona del +</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo"><a href="index.html">
+  <img class="logo" src="_static/logo.png" alt="Logo"/>
+</a></p>
+  <h3><a href="index.html">Tabella dei contenuti</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Jobs</a><ul>
+<li><a class="reference internal" href="#organism">Organism</a></li>
+<li><a class="reference internal" href="#gene-name">Gene Name</a></li>
+<li><a class="reference internal" href="#genomics">Genomics</a></li>
+<li><a class="reference internal" href="#sequences">Sequences</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="installation.html" title="capitolo precedente">Installazione</a></li>
+      <li>Next: <a href="results.html" title="capitolo successivo">Risultati</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>Questa pagina</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/jobs.txt"
+            rel="nofollow">Mostra sorgente</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Ricerca veloce</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Vai" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;AlgoLab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/jobs.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

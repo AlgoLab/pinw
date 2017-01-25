@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installazione &mdash; PinW 1 documentazione</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="PinW 1 documentazione" href="index.html" />
+    <link rel="next" title="Jobs" href="jobs.html" />
+    <link rel="prev" title="Panoramica" href="overview.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installazione">
+<h1>Installazione<a class="headerlink" href="#installazione" title="Link a questa intestazione">¶</a></h1>
+<p>L&#8217;installazione di Pinw richiede che Ruby sia correttamente installato e funzionante.</p>
+<div class="section" id="installazione-con-docker">
+<h2>Installazione con Docker<a class="headerlink" href="#installazione-con-docker" title="Link a questa intestazione">¶</a></h2>
+<p>Per l&#8217;installazione viene messo a disposizione un Dockerfile per effettuare il deploy.</p>
+<p>Per maggiori informazioni visitare:  <a class="reference external" href="https://github.com/AlgoLab/pinw-deploy/">Pinw Deploy</a></p>
+</div>
+<div class="section" id="installazione-senza-docker">
+<h2>Installazione senza Docker<a class="headerlink" href="#installazione-senza-docker" title="Link a questa intestazione">¶</a></h2>
+<p>Se non si vuole utilizzare Docker, si può procedere con l&#8217;installazione manuale per lo sviluppo in locale.
+Aprire il terminale e seguire le seguenti istruzioni:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git clone https://github.com/AlgoLab/pinw.git
+$ cd pinw
+</pre></div>
+</div>
+<p>Per installare tutte le gemme necessarie è possibile utilizzare la gemma <a class="reference external" href="https://bundler.io/">Bundler</a>
+(Visitare il link per l&#8217;installazione di Bundler)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ bundle install
+</pre></div>
+</div>
+<p>Inizializzare e popolare il database</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ rake db:setup
+</pre></div>
+</div>
+<p>Avviare i Cronjobs</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ whenever -w
+</pre></div>
+</div>
+<p>Avviare il server di test</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ rackup
+</pre></div>
+</div>
+<p>Visitare la pagina</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">9292</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>Accedere con i seguenti dati:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Username</span><span class="p">:</span> <span class="n">admin</span>
+<span class="n">Password</span><span class="p">:</span> <span class="n">admin</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo"><a href="index.html">
+  <img class="logo" src="_static/logo.png" alt="Logo"/>
+</a></p>
+  <h3><a href="index.html">Tabella dei contenuti</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installazione</a><ul>
+<li><a class="reference internal" href="#installazione-con-docker">Installazione con Docker</a></li>
+<li><a class="reference internal" href="#installazione-senza-docker">Installazione senza Docker</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="overview.html" title="capitolo precedente">Panoramica</a></li>
+      <li>Next: <a href="jobs.html" title="capitolo successivo">Jobs</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>Questa pagina</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.txt"
+            rel="nofollow">Mostra sorgente</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Ricerca veloce</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Vai" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;AlgoLab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/installation.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
