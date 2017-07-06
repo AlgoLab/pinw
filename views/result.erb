@@ -3,12 +3,28 @@
 
   <%# JS & CSS #%>
   <%= erb :'/includes/header' %>
-  <link href="/css/d3-structure_gene.css" rel="stylesheet" type="text/css">
 
-  <script type="text/javascript" src="/js/result.js"></script>
-  <script type="text/javascript" src="/js/d3.v3.min.js"></script>
-  <script type="text/javascript" src="/js/d3-transform.js"></script>
-  <script type="text/javascript" src="/js/d3-structure_gene.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+    crossorigin="anonymous">
+  <link href="/css/results-style.css" rel="stylesheet">
+  <script type="text/javascript" src="/js/results.js"></script>
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+  <script type="text/javascript" src="/js/d3-bootstrap.min.js"></script>
+  <script>
+    $('#gene-vis').affix({
+      offset: 1
+    })
+    $(function () {
+      var el = $('[data-toggle="popover"]').popover({
+        'container': 'body',
+        'placement': 'top',
+        'html': 'true'
+      });
+    });
+  </script>
 
 </head>
 <body>
@@ -19,112 +35,47 @@
 
   <%# PAGE CODE HERE #%>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <div class="page-header">
-          <h1><i class="fa fa-flag-checkered"></i> Result <small></small></h1>
-          <div style="display:none" id="result_gene" data-gene="<%= result.gene_name %> "><%= result.gene_name %> </div>
-          <div style="display:none" id="result_json" data-json="<%=result.json %> "><%= result.json %> </div>
-        </div>
-      </div>
+    <div class="container" style="margin-top:30px">
+
+    <div class="page-header">
+      <h1 id="gene-name"></h1>
     </div>
-    <div class="row">
-      <div class="col-md-12">
-        <button id="zoom_button_on" type="button" class="btn btn-primary up-10px">
-          Zoom On
-        </button>
-        <button id="zoom_button_off" type="button" class="btn btn-primary up-10px">
-          Zoom Off
-        </button>
-        <button id="reset_button" type="button" class="btn btn-primary up-10px">
-          Reset
-        </button>
-        <a href="/results" class="btn btn-primary pull-right" role="button">Back to results</a>
-      </div>
+
+    <div>
+      <label>Coordinates: <span id="gene-coord"></span></label></br>
+      <label>Strand: <span id="gene-dir"></span></label>
     </div>
+
+    <div id="gene-vis" data-spy="affix"></div>
+    <!--<div id="gene-map"></div>-->
+    <div style="clear:both;"></div>
     <hr>
-
-    <div class="row">
-      <div class="col-md-4">
-        <p id="home_gene"></p>
-        <p id="info_gene"></p>
+    <div id="iso-vis" style="float:left;"></div>
+    <div id="legend">
+      <h4>Legend</h4>
+      <div>
+        <div style="background:black;"></div> <span>Intron</span>
       </div>
-
-      <div class="col-md-4">
-        <!--
-        <div class="btn-group">
-          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            Select Gene <span class="caret"></span>
-          </button>
-          <ul id="select_gene" class="dropdown-menu" role="menu"></ul>
-        </div>
-      -->
+      <div>
+        <div style="background:#00cd00;"></div> <span><25% preserved exon</span>
       </div>
-      <div class="col-md-4">
-
-
-
+      <div>
+        <div style="background:#00b300;"></div> <span>25-49% preserved exon</span>
       </div>
-
-    </div>
-
-    <div class="row">
-      <div class="col-md-9" id='isoform-block'>
-
-        <!-- INIZIO BLOCCO ISOFORM -->
-        <div id="isoform-container"></div>
-        <!-- FINE BLOCCO ISOFORM -->
-
+      <div>
+        <div style="background:#009a00;"></div> <span>50-74% preserved exon</span>
       </div>
-      <div class="col-md-3">
-        <!-- INIZIO BLOCCO LEGENDA -->
-        <div id="legend-container"></div>
-        <!-- FINE BLOCCO LEGENDA -->
+      <div>
+        <div style="background:#008000;"></div> <span>75-89% preserved exon</span>
+      </div>
+      <div>
+        <div style="background:#006700;"></div> <span>90-99% preserved exon</span>
+      </div>
+      <div>
+        <div style="background:#004d00;"></div> <span>100% preserved exon</span>
       </div>
     </div>
 
-    <div class="row">
-
-
-      <div class="col-md-12" id='viz-block'>
-
-
-        <br/>
-        <!-- INIZIO BLOCCO EXPANDE -->
-        <div id="expande-container"></div>
-        <!-- FINE BLOCCO EXPANDE -->
-
-        <!-- Modal window -->
-        <div id="myModal" class="modal fade">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div id="modal_t" class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">
-                  &times;
-                </button>
-              </div>
-              <div id="modal_body" class="modal-body">
-              </div>
-              <div class="modal-footer">
-                <!--<button type="button" class="btn btn-success" data-toggle="tooltip" data-placement="bottom" title="Coming Soon!">
-                  Download
-                </button>-->
-                <button type="button" class="btn btn-primary" data-dismiss="modal">
-                  Chiudi
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- FINE MODALE -->
-
-      </div>
-    </div>
-
-    <!-- modello del pattern degli esoni alternativo -->
-    <div id='pattern-exon'></div>
-    <!-- bha... -->
   </div>
 
   <%# FOOTER #%>

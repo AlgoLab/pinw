@@ -1,4 +1,4 @@
-var json = 'pintron-full-output.json';
+var json = '/downloads/job-result-viz.json';
 
 //From: https://github.com/d3/d3-request/blob/master/README.md#json
 d3.json(json, function (data) {
