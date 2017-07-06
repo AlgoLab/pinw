@@ -1,4 +1,7 @@
-var json = '/downloads/job-result-viz.json';
+var pageURL = window.location.href;
+const jobId = pageURL.substring(pageURL.lastIndexOf("/") + 1, pageURL.length);
+ 
+var json = `/results/job-${jobId}-result.json`;
 
 //From: https://github.com/d3/d3-request/blob/master/README.md#json
 d3.json(json, function (data) {
