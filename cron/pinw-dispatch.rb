@@ -215,16 +215,10 @@ class PinWDispatch
                         # TODO: what should happen for failed jobs that have produced a json file?
 
                         begin
-                          # Scarico il risultato di Pintron (output.txt) e lo salvo temporanemnte nella cartella del job
-                          scp.download!("#{server.working_dir}/jobs/job-#{job.id}/output.txt", "#{@download_path}job-#{job.id}/output.txt")
+                          # Scarico il risultato di Pintron (output.txt) e lo salvo nella cartella public
+                          scp.download!("#{server.working_dir}/jobs/job-#{job.id}/output.txt", "#{PROJECT_BASE_PATH}public/results/job-#{job.id}-result.json")
                           debug "Pintron output downloaded into job-#{job.id} directory"
-                          # Lancio lo script in python che converte il json prodotto da Pintron (outpout)
-                          # in un altro json nel formato conforme per  per lo script di visualizzazione in javascript
-                          result_convert = `/usr/bin/python #{PROJECT_BASE_PATH}cron/convert_json.py #{@download_path}job-#{job.id}/`
-                          # Sposto il json creato dallo script nella cartella public
-                          FileUtils.cp("#{@download_path}job-#{job.id}/job-result-viz.json", "#{PROJECT_BASE_PATH}public/results/job-#{job.id}-result.json")
-
-
+                          
                             # LOCAL SAVE DB
                             result = Result.create_with({
                                 user_id: job.user_id,
@@ -237,9 +231,6 @@ class PinWDispatch
 
                             }).find_or_create_by!(job_id: job.id)
 
-
-                            # LOCAL DELETE FILES
-                            FileUtils.rm_rf @download_path + "job-#{job.id}"
 
                             # ACK REMOTE SERVER
                             ssh.exec!("echo '#{result.id}|#{job.id}|#{Time.now}' > #{server.working_dir}/jobs/job-#{job.id}/pinw-ack")
